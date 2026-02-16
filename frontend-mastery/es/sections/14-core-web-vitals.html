@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5. The Core Web Vitals - Frontend Mastery</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-core-web-vitals">
+                <h1>🚀 Web Performance & Core Web Vitals — Guía Completa</h1>
+
+                <h2>1️⃣ Primero: ¿Qué es Realmente Performance?</h2>
+
+                <p>Como senior te lo resumo así:</p>
+
+                <div class="warning-block" data-title="⚠️ Concepto Clave">
+                    <p><strong>Performance no es velocidad técnica. Performance es percepción del usuario.</strong></p>
+                </div>
+
+                <p>Una web se siente rápida cuando:</p>
+
+                <div class="concept-block">
+                    <ul>
+                        <li>✅ Algo aparece rápido</li>
+                        <li>✅ Responde inmediatamente al interactuar</li>
+                        <li>✅ No se mueve inesperadamente</li>
+                    </ul>
+                </div>
+
+                <p>Si falla uno de esos tres, el usuario percibe que es lenta.</p>
+
+                <h2>2️⃣ Modelo Mental: Los 3 Pilares</h2>
+
+                <div class="analogy-block" data-title="🟢 Los Tres Pilares del Performance">
+                    <ol>
+                        <li><strong>Perceived Load Speed</strong> — ¿Cuándo veo algo útil en pantalla?</li>
+                        <li><strong>Responsiveness</strong> — ¿Responde rápido cuando hago click o escribo?</li>
+                        <li><strong>Visual Stability</strong> — ¿Se mueve el layout mientras carga?</li>
+                    </ol>
+                </div>
+
+                <p>Estos 3 pilares se traducen en métricas.</p>
+
+                <h2>3️⃣ Core Web Vitals (Las Métricas que Importan)</h2>
+
+                <h3>🟢 LCP — Largest Contentful Paint</h3>
+
+                <div class="concept-block">
+                    <p>Mide cuándo aparece el elemento principal visible.</p>
+                    <ul>
+                        <li>📌 Bueno: ≤ 2.5 segundos</li>
+                        <li>📌 Malo: > 4 segundos</li>
+                    </ul>
+                </div>
+
+                <div class="solution-block" data-title="Causas Típicas de LCP Alto">
+                    <ul>
+                        <li>Imagen hero pesada</li>
+                        <li>CSS bloqueando render</li>
+                        <li>JavaScript bloqueando main thread</li>
+                        <li>Servidor lento (TTFB alto)</li>
+                    </ul>
+                </div>
+
+                <h3>🟢 INP — Interaction to Next Paint</h3>
+
+                <div class="concept-block">
+                    <p>Mide cuánto tarda la interfaz en reaccionar visualmente tras una interacción.</p>
+                    <ul>
+                        <li>📌 Bueno: ≤ 200ms</li>
+                        <li>📌 Malo: > 500ms</li>
+                    </ul>
+                </div>
+
+                <div class="solution-block" data-title="Causas Típicas de INP Alto">
+                    <ul>
+                        <li>JavaScript pesado</li>
+                        <li>Re-renders innecesarios</li>
+                        <li>Cálculos sin debounce</li>
+                        <li>Bundle muy grande</li>
+                    </ul>
+                </div>
+
+                <h3>🟢 CLS — Cumulative Layout Shift</h3>
+
+                <div class="concept-block">
+                    <p>Mide cuánto se mueve el layout mientras carga.</p>
+                    <ul>
+                        <li>📌 Bueno: ≤ 0.1</li>
+                        <li>📌 Malo: > 0.25</li>
+                    </ul>
+                </div>
+
+                <div class="solution-block" data-title="Causas Típicas de CLS Alto">
+                    <ul>
+                        <li>Imágenes sin dimensiones</li>
+                        <li>Fuentes que cambian tamaño</li>
+                        <li>Elementos que aparecen empujando contenido</li>
+                        <li>Anuncios cargando sin espacio reservado</li>
+                    </ul>
+                </div>
+
+                <h2>4️⃣ Importante: Core Web Vitals ≠ Todas las Métricas de Lighthouse</h2>
+
+                <div class="analogy-block" data-title="🔍 Qué es Realmente Core Web Vitals">
+                    <p><strong>Core Web Vitals reales:</strong></p>
+                    <ul>
+                        <li>✅ LCP</li>
+                        <li>✅ INP</li>
+                        <li>✅ CLS</li>
+                    </ul>
+                </div>
+
+                <div class="concept-block">
+                    <p><strong>Lighthouse también muestra (pero no son Core Web Vitals):</strong></p>
+                    <ul>
+                        <li>FCP (First Contentful Paint)</li>
+                        <li>TBT (Total Blocking Time)</li>
+                        <li>Speed Index</li>
+                    </ul>
+                </div>
+
+                <div class="problem-block" data-title="Senior Tip">
+                    <p>TBT suele correlacionar con problemas de INP.</p>
+                </div>
+
+                <h2>5️⃣ Lab vs Field (Error Típico de Juniors)</h2>
+
+                <div class="warning-block" data-title="⚠️ No Confundas Estos">
+                    <p><strong>Lab Data:</strong> Lighthouse, DevTools (simulación)</p>
+                    <p><strong>Field Data:</strong> Sentry, CrUX, RUM tools (usuarios reales)</p>
+                </div>
+
+                <div class="problem-block" data-title="❌ Error Común">
+                    <p>Tu MacBook Pro no representa un Android barato en 3G.</p>
+                </div>
+
+                <h2>6️⃣ Cómo Analizar un Reporte Correctamente (Mentalidad Senior)</h2>
+
+                <div class="solution-block" data-title="Flujo Profesional">
+                    <ol>
+                        <li>Ejecuta Lighthouse</li>
+                        <li>Mira cuál métrica está peor</li>
+                        <li>Ve a "Opportunities"</li>
+                        <li>Elige máximo 3 mejoras</li>
+                        <li>Cambia UNA sola cosa</li>
+                        <li>Vuelve a medir</li>
+                    </ol>
+                </div>
+
+                <p>Nunca optimices todo a la vez.</p>
+
+                <h2>7️⃣ Ejemplos Prácticos Reales</h2>
+
+                <h3>🔧 Ejemplo 1 — Arreglar CLS</h3>
+
+                <div class="problem-block" data-title="❌ Mal">
+<pre><code>&lt;img src="/hero.jpg" /&gt;
+&lt;!-- El navegador no sabe cuánto espacio reservar --&gt;</code></pre>
+                </div>
+
+                <div class="solution-block" data-title="✅ Correcto">
+<pre><code>&lt;img
+  src="/hero.jpg"
+  width="1200"
+  height="600"
+  alt="Hero"
+/&gt;
+&lt;!-- Ahora el layout no salta --&gt;</code></pre>
+                </div>
+
+                <p>En React:</p>
+
+                <div class="solution-block" data-title="💻 Ejemplo React">
+<pre><code>&lt;img
+  src="/hero.jpg"
+  width={1200}
+  height={600}
+  alt="Hero"
+/&gt;</code></pre>
+                </div>
+
+                <h3>🔧 Ejemplo 2 — Reducir INP (Debounce)</h3>
+
+                <div class="problem-block" data-title="❌ Mal">
+<pre><code>input.addEventListener("input", (e) => {
+  expensiveSearch(e.target.value);
+});
+// Se ejecuta en cada tecla</code></pre>
+                </div>
+
+                <div class="solution-block" data-title="✅ Mejor">
+<pre><code>function debounce(fn, delay = 250) {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn(...args), delay);
+  };
+}
+
+const handleSearch = debounce((value) => {
+  expensiveSearch(value);
+}, 300);
+
+input.addEventListener("input", (e) => {
+  handleSearch(e.target.value);
+});
+// Ahora reduces carga en main thread</code></pre>
+                </div>
+
+                <h3>🔧 Ejemplo 3 — Mejorar LCP (Optimizar Imagen Hero)</h3>
+
+                <div class="problem-block" data-title="❌ 3MB JPG sin optimizar">
+<pre><code>&lt;img src="/hero.jpg" /&gt;</code></pre>
+                </div>
+
+                <div class="solution-block" data-title="✅ Optimizado">
+<pre><code>&lt;img
+  src="/hero.webp"
+  width="1200"
+  height="600"
+  loading="eager"
+  alt="Hero"
+/&gt;
+&lt;!-- Convertir a WebP, comprimir, especificar dimensiones --&gt;</code></pre>
+                </div>
+
+                <p>Para imágenes no visibles inicialmente:</p>
+
+                <div class="solution-block" data-title="💻 Ejemplo Lazy Load">
+<pre><code>&lt;img
+  src="/gallery.webp"
+  width="400"
+  height="300"
+  loading="lazy"
+  alt="Galería"
+/&gt;</code></pre>
+                </div>
+
+                <h2>8️⃣ Main Thread — Concepto Clave</h2>
+
+                <div class="warning-block" data-title="⚠️ El Navegador Tiene Un Hilo Principal">
+                    <p>Si ejecutas mucho JavaScript, bloqueas:</p>
+                    <ul>
+                        <li>Clicks</li>
+                        <li>Scroll</li>
+                        <li>Animaciones</li>
+                        <li>Input</li>
+                    </ul>
+                </div>
+
+                <p>Si una tarea dura más de 50ms, se considera Long Task.</p>
+
+                <div class="problem-block" data-title="❌ Ejemplo de Bloqueo">
+<pre><code>const start = Date.now();
+
+while (Date.now() - start < 300) {
+  // bloquea 300ms
+}
+// Esto rompe INP</code></pre>
+                </div>
+
+                <h2>9️⃣ Reducir JavaScript Innecesario</h2>
+
+                <div class="solution-block" data-title="Code Splitting">
+<pre><code>import("./heavyModule").then((module) => {
+  module.run();
+});</code></pre>
+                </div>
+
+                <p>En React:</p>
+
+                <div class="solution-block" data-title="💻 Code Splitting en React">
+<pre><code>const HeavyComponent = React.lazy(() =>
+  import("./HeavyComponent")
+);
+
+// Carga solo cuando es necesario</code></pre>
+                </div>
+
+                <h2>🔟 Flujo Profesional</h2>
+
+                <div class="solution-block" data-title="Siempre Sigue Esto">
+                    <p><strong>Measure → Improve → Measure Again</strong></p>
+                </div>
+
+                <div class="concept-block">
+                    <h4>Checklist Real:</h4>
+                    <ul>
+                        <li>❓ ¿Está optimizada la imagen hero?</li>
+                        <li>❓ ¿Se redujo JS?</li>
+                        <li>❓ ¿Tienen dimensiones las imágenes?</li>
+                        <li>❓ ¿Está activado lazy loading?</li>
+                        <li>❓ ¿Está minificado el CSS?</li>
+                        <li>❓ ¿Se evitan re-renders innecesarios?</li>
+                    </ul>
+                </div>
+
+                <!-- ACCORDION SECTION -->
+                <h2>📋 Tips y Trucos Adicionales</h2>
+
+                <div class="interview-block" onclick="this.classList.toggle('open')">
+                    <div class="interview-title">
+                        <span>💡 Técnicas Avanzadas de Optimización</span>
+                        <span class="toggle-arrow">→</span>
+                    </div>
+                    <div class="interview-content">
+                        <h4>1. Preload Recursos Críticos</h4>
+                        <pre><code>&lt;link rel="preload" as="image" href="/hero.webp"&gt;
+&lt;link rel="preload" as="font" href="/font.woff2"&gt;</code></pre>
+
+                        <h4>2. Usa Service Workers para Caching</h4>
+                        <pre><code>if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}</code></pre>
+
+                        <h4>3. Comprime Imágenes con Formatos Modernos</h4>
+                        <pre><code>&lt;picture&gt;
+  &lt;source srcset="/image.avif" type="image/avif"&gt;
+  &lt;source srcset="/image.webp" type="image/webp"&gt;
+  &lt;img src="/image.jpg" alt="Fallback"&gt;
+&lt;/picture&gt;</code></pre>
+
+                        <h4>4. Implementa Critical CSS Inlining</h4>
+                        <pre><code>&lt;style&gt;
+  /* CSS crítico inline - solo above-the-fold */
+  .hero { display: flex; ... }
+&lt;/style&gt;
+&lt;link rel="stylesheet" href="rest.css"&gt;</code></pre>
+
+                        <h4>5. Usa requestAnimationFrame para Actualizaciones Suaves</h4>
+                        <pre><code>function updateDOM() {
+  requestAnimationFrame(() => {
+    // Actualizaciones del DOM aquí
+  });
+}</code></pre>
+
+                        <h4>6. Implementa Resource Hints</h4>
+                        <pre><code>&lt;link rel="dns-prefetch" href="//cdn.example.com"&gt;
+&lt;link rel="preconnect" href="//api.example.com"&gt;
+&lt;link rel="prefetch" href="/next-page.html"&gt;</code></pre>
+                    </div>
+                </div>
+
+                <div class="interview-block" onclick="this.classList.toggle('open')">
+                    <div class="interview-title">
+                        <span>🚀 Action Item para Tu Proyecto Real</span>
+                        <span class="toggle-arrow">→</span>
+                    </div>
+                    <div class="interview-content">
+                        <ol>
+                            <li><strong>Ejecuta Lighthouse en modo Mobile</strong></li>
+                            <li><strong>Anota:</strong>
+                                <ul>
+                                    <li>LCP</li>
+                                    <li>INP (o TBT si INP no aparece)</li>
+                                    <li>CLS</li>
+                                </ul>
+                            </li>
+                            <li><strong>Elige 3 mejoras de Opportunities</strong></li>
+                            <li><strong>Aplica 1 optimización</strong></li>
+                            <li><strong>Vuelve a medir</strong></li>
+                            <li><strong>Repite 3 veces</strong></li>
+                        </ol>
+                        <p><strong>Te prometo que aprenderás más que viendo 10 vídeos.</strong></p>
+                    </div>
+                </div>
+
+                <div class="interview-block" onclick="this.classList.toggle('open')">
+                    <div class="interview-title">
+                        <span>🧠 Resumen para Entrevista</span>
+                        <span class="toggle-arrow">→</span>
+                    </div>
+                    <div class="interview-content">
+                        <p><strong>Si mañana te preguntan: "¿Qué son Core Web Vitals?"</strong></p>
+                        <p><strong>Respuesta senior corta:</strong></p>
+                        <blockquote>
+                            <p>"Son métricas que miden la experiencia real del usuario.</p>
+                            <p>LCP mide carga percibida.</p>
+                            <p>INP mide capacidad de respuesta.</p>
+                            <p>CLS mide estabilidad visual.</p>
+                            <p>Lighthouse es lab, RUM es field.</p>
+                            <p>El main thread es el cuello de botella."</p>
+                        </blockquote>
+                    </div>
+                </div>
+
+                <!-- REFERENCES SECTION -->
+                <h2>📚 Referencias y Recursos Adicionales</h2>
+
+                <div class="solution-block" data-title="Documentación Oficial">
+                    <ul>
+                        <li><a href="https://web.dev/vitals/" target="_blank">Google Web Vitals Documentation</a></li>
+                        <li><a href="https://developer.mozilla.org/en-US/docs/Glossary/Core_Web_Vitals" target="_blank">MDN: Core Web Vitals</a></li>
+                        <li><a href="https://web.dev/lighthouse/" target="_blank">Google Lighthouse Guide</a></li>
+                    </ul>
+                </div>
+
+                <div class="concept-block">
+                    <h4>Herramientas Útiles</h4>
+                    <ul>
+                        <li><a href="https://developers.google.com/speed/pagespeed/insights" target="_blank">PageSpeed Insights</a></li>
+                        <li><a href="https://www.webpagetest.org/" target="_blank">WebPageTest</a></li>
+                        <li><a href="https://github.com/GoogleChrome/web-vitals" target="_blank">Web Vitals JavaScript Library</a></li>
+                    </ul>
+                </div>
+
+                <div class="analogy-block" data-title="Recursos de Aprendizaje">
+                    <ul>
+                        <li><a href="https://web.dev/" target="_blank">web.dev — Google's Web Performance Hub</a></li>
+                        <li><a href="https://developers.google.com/speed" target="_blank">Google Speed Documentation</a></li>
+                        <li><a href="https://www.smashingmagazine.com/" target="_blank">Smashing Magazine — Performance Articles</a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='13-web-performance-scalability.html'">← Anterior</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../../index.html'">Volver al Inicio →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

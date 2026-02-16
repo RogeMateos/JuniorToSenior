@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4. Web Performance & Scalability - Frontend Mastery</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-web-performance-scalability">
+                <h1>🚀 Web Performance & Scalability para Frontend Senior</h1>
+                <p><strong>Las Tres Métricas que Realmente Importan en 2026</strong></p>
+
+                <div class="warning-block" data-title="⚠️ Por Qué Importa">
+                    <p>Google prioriza Core Web Vitals en los rankings. Todo desarrollador frontend senior debe entender y optimizar estas tres métricas. Impactan directamente la satisfacción del usuario y las métricas de negocio.</p>
+                </div>
+
+                <h2>🎯 Objetivo del Tutorial</h2>
+                <p>Al terminar esta guía sabrás:</p>
+
+                <div class="concept-block">
+                    <ul>
+                        <li>✅ Qué son las tres Core Web Vitals</li>
+                        <li>✅ Por qué importa cada métrica</li>
+                        <li>✅ Cómo medirlas correctamente</li>
+                        <li>✅ Cómo optimizar cada una</li>
+                        <li>✅ Cómo prevenir regresiones</li>
+                    </ul>
+                </div>
+
+                <!-- INTRO: What Are Core Web Vitals -->
+                <h2>📊 ¿Qué Son Core Web Vitals?</h2>
+
+                <p>Core Web Vitals son tres métricas que miden la experiencia del usuario en tu sitio web:</p>
+
+                <div class="solution-block" data-title="Las Tres Core Web Vitals">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <th style="padding: 10px; text-align: left;">Métrica</th>
+                            <th style="padding: 10px; text-align: left;">Mide</th>
+                            <th style="padding: 10px; text-align: left;">Bueno ✅</th>
+                            <th style="padding: 10px; text-align: left;">Necesita Mejora ⚠️</th>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 10px;"><strong>LCP</strong></td>
+                            <td style="padding: 10px;">Performance de Carga</td>
+                            <td style="padding: 10px;">&lt; 2.5s</td>
+                            <td style="padding: 10px;">&gt; 4s</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 10px;"><strong>INP</strong></td>
+                            <td style="padding: 10px;">Interactividad</td>
+                            <td style="padding: 10px;">&lt; 200ms</td>
+                            <td style="padding: 10px;">&gt; 500ms</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;"><strong>CLS</strong></td>
+                            <td style="padding: 10px;">Estabilidad Visual</td>
+                            <td style="padding: 10px;">&lt; 0.1</td>
+                            <td style="padding: 10px;">&gt; 0.25</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- LCP SECTION -->
+                <h2>1️⃣ LCP — Largest Contentful Paint</h2>
+
+                <h3>¿Qué Mide?</h3>
+
+                <div class="concept-block">
+                    <p>LCP mide cuándo el <strong>elemento de contenido más grande y visible</strong> aparece en pantalla. Generalmente:</p>
+                    <ul>
+                        <li>📸 Una imagen hero</li>
+                        <li>📝 Un bloque de texto grande</li>
+                        <li>🎥 Un video</li>
+                    </ul>
+                </div>
+
+                <div class="analogy-block" data-title="🧠 Piénsalo Como">
+                    <p><strong>"¿Cuándo ve mi usuario la cosa principal por la que vinieron?"</strong></p>
+                    <p>Si un usuario carga tu sitio de e-commerce para ver un producto, LCP mide cuándo ve la imagen del producto. Todo lo demás es contexto.</p>
+                </div>
+
+                <h3>🎯 Objetivo: < 2.5 segundos</h3>
+
+                <div class="problem-block" data-title="⚠️ Por Qué Importa">
+                    <ul>
+                        <li>❌ Los usuarios se van si el contenido tarda &gt; 3 segundos</li>
+                        <li>❌ Google penaliza LCP lento en rankings</li>
+                        <li>❌ Los usuarios móviles son especialmente sensibles (tienen redes más lentas)</li>
+                    </ul>
+                </div>
+
+                <h3>Cómo Optimizar LCP</h3>
+
+                <h4>🔴 Problema: Imágenes grandes sin optimizar</h4>
+
+                <div class="problem-block" data-title="❌ Mal">
+<pre><code>&lt;img src="/hero.jpg" alt="Hero" /&gt;
+&lt;!-- 5MB image, sin optimización --&gt;</code></pre>
+                </div>
+
+                <div class="solution-block" data-title="✅ Bien">
+<pre><code>&lt;img
+  src="/hero.webp"
+  alt="Hero"
+  width="1200"
+  height="600"
+  fetchpriority="high"
+  loading="eager"
+/&gt;
+&lt;!-- Formato WebP (más pequeño), dimensiones especificadas, alta prioridad --&gt;</code></pre>
+                </div>
+
+                <h4>🔴 Problema: CSS bloqueando renderizado</h4>
+
+                <div class="problem-block" data-title="❌ Mal">
+<pre><code>&lt;link rel="stylesheet" href="styles.css"&gt;
+&lt;!-- La página espera TODO el CSS antes de renderizar --&gt;</code></pre>
+                </div>
+
+                <div class="solution-block" data-title="✅ Bien">
+<pre><code>&lt;!-- CSS crítico inline --&gt;
+&lt;style&gt;
+  body { font-family: system-ui; }
+  .hero { display: flex; ... }
+&lt;/style&gt;
+
+&lt;!-- Resto diferido --&gt;
+&lt;link rel="stylesheet" href="rest.css" media="print" onload="this.media='all'"&gt;</code></pre>
+                </div>
+
+                <h4>🔴 Problema: JavaScript enorme bloqueando renderizado</h4>
+
+                <div class="problem-block" data-title="❌ Mal">
+<pre><code>&lt;script src="app-bundle-2.5MB.js"&gt;&lt;/script&gt;
+&lt;!-- Navegador bloquea renderizado hasta que JS se parsea y ejecuta --&gt;</code></pre>
+                </div>
+
+                <div class="solution-block" data-title="✅ Bien">
+<pre><code>&lt;!-- Difiere JS no crítico --&gt;
+&lt;script defer src="app.js"&gt;&lt;/script&gt;
+
+&lt;!-- Usa code splitting --&gt;
+&lt;script type="module"&gt;
+  import { lazy, Suspense } from 'react';
+  const HeavyComponent = lazy(() => import('./HeavyComponent'));
+&lt;/script&gt;</code></pre>
+                </div>
+
+                <!-- INP SECTION -->
+                <h2>2️⃣ INP — Interaction to Next Paint</h2>
+
+                <h3>¿Qué Mide?</h3>
+
+                <div class="concept-block">
+                    <p>INP mide qué tan rápido responde tu página a interacciones del usuario. Cuando un usuario:</p>
+                    <ul>
+                        <li>🖱️ Hace clic en un botón</li>
+                        <li>⌨️ Escribe en un campo</li>
+                        <li>👆 Toca en móvil</li>
+                    </ul>
+                    <p>¿Cuánto tiempo hasta que vea retroalimentación visual?</p>
+                </div>
+
+                <div class="analogy-block" data-title="🧠 Piénsalo Como">
+                    <p><strong>"¿Se siente mi sitio receptivo?"</strong></p>
+                    <p>Una respuesta de 50ms se siente instantánea. Una de 500ms se siente lenta. Los usuarios toleran hasta 200ms.</p>
+                </div>
+
+                <h3>🎯 Objetivo: < 200 milisegundos</h3>
+
+                <div class="problem-block" data-title="⚠️ Por Qué Importa">
+                    <ul>
+                        <li>❌ Los sitios lentos se sienten rotos</li>
+                        <li>❌ Los usuarios abandonan formularios que no responden</li>
+                        <li>❌ Impacta directamente tasas de conversión</li>
+                        <li>❌ Google ahora usa INP en algoritmo de ranking</li>
+                    </ul>
+                </div>
+
+                <h3>Cómo Optimizar INP</h3>
+
+                <h4>🔴 Problema: JavaScript pesado bloqueando en interacción</h4>
+
+                <div class="problem-block" data-title="❌ Mal - Click en Botón Lentea">
+<pre><code>button.addEventListener('click', () => {
+  // Haz trabajo masivo sincronamente
+  for (let i = 0; i < 1000000; i++) {
+    expensiveCalculation();
+  }
+  // Usuario espera 500ms a ver algo
+  updateUI();
+});</code></pre>
+                </div>
+
+                <div class="solution-block" data-title="✅ Bien - Responde Rápido">
+<pre><code>button.addEventListener('click', async () => {
+  // Muestra retroalimentación inmediatamente
+  button.disabled = true;
+  button.textContent = 'Procesando...';
+
+  // Haz trabajo pesado fuera del main thread
+  const result = await new Worker('worker.js')
+    .postMessage(data);
+
+  updateUI(result);
+});</code></pre>
+                </div>
+
+                <h4>🔴 Problema: Re-renders innecesarios en React</h4>
+
+                <div class="problem-block" data-title="❌ Mal - Click en Input Re-renderiza Toda la Lista">
+<pre><code>function ProductFilter() {
+  const [search, setSearch] = useState('');
+
+  return (
+    &lt;&gt;
+      &lt;input onChange={e => setSearch(e.target.value)} /&gt;
+      &lt;ProductList products={products} /&gt;
+      &lt;!-- ProductList se re-renderiza en cada keystroke --&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+                </div>
+
+                <div class="solution-block" data-title="✅ Bien - Memoriza Lista">
+<pre><code>const ProductList = memo(function ProductList({ products }) {
+  return &lt;div&gt;...&lt;/div&gt;;
+});
+
+function ProductFilter() {
+  const [search, setSearch] = useState('');
+
+  return (
+    &lt;&gt;
+      &lt;input onChange={e => setSearch(e.target.value)} /&gt;
+      &lt;ProductList products={products} /&gt;
+      &lt;!-- ProductList no se re-renderiza si products no cambian --&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+                </div>
+
+                <h4>🔴 Problema: Tareas de larga duración en main thread</h4>
+
+                <div class="solution-block" data-title="💡 Usa startTransition para actualizaciones no urgentes">
+<pre><code>import { startTransition } from 'react';
+
+function SearchPage() {
+  const [results, setResults] = useState([]);
+
+  const handleSearch = (query) => {
+    // Muestra cambio de input inmediatamente
+    // Pero difiere actualización de resultados si es cara
+    startTransition(() => {
+      setResults(expensiveSearch(query));
+    });
+  };
+}</code></pre>
+                </div>
+
+                <!-- CLS SECTION -->
+                <h2>3️⃣ CLS — Cumulative Layout Shift</h2>
+
+                <h3>¿Qué Mide?</h3>
+
+                <div class="concept-block">
+                    <p>CLS mide cuánto el layout <strong>se desplaza inesperadamente</strong> mientras la página carga. Ejemplos:</p>
+                    <ul>
+                        <li>❌ Una imagen carga y empuja texto hacia abajo</li>
+                        <li>❌ Un banner de anuncio aparece y desplaza contenido</li>
+                        <li>❌ Una fuente carga y el texto se reajusta</li>
+                        <li>❌ Un modal se abre y la página salta</li>
+                    </ul>
+                </div>
+
+                <div class="analogy-block" data-title="🧠 Piénsalo Como">
+                    <p><strong>"¿Se mueve la página mientras intento leerla?"</strong></p>
+                    <p>Imagina leer un artículo y de repente se desplaza hacia abajo porque una imagen cargó. Frustrante, ¿verdad? Eso es CLS.</p>
+                </div>
+
+                <h3>🎯 Objetivo: < 0.1</h3>
+
+                <div class="problem-block" data-title="⚠️ Por Qué Importa">
+                    <ul>
+                        <li>❌ Los usuarios hacen clic en la cosa equivocada si el layout se desplaza (clics accidentales)</li>
+                        <li>❌ Se siente poco profesional</li>
+                        <li>❌ Impacta directamente la calidad de experiencia</li>
+                        <li>❌ Google penaliza en rankings</li>
+                    </ul>
+                </div>
+
+                <h3>Cómo Optimizar CLS</h3>
+
+                <h4>🔴 Problema: Imágenes sin dimensiones</h4>
+
+                <div class="problem-block" data-title="❌ Mal - Layout se Desplaza Cuando Imagen Carga">
+<pre><code>&lt;img src="/photo.jpg" alt="Foto" /&gt;
+&lt;!-- El navegador no conoce el tamaño hasta que descarga comienza
+     La página se desplaza cuando la imagen llega --&gt;</code></pre>
+                </div>
+
+                <div class="solution-block" data-title="✅ Bien - Reserva Espacio">
+<pre><code>&lt;img
+  src="/photo.jpg"
+  alt="Foto"
+  width="600"
+  height="400"
+/&gt;
+&lt;!-- Navegador reserva espacio inmediatamente --&gt;</code></pre>
+                </div>
+
+                <h4>🔴 Problema: Fuentes cargando y reajustándose</h4>
+
+                <div class="problem-block" data-title="❌ Mal - Texto se Reajusta Cuando Fuente Carga">
+<pre><code>@font-face {
+  font-family: 'CustomFont';
+  src: url('/font.woff2');
+}
+/* El navegador renderiza fallback, luego cambia a fuente personalizada
+   El texto se reajusta y se desplaza */</code></pre>
+                </div>
+
+                <div class="solution-block" data-title="✅ Bien - Usa font-display: swap">
+<pre><code>@font-face {
+  font-family: 'CustomFont';
+  src: url('/font.woff2');
+  font-display: swap;
+}
+/* El navegador muestra fallback inmediatamente
+   Cambia a fuente personalizada cuando está lista (desplazamiento mínimo) */</code></pre>
+                </div>
+
+                <h4>🔴 Problema: Anuncios y banners cargando sin espacio reservado</h4>
+
+                <div class="problem-block" data-title="❌ Mal - Banner Aparece y Desplaza Contenido">
+<pre><code>&lt;div id="ad-container"&gt;&lt;/div&gt;
+&lt;!-- Anuncio carga asincrónicamente y desplaza todo --&gt;</code></pre>
+                </div>
+
+                <div class="solution-block" data-title="✅ Bien - Reserva Espacio">
+<pre><code>&lt;div id="ad-container" style="height: 250px; width: 300px;"&gt;
+  &lt;!-- Reserva 250px x 300px para anuncio --&gt;
+&lt;/div&gt;
+&lt;!-- Anuncio carga pero no desplaza layout --&gt;</code></pre>
+                </div>
+
+                <!-- MEASURING SECTION -->
+                <h2>📏 Cómo Medir Core Web Vitals</h2>
+
+                <h3>Opción 1: Lighthouse (Desarrollo)</h3>
+
+                <div class="concept-block">
+                    <ol>
+                        <li>Abre Chrome DevTools (F12)</li>
+                        <li>Ve a la pestaña "Lighthouse"</li>
+                        <li>Haz clic en "Analyze page load"</li>
+                        <li>Espera los resultados</li>
+                    </ol>
+                </div>
+
+                <div class="warning-block" data-title="⚠️ Importante">
+                    <p>Lighthouse usa <strong>condiciones simuladas</strong> (4G lento, CPU limitada). Los usuarios reales tienen condiciones diferentes. Úsalo para diagnóstico, no como la única métrica.</p>
+                </div>
+
+                <h3>Opción 2: Librería Web Vitals (Producción)</h3>
+
+                <div class="solution-block" data-title="💻 Rastrear Core Web Vitals en Producción">
+<pre><code>import { getCLS, getLCP, getINP } from 'web-vitals';
+
+getCLS(console.log); // Valor CLS
+getLCP(console.log); // Valor LCP
+getINP(console.log); // Valor INP
+
+// Envía a analytics
+getCLS((metric) => {
+  fetch('/analytics', {
+    method: 'POST',
+    body: JSON.stringify(metric)
+  });
+});</code></pre>
+                </div>
+
+                <h3>Opción 3: Chrome DevTools Performance Tab</h3>
+
+                <div class="concept-block">
+                    <ol>
+                        <li>Abre DevTools</li>
+                        <li>Ve a la pestaña "Performance"</li>
+                        <li>Haz clic en el botón de grabar</li>
+                        <li>Interactúa con la página (scroll, clic, escribe)</li>
+                        <li>Para la grabación</li>
+                        <li>Busca marcadores de Core Web Vitals</li>
+                    </ol>
+                </div>
+
+                <!-- AUDIT CHECKLIST -->
+                <h2>✅ Checklist de Auditoría de Core Web Vitals</h2>
+
+                <h3>Para LCP</h3>
+                <div class="concept-block">
+                    <ul>
+                        <li>❓ ¿Está optimizada la imagen hero (WebP, comprimida)?</li>
+                        <li>❓ ¿Está precargada la imagen hero?</li>
+                        <li>❓ ¿CSS no bloquea renderizado?</li>
+                        <li>❓ ¿JavaScript está diferido o async?</li>
+                        <li>❓ ¿Es rápido el tiempo de respuesta del servidor (&lt;600ms)?</li>
+                    </ul>
+                </div>
+
+                <h3>Para INP</h3>
+                <div class="concept-block">
+                    <ul>
+                        <li>❓ ¿Son rápidos los event handlers (&lt;100ms)?</li>
+                        <li>❓ ¿Se eliminan re-renders innecesarios?</li>
+                        <li>❓ ¿Se rompen las tareas largas en trozos más pequeños?</li>
+                        <li>❓ ¿Se offloadea trabajo pesado a Web Workers?</li>
+                        <li>❓ ¿Se usa React.memo/useMemo estratégicamente?</li>
+                    </ul>
+                </div>
+
+                <h3>Para CLS</h3>
+                <div class="concept-block">
+                    <ul>
+                        <li>❓ ¿Tienen todas las imágenes atributos width/height?</li>
+                        <li>❓ ¿Usan las fuentes web font-display: swap?</li>
+                        <li>❓ ¿Se reserva espacio para anuncios/banners?</li>
+                        <li>❓ ¿Tienen modales/overlays posicionamiento fijo?</li>
+                        <li>❓ ¿Se da altura a secciones de contenido dinámico?</li>
+                    </ul>
+                </div>
+
+                <!-- FINAL MINDSET -->
+                <h2>🎯 La Mentalidad Senior</h2>
+
+                <div class="solution-block" data-title="🎯 Recuerda">
+                    <ul>
+                        <li>✅ <strong>Mide primero.</strong> No puedes mejorar lo que no mides.</li>
+                        <li>✅ <strong>Optimiza para usuarios reales.</strong> No solo para puntuaciones de Lighthouse.</li>
+                        <li>✅ <strong>Piensa holísticamente.</strong> Optimiza las tres métricas, no solo una.</li>
+                        <li>✅ <strong>Previene regresiones.</strong> Usa performance budgets y monitoreo.</li>
+                        <li>✅ <strong>Equilibra performance y features.</strong> Elige qué importa para tu negocio.</li>
+                    </ul>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='12-summary.html'">← Anterior</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../../index.html'">Volver al Inicio →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>
