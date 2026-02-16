@@ -23,6 +23,7 @@ const SECTION_ROUTES = {
   "section-summary": "12-summary.html",
   "section-web-performance-scalability": "13-web-performance-scalability.html",
   "section-core-web-vitals": "14-core-web-vitals.html",
+  "section-critical-rendering-path": "15-critical-rendering-path.html",
 };
 
 // ============================================================
@@ -106,7 +107,8 @@ function toggleInterview(element) {
   element.classList.toggle("open");
   const arrow = element.querySelector(".toggle-arrow");
   if (arrow) {
-    arrow.textContent = element.classList.contains("open") ? "▼" : "▶";
+    const newText = element.classList.contains("open") ? "▼" : "▶";
+    arrow.textContent = newText;
   }
 }
 
@@ -171,7 +173,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Inicializar bloques de entrevista
-  document.querySelectorAll(".interview-block").forEach((block) => {
+  const interviewBlocks = document.querySelectorAll(".interview-block");
+  interviewBlocks.forEach((block) => {
     block.addEventListener("click", function () {
       toggleInterview(this);
     });
@@ -265,8 +268,9 @@ function injectSidebarAndNav() {
                 <li><a href="10-web-accessibility.html" class="nav-link">2.9 Accesibilidad Web</a></li>
                 <li><a href="11-component-testing.html" class="nav-link">2.10 Testing</a></li>
                 <li><a href="12-summary.html" class="nav-link">3. Resumen</a></li>
-                <li><a href="13-web-performance-scalability.html" class="nav-link">4. Web Performance & Scalability</a></li>
-                <li><a href="14-core-web-vitals.html" class="nav-link">5. The Core Web Vitals</a></li>
+                <li><a href="13-web-performance-scalability.html" class="nav-link">3. Web Performance & Scalability</a></li>
+                <li><a href="14-core-web-vitals.html" class="nav-link">3.1 The Core Web Vitals</a></li>
+                <li><a href="15-critical-rendering-path.html" class="nav-link">3.2 The Critical Rendering Path</a></li>
                 `
                     : `
                 <li><a href="../../../index.html" class="nav-link">← Back to home</a></li>
@@ -284,6 +288,7 @@ function injectSidebarAndNav() {
                 <li><a href="12-summary.html" class="nav-link">3. Summary</a></li>
                 <li><a href="13-web-performance-scalability.html" class="nav-link">3. Web Performance & Scalability</a></li>
                 <li><a href="14-core-web-vitals.html" class="nav-link">3.1 The Core Web Vitals</a></li>
+                <li><a href="15-critical-rendering-path.html" class="nav-link">3.2 The Critical Rendering Path</a></li>
                 `
                 }
             </ul>

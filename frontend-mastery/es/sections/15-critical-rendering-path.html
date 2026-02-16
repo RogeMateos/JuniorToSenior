@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3.2 The Critical Rendering Path - Frontend Mastery</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-critical-rendering-path">
+                <h1>🎯 The Critical Rendering Path</h1>
+                <p><strong>Cómo el Navegador Pinta tu Web (Y Por Qué Importa para Performance)</strong></p>
+
+                <div class="warning-block" data-title="⚠️ Por Qué Importa">
+                    <p>Entender el Critical Rendering Path es lo que separa juniors de seniors. Si entiendes CRP, sabes exactamente dónde "tocar" para mejorar FCP.</p>
+                </div>
+
+                <h2>1️⃣ El Modelo Mental Correcto (Y Por Qué Importa)</h2>
+
+                <div class="concept-block">
+                    <p>El CRP es literalmente la cadena de pasos que el navegador necesita completar antes de poder "pintar algo" (First Contentful Paint).</p>
+                </div>
+
+                <div class="analogy-block" data-title="🧠 Piénsalo Como una Carrera de Relevos">
+                    <ol>
+                        <li><strong>HTML llega primero</strong> (abre la carrera)</li>
+                        <li><strong>CSS define "cómo se ve"</strong> (sin eso el navegador no quiere mostrar cosas que luego cambien)</li>
+                        <li><strong>JS puede cambiar DOM y CSSOM</strong> (y a veces bloquea)</li>
+                        <li><strong>Luego el navegador construye</strong> lo necesario para renderizar y finalmente pinta</li>
+                    </ol>
+                </div>
+
+                <h2>2️⃣ Critical Rendering Path: Desglose Paso a Paso</h2>
+
+                <h3>Paso 1 — Request del HTML (Red)</h3>
+
+                <div class="concept-block">
+                    <p>El navegador pide el HTML: DNS → Conexión → (TLS/SSL) → Respuesta → Descarga</p>
+                </div>
+
+                <div class="solution-block" data-title="🎯 Qué Optimizas Aquí">
+                    <ul>
+                        <li>✅ Reducir latencia / round-trips</li>
+                        <li>✅ Entrega rápida del HTML (TTFB bajo)</li>
+                        <li>✅ Cache / CDN / compresión</li>
+                    </ul>
+                </div>
+
+                <h3>Paso 2 — Parse HTML → Construir DOM</h3>
+
+                <div class="concept-block">
+                    <p>El navegador parsea el HTML y construye el DOM (estructura) de forma incremental.</p>
+                </div>
+
+                <div class="problem-block" data-title="⚠️ Detalle Importante">
+                    <p>El parseo de HTML es incremental pero se puede pausar si encuentra cosas bloqueantes (CSS render-blocking, scripts síncronos).</p>
+                </div>
+
+                <h3>Paso 3 — CSS: Fetch + Parse → CSSOM</h3>
+
+                <div class="concept-block">
+                    <p><code>&lt;link rel="stylesheet"&gt;</code> en el <code>&lt;head&gt;</code> dispara descargas y construcción del CSSOM.</p>
+                </div>
+
+                <div class="warning-block" data-title="⚠️ Por Qué CSS Bloquea el Render">
+                    <p>Sin CSS, el navegador podría mostrar contenido sin estilo y luego re-estilizarlo → flashes / saltos de layout.</p>
+                    <p><strong>Por eso CSS es render-blocking por defecto.</strong></p>
+                </div>
+
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>🎙️ "CSS es render-blocking, JS puede ser parser-blocking"</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <p>Este es un hecho clave para recordar: CSS en el head bloquea el renderizado porque el navegador no pinta contenido sin estilo. JavaScript puede ser parser-blocking si es síncrono en el head.</p>
+                    </div>
+                </div>
+
+                <h3>Paso 4 — JavaScript (Especialmente Sync en Head)</h3>
+
+                <div class="problem-block" data-title="❌ JS Síncrono Bloquea">
+                    <p>Los scripts síncronos pausan el parseo del HTML. El navegador debe:</p>
+                    <ol>
+                        <li>Descargar el script</li>
+                        <li>Parsearlo</li>
+                        <li>Ejecutarlo</li>
+                        <li>Continuar el parseo del HTML</li>
+                    </ol>
+                </div>
+
+                <h4>🔍 Atributos de Carga de Scripts (Conocimiento Crítico)</h4>
+
+                <div class="solution-block" data-title="💻 Sin Atributos (DEFAULT — BLOQUEANTE)">
+<pre><code>&lt;!-- Bloquea el parseo de HTML hasta descargar y ejecutar --&gt;
+&lt;script src="/bundle.js"&gt;&lt;/script&gt;</code></pre>
+                </div>
+
+                <div class="solution-block" data-title="💻 defer (RECOMENDADO para la mayoría)">
+<pre><code>&lt;!-- Descarga en paralelo, se ejecuta después del parseo del HTML --&gt;
+&lt;script defer src="/bundle.js"&gt;&lt;/script&gt;</code></pre>
+                </div>
+
+                <div class="solution-block" data-title="💻 async (Para scripts independientes)">
+<pre><code>&lt;!-- Descarga en paralelo, se ejecuta inmediatamente cuando está listo --&gt;
+&lt;!-- Bueno para: analytics, ads, features no críticas --&gt;
+&lt;script async src="/analytics.js"&gt;&lt;/script&gt;</code></pre>
+                </div>
+
+                <div class="solution-block" data-title="💻 type='module' (MODERNO)">
+<pre><code>&lt;!-- Por defecto se comporta como defer, soporta import() --&gt;
+&lt;script type="module" src="/app.js"&gt;&lt;/script&gt;</code></pre>
+                </div>
+
+                <h3>Paso 5 — Render Tree (DOM + CSSOM)</h3>
+
+                <div class="concept-block">
+                    <p>El navegador combina DOM + CSSOM para crear el Render Tree (solo elementos visibles).</p>
+                </div>
+
+                <h3>Paso 6 — Style → Layout → Paint</h3>
+
+                <div class="analogy-block" data-title="🎨 Los Tres Últimos Pasos">
+                    <ol>
+                        <li><strong>Style:</strong> Calcular estilos finales para cada elemento</li>
+                        <li><strong>Layout:</strong> Calcular tamaños y posiciones</li>
+                        <li><strong>Paint:</strong> Dibujar píxeles en pantalla</li>
+                    </ol>
+                </div>
+
+                <h2>3️⃣ ¿Qué Bloquea el "First Render / FCP"?</h2>
+
+                <div class="warning-block" data-title="⚠️ Los Tres Bloqueadores Principales">
+                    <ol>
+                        <li><strong>Descarga + procesamiento de CSS</strong> (render-blocking)</li>
+                        <li><strong>Ejecución de JS síncrono</strong> (parser-blocking)</li>
+                        <li><strong>Pausas del parseo de HTML</strong> al encontrar scripts</li>
+                    </ol>
+                </div>
+
+                <div class="solution-block" data-title="🎯 La Regla del Senior">
+                    <p><strong>Para pintar algo, el navegador necesita DOM + CSSOM.</strong></p>
+                    <p>Todo lo que retrase la construcción de DOM/CSSOM o pause el parseo retrasa FCP.</p>
+                </div>
+
+                <h2>4️⃣ Áreas Prácticas de Optimización</h2>
+
+                <h3>A) Estrategia de CSS Crítico</h3>
+
+                <div class="concept-block">
+                    <p><strong>Objetivo:</strong> El navegador tiene el CSS mínimo necesario para above-the-fold sin esperar a un archivo CSS gigante.</p>
+                </div>
+
+                <div class="solution-block" data-title="💻 Inline CSS Crítico + Diferir el Resto">
+<pre><code>&lt;head&gt;
+  &lt;style&gt;
+    /* CSS crítico solamente - mínimo above-the-fold */
+    body { font-family: system-ui; margin: 0; }
+    .header { height: 56px; display: flex; align-items: center; }
+    .hero { /* ... */ }
+  &lt;/style&gt;
+
+  &lt;!-- Cargar el resto sin bloquear --&gt;
+  &lt;link rel="preload" href="/styles.css" as="style" /&gt;
+  &lt;link rel="stylesheet" href="/styles.css" /&gt;
+&lt;/head&gt;</code></pre>
+                </div>
+
+                <h3>B) Optimización de Red: preconnect / dns-prefetch</h3>
+
+                <div class="concept-block">
+                    <p>Reduce la latencia de red estableciendo conexiones temprano.</p>
+                </div>
+
+                <div class="solution-block" data-title="💻 Resource Hints">
+<pre><code>&lt;!-- Establece conexión completa (DNS + TCP + TLS) --&gt;
+&lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /&gt;
+
+&lt;!-- Más ligero: solo DNS --&gt;
+&lt;link rel="dns-prefetch" href="//cdn.example.com" /&gt;
+
+&lt;!-- Prefetch: cargar recurso para siguiente navegación --&gt;
+&lt;link rel="prefetch" href="/next-page.html" /&gt;
+
+&lt;!-- Preload: cargar recurso necesario en esta página --&gt;
+&lt;link rel="preload" as="font" href="/font.woff2" crossorigin /&gt;</code></pre>
+                </div>
+
+                <h3>C) Estrategia JavaScript: Code Splitting y Diferimiento</h3>
+
+                <div class="problem-block" data-title="❌ El Problema Real: Bundle JS Grande">
+                    <p>En apps React, el HTML es pequeño, CSS bloquea un poco, pero el bundle JS es usualmente el culpable.</p>
+                </div>
+
+                <div class="solution-block" data-title="✅ Diferir Código No Crítico">
+<pre><code>// Cargar lazy features no necesarias para el primer render
+button.addEventListener("click", async () => {
+  const { openModal } = await import("./modal.js");
+  openModal();
+});</code></pre>
+                </div>
+
+                <div class="analogy-block" data-title="🎯 Plan de Ataque para Bundles Grandes">
+                    <ul>
+                        <li>Code-split por rutas/features</li>
+                        <li>Reducir dependencias pesadas</li>
+                        <li>Evitar polyfills innecesarios</li>
+                        <li>Tree-shaking y eliminar código muerto</li>
+                        <li>Diferir features no críticas</li>
+                    </ul>
+                </div>
+
+                <h3>D) Fuentes e Imágenes También Importan</h3>
+
+                <div class="solution-block" data-title="💻 Carga Inteligente de Fuentes">
+<pre><code>@font-face {
+  font-family: "MyFont";
+  src: url("/myfont.woff2") format("woff2");
+  font-display: swap; /* Mostrar fallback mientras carga la fuente personalizada */
+}</code></pre>
+                </div>
+
+                <h2>5️⃣ Cómo Debuguear CRP (Checklist Accionable)</h2>
+
+                <div class="solution-block" data-title="📊 Performance Insights / DevTools Checklist">
+                    <p><strong>Cuando abras la pestaña Performance, busca:</strong></p>
+                    <ul>
+                        <li>❓ <strong>Render-blocking requests:</strong> ¿Cuál CSS/JS bloquea?</li>
+                        <li>❓ <strong>Long Tasks:</strong> ¿Cuál JS toma > 50ms en main thread?</li>
+                        <li>❓ <strong>Network waterfall:</strong> ¿Qué está en la ruta crítica?</li>
+                        <li>❓ <strong>TTFB:</strong> ¿Qué tan rápido responde el servidor?</li>
+                    </ul>
+                </div>
+
+                <div class="concept-block">
+                    <h4>🎯 La Pregunta que Siempre Haces</h4>
+                    <p><strong>"¿Qué request está en la ruta crítica y puedo eliminar, retrasar o hacer más pequeño?"</strong></p>
+                </div>
+
+                <h2>6️⃣ Respuesta Senior para Entrevistas</h2>
+
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>🎙️ "Explica el Critical Rendering Path"</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <p><strong>Respuesta senior:</strong></p>
+                        <blockquote>
+                            <p>"El Critical Rendering Path es la secuencia de pasos que el navegador toma desde recibir HTML hasta pintar píxeles.</p>
+                            <p>Incluye: fetching HTML, parsing para construir DOM, fetching y parsing de CSS para construir CSSOM, manejo de JavaScript síncrono, combinarlos en un Render Tree, y finalmente calcular layout y pintar.</p>
+                            <p>CSS en el head es render-blocking porque el navegador no pinta sin estilos (previene flashes). Los scripts síncronos son parser-blocking porque pausan el parsing del HTML hasta que se descargan y ejecutan.</p>
+                            <p>Para optimizar CRP: inline CSS crítico, defer de JS no crítico, eliminar render-blocking requests, y usar resource hints como preconnect. El objetivo es entregar el mínimo necesario para First Contentful Paint lo más rápido posible."</p>
+                        </blockquote>
+                    </div>
+                </div>
+
+                <h2>7️⃣ Flujo de Optimización</h2>
+
+                <div class="solution-block" data-title="🔄 Plan Paso a Paso">
+                    <ol>
+                        <li><strong>Medir:</strong> Abre Performance Insights / DevTools Performance tab</li>
+                        <li><strong>Identificar:</strong> ¿Qué está bloqueando la ruta crítica?</li>
+                        <li><strong>Decidir:</strong> Para cada bloqueador:
+                            <ul>
+                                <li>¿Puedo eliminarlo?</li>
+                                <li>¿Puedo hacerlo más pequeño?</li>
+                                <li>¿Puedo diferirlo (defer/async/lazy)?</li>
+                                <li>¿Puedo cachearlo mejor?</li>
+                            </ul>
+                        </li>
+                        <li><strong>Ejecutar:</strong> Haz UN cambio</li>
+                        <li><strong>Medir de nuevo:</strong> Compara FCP</li>
+                        <li><strong>Repite:</strong> 3-5 veces para impacto real</li>
+                    </ol>
+                </div>
+
+                <!-- ACCORDION SECTION -->
+                <h2>📋 Temas Avanzados y Recursos</h2>
+
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>💡 Internals del Navegador: Entendimiento Profundo</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <h4>Parser-Blocking vs Render-Blocking</h4>
+                        <p><strong>Parser-blocking:</strong> Pausa el parseo del HTML (<code>&lt;script&gt;</code> síncrono)</p>
+                        <p><strong>Render-blocking:</strong> Pausa el renderizado hasta que se descargue el recurso (CSS en head)</p>
+
+                        <h4>Resource Priority Hints</h4>
+                        <pre><code>&lt;!-- Alta prioridad - esencial para renderizar --&gt;
+&lt;link rel="preload" as="font" href="/font.woff2" crossorigin /&gt;
+
+&lt;!-- Prioridad media - necesario pronto pero no inmediatamente --&gt;
+&lt;img src="/hero.webp" loading="eager" fetchpriority="high" /&gt;
+
+&lt;!-- Baja prioridad - puede cargar después de todo --&gt;
+&lt;img src="/below-fold.webp" loading="lazy" /&gt;</code></pre>
+
+                        <h4>El Waterfall: Entendiendo el Orden de Recursos</h4>
+                        <p>En la pestaña Network de DevTools, ves descargas paralelas vs bloqueantes secuenciales. La ruta crítica es la cadena secuencial más larga.</p>
+                    </div>
+                </div>
+
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>🛠️ Ejemplo Real: Arreglando una Página Lenta</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <h4>Antes (CRP Lento)</h4>
+                        <pre><code>&lt;head&gt;
+  &lt;link rel="stylesheet" href="huge-bootstrap.css"&gt; &lt;!-- 40KB, bloquea --&gt;
+  &lt;script src="app.js"&gt;&lt;/script&gt; &lt;!-- 200KB, bloquea parseo --&gt;
+  &lt;link rel="stylesheet" href="theme.css"&gt; &lt;!-- 15KB --&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div id="app"&gt;&lt;/div&gt;
+&lt;/body&gt;</code></pre>
+                        <p>Problemas: CSS bloquea, JS es síncrono y masivo, múltiples recursos render-blocking</p>
+
+                        <h4>Después (CRP Optimizado)</h4>
+                        <pre><code>&lt;head&gt;
+  &lt;style&gt;
+    /* CSS crítico inline - ~2KB */
+    body { font-family: system-ui; margin: 0; }
+    .header { display: flex; height: 56px; }
+  &lt;/style&gt;
+
+  &lt;link rel="preload" href="app.js" as="script" /&gt;
+  &lt;link rel="preload" href="styles.css" as="style" /&gt;
+
+  &lt;link rel="stylesheet" href="styles.css"&gt; &lt;!-- Después del CSS crítico --&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div id="app"&gt;&lt;/div&gt;
+  &lt;!-- Scripts al final, con defer --&gt;
+  &lt;script defer src="app.js"&gt;&lt;/script&gt;
+&lt;/body&gt;</code></pre>
+                        <p>Mejoras: Primer render más rápido (CSS crítico inline), JS diferido (no bloquea parseo)</p>
+                    </div>
+                </div>
+
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>📚 Referencias y Aprendizaje Adicional</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <ul>
+                            <li><a href="https://developers.google.com/web/fundamentals/performance/critical-rendering-path" target="_blank">Google: Critical Rendering Path</a></li>
+                            <li><a href="https://web.dev/fcp/" target="_blank">web.dev: First Contentful Paint (FCP)</a></li>
+                            <li><a href="https://mdn.mozilla.org/en-US/docs/Glossary/critical_rendering_path" target="_blank">MDN: Critical Rendering Path</a></li>
+                            <li><a href="https://developer.chrome.com/docs/devtools/performance/" target="_blank">Chrome DevTools: Performance Analysis</a></li>
+                            <li><a href="https://web.dev/render-blocking-resources/" target="_blank">web.dev: Render-Blocking Resources</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- REFERENCES SECTION -->
+                <h2>📚 Referencias y Recursos Adicionales</h2>
+
+                <div class="solution-block" data-title="Documentación Oficial">
+                    <ul>
+                        <li><a href="https://developers.google.com/web/fundamentals/performance/critical-rendering-path" target="_blank">Google: Critical Rendering Path</a></li>
+                        <li><a href="https://web.dev/fcp/" target="_blank">web.dev: First Contentful Paint (FCP)</a></li>
+                        <li><a href="https://mdn.mozilla.org/en-US/docs/Glossary/critical_rendering_path" target="_blank">MDN: Critical Rendering Path</a></li>
+                    </ul>
+                </div>
+
+                <div class="concept-block">
+                    <h4>Herramientas y Debugging</h4>
+                    <ul>
+                        <li><a href="https://developer.chrome.com/docs/devtools/performance/" target="_blank">Chrome DevTools: Performance Analysis</a></li>
+                        <li><a href="https://web.dev/render-blocking-resources/" target="_blank">web.dev: Render-Blocking Resources</a></li>
+                        <li><a href="https://web.dev/defer-non-critical-css/" target="_blank">web.dev: Deferring Non-Critical CSS</a></li>
+                    </ul>
+                </div>
+
+                <div class="analogy-block" data-title="Recursos de Aprendizaje">
+                    <ul>
+                        <li><a href="https://web.dev/performance/" target="_blank">web.dev: Performance Section</a></li>
+                        <li><a href="https://developer.mozilla.org/en-US/docs/Web/Performance" target="_blank">MDN: Web Performance</a></li>
+                        <li><a href="https://www.smashingmagazine.com/category/performance" target="_blank">Smashing Magazine: Performance</a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='14-core-web-vitals.html'">← Anterior</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../../index.html'">Volver al Inicio →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>
