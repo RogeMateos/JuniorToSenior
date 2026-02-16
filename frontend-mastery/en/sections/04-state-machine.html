@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2.3 State Machine Pattern - Frontend Mastery</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-state-machine">
+                <h1>2.3 State Machine Pattern</h1>
+
+                <p>One of the most powerful ways to handle complex state is the State Machine pattern. This pattern ensures that only certain states are valid and that transitions between states follow predictable rules.</p>
+
+                <div class="problem-block" data-title="The Problem: Inconsistent States">
+                    <p>Without a clear pattern, it's easy to end up in invalid states:</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">// ❌ Code without structure
+const [isLoading, setIsLoading] = useState(false);
+const [isError, setIsError] = useState(false);
+const [data, setData] = useState(null);
+
+// What happens if isLoading and isError are both true?
+// What if data exists but isLoading is true?
+// These contradictory states are confusing.</code></pre>
+                    </div>
+                </div>
+
+                <div class="solution-block" data-title="Solution: Explicit State Machine">
+                    <p>A state machine with mutually exclusive states prevents inconsistencies:</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">// ✅ State Machine with valid states
+const [state, setState] = useState('idle');
+// Valid states: 'idle', 'loading', 'success', 'error'
+
+const fetchData = async () => {
+  setState('loading');
+  try {
+    const result = await api.getData();
+    setState('success');
+  } catch (err) {
+    setState('error');
+  }
+};
+
+// Now it's impossible to have contradictory states</code></pre>
+                    </div>
+                </div>
+
+                <h2>Implementation with useReducer</h2>
+
+                <div class="concept-block">
+                    <h4>State Machine Implemented</h4>
+                    <div class="code-block">
+<pre><code class="language-jsx">const initialState = {
+  status: 'idle', // idle | loading | success | error
+  data: null,
+  error: null
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case 'FETCH_START':
+      return { ...state, status: 'loading', error: null };
+
+    case 'FETCH_SUCCESS':
+      return { ...state, status: 'success', data: action.payload };
+
+    case 'FETCH_ERROR':
+      return { ...state, status: 'error', error: action.payload };
+
+    case 'RESET':
+      return initialState;
+
+    default:
+      return state;
+  }
+};
+
+const Component = () => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const fetchData = async () => {
+    dispatch({ type: 'FETCH_START' });
+    try {
+      const data = await api.get('/data');
+      dispatch({ type: 'FETCH_SUCCESS', payload: data });
+    } catch (err) {
+      dispatch({ type: 'FETCH_ERROR', payload: err });
+    }
+  };
+
+  return (
+    &lt;div&gt;
+      {state.status === 'idle' && &lt;button onClick={fetchData}&gt;Load&lt;/button&gt;}
+      {state.status === 'loading' && &lt;div&gt;Loading...&lt;/div&gt;}
+      {state.status === 'success' && &lt;div&gt;{state.data}&lt;/div&gt;}
+      {state.status === 'error' && &lt;div&gt;Error: {state.error}&lt;/div&gt;}
+    &lt;/div&gt;
+  );
+};</code></pre>
+                    </div>
+                </div>
+
+                <div class="analogy-block" data-title="💡 Analogy: Traffic Light">
+                    <p>A traffic light is a state machine: red → yellow → green → red. Each color is a valid state, and transitions follow rules. You never have red and green simultaneously. The system is predictable.</p>
+                </div>
+
+                <div class="warning-block" data-title="⚠️ Senior Advice">
+                    <p>The State Machine pattern is especially important for asynchronous operations. Many React bugs come from not handling intermediate states (loading, error) correctly. An explicit state machine prevents these issues.</p>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='03-mental-models.html'">← Previous</button>
+                    <button class="btn btn-primary" onclick="window.location.href='05-essential-derived.html'">Next →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

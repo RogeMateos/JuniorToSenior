@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2.7 Anti-patrones de Estado - Frontend Mastery</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-state-antipatterns">
+                <h1>2.7 Anti-patrones del Estado</h1>
+
+                <p>Estos son los errores más comunes que cometen los desarrolladores al manejar estado. Reconocerlos te ahorrará horas de debugging.</p>
+
+                <h2>1. State Duplication (Duplicación de Estado)</h2>
+
+                <div class="problem-block" data-title="El Anti-patrón">
+                    <div class="code-block">
+<pre><code class="language-jsx">// ❌ Anti-patrón: Duplicación
+const [users, setUsers] = useState([]);
+const [selectedUser, setSelectedUser] = useState(null);
+
+const selectUser = (id) => {
+  const user = users.find(u => u.id === id);
+  setSelectedUser(user); // ← Duplicando datos
+};</code></pre>
+                    </div>
+                </div>
+
+                <div class="solution-block" data-title="La Solución">
+                    <div class="code-block">
+<pre><code class="language-jsx">// ✅ Correcto: Una sola fuente de verdad
+const [users, setUsers] = useState([]);
+const [selectedUserId, setSelectedUserId] = useState(null);
+
+const selectedUser = users.find(u => u.id === selectedUserId);
+</code></pre>
+                    </div>
+                </div>
+
+                <h2>2. Side Effects en Reducers</h2>
+
+                <div class="problem-block" data-title="El Anti-patrón">
+                    <div class="code-block">
+<pre><code class="language-jsx">// ❌ Anti-patrón: API call en el reducer
+const reducer = (state, action) => {
+  if (action.type === 'FETCH') {
+    fetch('/api/data').then(...); // ❌ Side effect en reducer
+    return state;
+  }
+};
+</code></pre>
+                    </div>
+                </div>
+
+                <div class="solution-block" data-title="La Solución">
+                    <div class="code-block">
+<pre><code class="language-jsx">// ✅ Correcto: Effects fuera del reducer
+const reducer = (state, action) => {
+  switch(action.type) {
+    case 'FETCH_START': return { ...state, loading: true };
+    case 'FETCH_SUCCESS': return { ...state, data: action.payload };
+    default: return state;
+  }
+};
+
+const Component = () => {
+  const [state, dispatch] = useReducer(reducer, init);
+
+  useEffect(() => {
+    dispatch({ type: 'FETCH_START' });
+    fetch('/api/data')
+      .then(r => r.json())
+      .then(data => dispatch({ type: 'FETCH_SUCCESS', payload: data }));
+  }, []);
+};
+</code></pre>
+                    </div>
+                </div>
+
+                <h2>3. Derivar Estado sin Recalcular</h2>
+
+                <div class="problem-block" data-title="El Anti-patrón">
+                    <div class="code-block">
+<pre><code class="language-jsx">// ❌ Anti-patrón: Precalcular y guardar
+const [users, setUsers] = useState([]);
+const [userCount, setUserCount] = useState(0);
+
+const addUser = (user) => {
+  setUsers([...users, user]);
+  setUserCount(userCount + 1); // ← Puede desincronizarse
+};</code></pre>
+                    </div>
+                </div>
+
+                <div class="solution-block" data-title="La Solución">
+                    <div class="code-block">
+<pre><code class="language-jsx">// ✅ Correcto: Derivar durante el render
+const [users, setUsers] = useState([]);
+const userCount = users.length; // Se calcula cada render
+
+const addUser = (user) => {
+  setUsers([...users, user]);
+};
+</code></pre>
+                    </div>
+                </div>
+
+                <h2>4. Prop Drilling</h2>
+
+                <div class="problem-block" data-title="El Anti-patrón">
+                    <div class="code-block">
+<pre><code class="language-jsx">// ❌ Pasar props a través de 5 componentes intermedios
+&lt;App theme={theme}&gt;
+  &lt;Header theme={theme}&gt;
+    &lt;Nav theme={theme}&gt;
+      &lt;Button theme={theme}&gt;
+</code></pre>
+                    </div>
+                </div>
+
+                <div class="solution-block" data-title="La Solución: Context">
+                    <div class="code-block">
+<pre><code class="language-jsx">// ✅ Context evita el prop drilling
+const ThemeContext = createContext();
+
+&lt;ThemeContext.Provider value={theme}&gt;
+  &lt;App /&gt;
+&lt;/ThemeContext.Provider&gt;
+
+// En Button:
+const theme = useContext(ThemeContext);
+</code></pre>
+                    </div>
+                </div>
+
+                <h2>5. Mutación Directa</h2>
+
+                <div class="problem-block" data-title="El Anti-patrón">
+                    <div class="code-block">
+<pre><code class="language-jsx">// ❌ Anti-patrón: Mutar directamente
+const [user, setUser] = useState({ name: 'Juan', age: 30 });
+
+const updateAge = (newAge) => {
+  user.age = newAge; // ❌ Mutación directa
+  setUser(user); // React no detecta el cambio
+};
+</code></pre>
+                    </div>
+                </div>
+
+                <div class="solution-block" data-title="La Solución">
+                    <div class="code-block">
+<pre><code class="language-jsx">// ✅ Correcto: Crear nuevo objeto
+const [user, setUser] = useState({ name: 'Juan', age: 30 });
+
+const updateAge = (newAge) => {
+  setUser({ ...user, age: newAge });
+};
+</code></pre>
+                    </div>
+                </div>
+
+                <div class="warning-block" data-title="⚠️ Consejo Senior">
+                    <p>El 90% de los bugs de React relacionados con estado vienen de estos 5 anti-patrones. Memorízalos y evítalos religiosamente. Cuando algo no funciona, revisa estos primero antes de investigar más a fondo.</p>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='07-state-architecture.html'">← Anterior</button>
+                    <button class="btn btn-primary" onclick="window.location.href='09-barebone-method.html'">Siguiente →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

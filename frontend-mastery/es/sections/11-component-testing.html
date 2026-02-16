@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2.10 Testing de Componentes - Frontend Mastery</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-component-testing">
+                <h1>2.10 Testing de Componentes</h1>
+
+                <p>Un componente sin tests es un componente que se va a romper. El testing es parte fundamental del desarrollo profesional. No es opcional ni es "para después".</p>
+
+                <h2>Pirámide de Testing</h2>
+
+                <div class="concept-block">
+                    <h4>1. Unit Tests (Base - 70%)</h4>
+                    <p>Testan funciones individuales en aislamiento:</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">// Función pura
+const calculateTotal = (items) => {
+  return items.reduce((sum, item) => sum + item.price, 0);
+};
+
+// Test
+test('calculateTotal suma los precios correctamente', () => {
+  const items = [
+    { price: 10 },
+    { price: 20 },
+    { price: 5 }
+  ];
+  expect(calculateTotal(items)).toBe(35);
+});</code></pre>
+                    </div>
+                </div>
+
+                <div class="concept-block">
+                    <h4>2. Integration Tests (Medio - 20%)</h4>
+                    <p>Testan múltiples unidades funcionando juntas:</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">// Componente con múltiples funciones
+test('UserForm valida y envía datos', () => {
+  render(&lt;UserForm /&gt;);
+
+  const emailInput = screen.getByLabelText('Email');
+  fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+
+  const submitButton = screen.getByRole('button', { name: /submit/i });
+  fireEvent.click(submitButton);
+
+  expect(mockSubmit).toHaveBeenCalledWith({
+    email: 'test@example.com'
+  });
+});</code></pre>
+                    </div>
+                </div>
+
+                <div class="concept-block">
+                    <h4>3. E2E Tests (Cima - 10%)</h4>
+                    <p>Testan el flujo completo del usuario:</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">// Con Cypress
+describe('User Registration Flow', () => {
+  it('El usuario puede registrarse completamente', () => {
+    cy.visit('http://localhost:3000');
+
+    cy.contains('Sign Up').click();
+    cy.get('input[name="email"]').type('user@example.com');
+    cy.get('input[name="password"]').type('secure123');
+    cy.contains('Create Account').click();
+
+    cy.url().should('include', '/dashboard');
+    cy.contains('Welcome').should('be.visible');
+  });
+});</code></pre>
+                    </div>
+                </div>
+
+                <h2>Testing de Componentes React</h2>
+
+                <div class="code-block">
+<pre><code class="language-jsx">import { render, screen, fireEvent } from '@testing-library/react';
+import Counter from './Counter';
+
+describe('Counter Component', () => {
+
+  test('Renderiza con contador inicial en 0', () => {
+    render(&lt;Counter initialValue={0} /&gt;);
+    expect(screen.getByText('0')).toBeInTheDocument();
+  });
+
+  test('Incrementa cuando se hace clic en el botón', () => {
+    render(&lt;Counter initialValue={0} /&gt;);
+
+    const incrementButton = screen.getByRole('button', { name: /increment/i });
+    fireEvent.click(incrementButton);
+
+    expect(screen.getByText('1')).toBeInTheDocument();
+  });
+
+  test('Llama al callback cuando cambia', () => {
+    const onChange = jest.fn();
+    render(&lt;Counter initialValue={0} onChange={onChange} /&gt;);
+
+    const incrementButton = screen.getByRole('button', { name: /increment/i });
+    fireEvent.click(incrementButton);
+
+    expect(onChange).toHaveBeenCalledWith(1);
+  });
+
+  test('No incrementa si está deshabilitado', () => {
+    render(&lt;Counter initialValue={0} disabled /&gt;);
+
+    const incrementButton = screen.getByRole('button');
+    expect(incrementButton).toBeDisabled();
+  });
+});</code></pre>
+                </div>
+
+                <h2>Testing Best Practices</h2>
+
+                <div class="concept-block">
+                    <h4>1. Test Behavior, Not Implementation</h4>
+                    <div class="code-block">
+<pre><code class="language-jsx">// ❌ Malo: Testea detalles de implementación
+test('useState es llamado', () => {
+  // Esto es imposible de testear sin acceder internals
+});
+
+// ✅ Bueno: Testea comportamiento visible
+test('El usuario ve el resultado cuando busca', () => {
+  render(&lt;SearchComponent /&gt;);
+  const input = screen.getByRole('textbox');
+  fireEvent.change(input, { target: { value: 'react' } });
+  expect(screen.getByText('Results for react')).toBeInTheDocument();
+});</code></pre>
+                    </div>
+                </div>
+
+                <div class="concept-block">
+                    <h4>2. Test Accessibility</h4>
+                    <div class="code-block">
+<pre><code class="language-jsx">// ✅ Usa queries accesibles
+const button = screen.getByRole('button', { name: /submit/i }); // ✅
+const input = screen.getByLabelText('Email'); // ✅
+
+// Evita
+const button = screen.getByTestId('submit-btn'); // ❌
+const input = screen.getByClassName('email-input'); // ❌</code></pre>
+                    </div>
+                </div>
+
+                <div class="warning-block" data-title="⚠️ Consejo Senior">
+                    <p>No busques 100% de coverage. En su lugar, busca 80% de coverage enfocándote en lógica crítica. Tests que verifican trivialidades son mantenimiento sin valor. Enfócate en tests que previenen bugs reales.</p>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='10-web-accessibility.html'">← Anterior</button>
+                    <button class="btn btn-primary" onclick="window.location.href='12-summary.html'">Siguiente →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2.4 Estado Esencial vs Derivado - Frontend Mastery</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-essential-derived">
+                <h1>2.4 Estado Esencial vs Derivado</h1>
+
+                <p>No todo lo que parece ser "estado" necesita ser guardado. Diferenciar entre estado esencial (fuente de verdad) y estado derivado (calculado) es fundamental para aplicaciones limpias y eficientes.</p>
+
+                <div class="problem-block" data-title="El Problema: Redundancia de Estado">
+                    <p>Muchos desarrolladores almacenan todo en estado, creando redundancia:</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">// ❌ Redundancia innecesaria
+const [products, setProducts] = useState([]);
+const [filteredProducts, setFilteredProducts] = useState([]);
+const [count, setCount] = useState(0);
+const [total, setTotal] = useState(0);
+
+// Ahora tienes dos "fuentes de verdad" para los mismos datos
+// Si actualizas 'products' pero olvidas actualizar 'filteredProducts',
+// ¡tu UI mostrará datos desincronizados!</code></pre>
+                    </div>
+                </div>
+
+                <div class="solution-block" data-title="Solución: Una Sola Fuente de Verdad">
+                    <p>Mantén solo el estado esencial y deriva el resto:</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">// ✅ Una única fuente de verdad
+const [products, setProducts] = useState([]);
+const [filterText, setFilterText] = useState('');
+
+// Derivar, no guardar
+const filteredProducts = products.filter(p =>
+  p.name.includes(filterText)
+);
+const count = filteredProducts.length;
+const total = filteredProducts.reduce((sum, p) => sum + p.price, 0);
+
+// Estos valores se recalculan cada render
+// Siempre consistentes con la fuente de verdad</code></pre>
+                    </div>
+                </div>
+
+                <h2>Identificar Estado Esencial vs Derivado</h2>
+
+                <div class="concept-block">
+                    <h4>Regla de Oro</h4>
+                    <p><strong>Estado Esencial:</strong> Datos que no pueden ser calculados a partir de otros datos. Ejemplo: la lista de usuarios del servidor, las preferencias del usuario.</p>
+                    <p><strong>Estado Derivado:</strong> Datos que pueden ser calculados a partir del estado esencial. Ejemplo: el número de usuarios (cuenta), usuarios filtrados, total de ventas.</p>
+                </div>
+
+                <div class="concept-block">
+                    <h4>Tabla de Ejemplos</h4>
+                    <table class="cheat-sheet-table">
+                        <thead>
+                            <tr>
+                                <th>Dato</th>
+                                <th>Tipo</th>
+                                <th>Razón</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Lista de productos</td>
+                                <td>Esencial</td>
+                                <td>Viene del servidor, no se puede calcular</td>
+                            </tr>
+                            <tr>
+                                <td>Productos filtrados</td>
+                                <td>Derivado</td>
+                                <td>Se calcula filtrando la lista esencial</td>
+                            </tr>
+                            <tr>
+                                <td>Texto de búsqueda</td>
+                                <td>Esencial</td>
+                                <td>Input del usuario, fuente de verdad</td>
+                            </tr>
+                            <tr>
+                                <td>Número de resultados</td>
+                                <td>Derivado</td>
+                                <td>Se cuenta a partir de productos filtrados</td>
+                            </tr>
+                            <tr>
+                                <td>Usuario autenticado</td>
+                                <td>Esencial</td>
+                                <td>Información crítica del servidor</td>
+                            </tr>
+                            <tr>
+                                <td>¿Es admin?</td>
+                                <td>Derivado</td>
+                                <td>Se calcula del rol del usuario autenticado</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="warning-block" data-title="⚠️ Consejo Senior">
+                    <p>Si encuentras que necesitas sincronizar múltiples valores de estado, es una señal de que estás almacenando estado derivado. En su lugar, calcula los valores derivados durante el render.</p>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='04-state-machine.html'">← Anterior</button>
+                    <button class="btn btn-primary" onclick="window.location.href='06-state-patterns.html'">Siguiente →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

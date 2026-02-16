@@ -1,0 +1,269 @@
+{
+  "projectName": "HTML Tutorales: Junior to Senior",
+  "filePath": "/Users/rogemateos/Documentos/GithubProjects/HtmlTutorales/JuniorToSenior/index.html",
+  "totalSections": 12,
+  "sections": [
+    {
+      "id": 0,
+      "sectionId": "section-core-skill",
+      "title_es": "La Habilidad Frontend Más Importante",
+      "title_en": "The Most Important Frontend Skill",
+      "lineStart": 43,
+      "lineEnd": 56,
+      "status": "complete",
+      "topics": [
+        "Visión de arquitectura",
+        "Diferencia entre junior y senior",
+        "Componentes reutilizables"
+      ],
+      "hasCode": false,
+      "hasAnalogy": false,
+      "difficulty": "beginner"
+    },
+    {
+      "id": 1,
+      "sectionId": "section-frameworks",
+      "title_es": "1. Por qué importan los Frameworks: Una Perspectiva Histórica",
+      "title_en": "1. Why Component Frameworks Matter: A Historical Perspective",
+      "lineStart": 59,
+      "lineEnd": 72,
+      "status": "complete",
+      "topics": [
+        "Fundamentos de frameworks",
+        "React vs vanilla JS",
+        "Importancia del conocimiento base"
+      ],
+      "hasCode": false,
+      "hasAnalogy": false,
+      "difficulty": "beginner"
+    },
+    {
+      "id": 2,
+      "sectionId": "section-mental-models",
+      "title_es": "2. Evolución a Modelos Mentales Modernos",
+      "title_en": "2. Evolution to Modern Mental Models",
+      "lineStart": 75,
+      "lineEnd": 127,
+      "status": "complete",
+      "topics": [
+        "Manipulación manual del DOM",
+        "Componentes y OOP",
+        "Programación declarativa",
+        "DOM Virtual"
+      ],
+      "hasCode": true,
+      "hasAnalogy": false,
+      "codeLanguages": ["jsx"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": 3,
+      "sectionId": "section-state-machine",
+      "title_es": "2.3 Patrón State Machine: De la Manipulación del DOM a la Gestión Predictible del Estado",
+      "title_en": "2.3 State Machine Pattern: From DOM Manipulation to Predictable State Management",
+      "lineStart": 130,
+      "lineEnd": 269,
+      "status": "complete",
+      "topics": [
+        "State Machine Pattern",
+        "Gestión de estado",
+        "UI = f(estado)",
+        "Predictibilidad"
+      ],
+      "hasCode": true,
+      "hasAnalogy": true,
+      "hasInterviewQuestion": true,
+      "codeLanguages": ["javascript", "jsx"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": 4,
+      "sectionId": "section-essential-derived",
+      "title_es": "2.4 Estado Esencial vs Derivado: Una Guía para Desarrolladores Junior",
+      "title_en": "2.4 Essential vs Derived State: A Junior Developer's Guide",
+      "lineStart": 272,
+      "lineEnd": 469,
+      "status": "complete",
+      "topics": [
+        "Estado esencial",
+        "Estado derivado",
+        "Optimización de rendimiento",
+        "Antipatrones de estado"
+      ],
+      "hasCode": true,
+      "hasAnalogy": false,
+      "hasExercise": true,
+      "codeLanguages": ["jsx"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": 5,
+      "sectionId": "section-state-patterns",
+      "title_es": "2.5 Patrones de Aplicación del Estado: Arquitectura Progresiva",
+      "title_en": "2.5 State Application Patterns: Progressive Architecture",
+      "lineStart": 472,
+      "lineEnd": 691,
+      "status": "complete",
+      "topics": [
+        "Lifting State Up",
+        "Context API",
+        "useReducer",
+        "Bibliotecas de terceros",
+        "Progresión de arquitectura"
+      ],
+      "hasCode": true,
+      "hasAnalogy": false,
+      "hasExercise": true,
+      "codeLanguages": ["jsx"],
+      "difficulty": "advanced"
+    },
+    {
+      "id": 6,
+      "sectionId": "section-state-architecture",
+      "title_es": "2.6 Arquitectura del Estado: Una Guía Estratégica para Desarrolladores Junior",
+      "title_en": "2.6 State Architecture: A Strategic Guide for Junior Developers",
+      "lineStart": 694,
+      "lineEnd": 893,
+      "status": "complete",
+      "topics": [
+        "Ubicación del estado",
+        "Marco de decisión",
+        "Patrones de arquitectura",
+        "Context API estratégica",
+        "useReducer",
+        "Bibliotecas externas"
+      ],
+      "hasCode": true,
+      "hasAnalogy": true,
+      "hasInterviewTips": true,
+      "codeLanguages": ["jsx", "css"],
+      "difficulty": "advanced"
+    },
+    {
+      "id": 7,
+      "sectionId": "section-state-antipatterns",
+      "title_es": "2.7 Anti-patrones del Estado: Una Guía de Desarrollador Senior",
+      "title_en": "2.7 State Anti-patterns: A Senior Developer's Guide",
+      "lineStart": 897,
+      "lineEnd": 1211,
+      "status": "complete",
+      "topics": [
+        "Estado redundante",
+        "Prop drilling",
+        "Shiny object syndrome",
+        "God object pattern",
+        "Mutación directa",
+        "useEffect para estado derivado"
+      ],
+      "hasCode": true,
+      "hasAnalogy": true,
+      "hasDebugChecklist": true,
+      "codeLanguages": ["jsx", "javascript"],
+      "difficulty": "expert"
+    },
+    {
+      "id": 8,
+      "sectionId": "section-barebone-method",
+      "title_es": "2.8 Barebone Method: Un Flujo de Trabajo de Cuatro Pasos",
+      "title_en": "2.8 Barebone Method: A Four-Step Workflow",
+      "lineStart": 1214,
+      "lineEnd": 1369,
+      "status": "complete",
+      "topics": [
+        "Identificar estructura",
+        "Definir flujo de datos",
+        "Agregar funcionalidad",
+        "Estilizado final",
+        "Metodología de desarrollo"
+      ],
+      "hasCode": true,
+      "hasAnalogy": true,
+      "hasMethodology": true,
+      "codeLanguages": ["jsx", "css"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": 9,
+      "sectionId": "section-web-accessibility",
+      "title_es": "2.9 Accesibilidad Web: Construyendo para Todos",
+      "title_en": "2.9 Web Accessibility: Building for Everyone",
+      "lineStart": 1372,
+      "lineEnd": 1599,
+      "status": "complete",
+      "topics": [
+        "HTML semántico",
+        "Navegación por teclado",
+        "ARIA attributes",
+        "Contraste de color",
+        "Focus management",
+        "Herramientas de auditoría"
+      ],
+      "hasCode": true,
+      "hasAnalogy": true,
+      "hasTools": true,
+      "codeLanguages": ["jsx", "html", "css"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": 10,
+      "sectionId": "section-component-testing",
+      "title_es": "2.10 Testing de Componentes: Desde la Perspectiva del Usuario",
+      "title_en": "2.10 Component Testing: From the User's Perspective",
+      "lineStart": 1602,
+      "lineEnd": 1847,
+      "status": "complete",
+      "topics": [
+        "Unit testing",
+        "Testing library",
+        "Patrón AAA",
+        "E2E testing",
+        "Testing desde perspectiva del usuario",
+        "Selectores recomendados"
+      ],
+      "hasCode": true,
+      "hasAnalogy": true,
+      "hasTools": true,
+      "hasDecisionTree": true,
+      "codeLanguages": ["jsx", "javascript"],
+      "testingFrameworks": ["React Testing Library", "Jest", "Cypress"],
+      "difficulty": "advanced"
+    },
+    {
+      "id": 11,
+      "sectionId": "section-summary",
+      "title_es": "3. Resumen Final y Cheat Sheet",
+      "title_en": "3. Final Summary & Cheat Sheet",
+      "lineStart": 1849,
+      "lineEnd": 1855,
+      "status": "incomplete",
+      "topics": ["Resumen general", "Cheat sheet"],
+      "hasCode": false,
+      "hasAnalogy": false,
+      "difficulty": "beginner",
+      "notes": "Sección en construcción"
+    }
+  ],
+  "statistics": {
+    "completeSections": 11,
+    "incompleteSections": 1,
+    "totalLines": 1855,
+    "sectionsWithCode": 9,
+    "sectionsWithAnalogies": 6,
+    "avgDifficulty": "intermediate",
+    "topicsCount": 47,
+    "uniqueCodeLanguages": ["jsx", "javascript", "css", "html", "bash"],
+    "testingFrameworksMentioned": ["React Testing Library", "Jest", "Cypress"]
+  },
+  "keyTopics": {
+    "stateManagement": ["State Machine Pattern", "Estado Esencial vs Derivado", "Patrones de Aplicación", "Arquitectura del Estado", "Anti-patrones"],
+    "architecture": ["Barebone Method", "Componentes", "Visión arquitectónica"],
+    "quality": ["Testing", "Accesibilidad", "Mejores Prácticas"],
+    "mentorship": ["Diferencia Junior-Senior", "Modelos Mentales", "Desarrollo de Intuición"]
+  },
+  "languages": {
+    "es": "Español",
+    "en": "English"
+  },
+  "generatedAt": "2026-02-16",
+  "source": "/Users/rogemateos/Documentos/GithubProjects/HtmlTutorales/JuniorToSenior/index.html"
+}

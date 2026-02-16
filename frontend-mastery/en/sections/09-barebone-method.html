@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2.8 Barebone Method - Frontend Mastery</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-barebone-method">
+                <h1>2.8 Barebone Method</h1>
+
+                <p>The Barebone Method is a technique for building components first without styling, without optimizations, just pure functionality. Then you iterate and improve. It's especially useful for interviews and prototypes.</p>
+
+                <h2>What is Barebone?</h2>
+
+                <div class="concept-block">
+                    <p><strong>Barebone</strong> means "pure functionality". It's building a component with:</p>
+                    <ul>
+                        <li>✅ Correct logic</li>
+                        <li>✅ Correct state</li>
+                        <li>✅ Basic error handling</li>
+                        <li>❌ No elaborate CSS</li>
+                        <li>❌ No performance optimizations</li>
+                        <li>❌ No complex edge cases</li>
+                    </ul>
+                </div>
+
+                <h2>Example: Barebone vs Production Implementation</h2>
+
+                <div class="code-block">
+                    <h4>Step 1: Barebone (Pure Functionality)</h4>
+<pre><code class="language-jsx">// ✅ Barebone: Functional but unpolished
+const UserTable = ({ users, onSelect }) => {
+  const [sortBy, setSortBy] = useState('name');
+
+  const sortedUsers = [...users].sort((a, b) => {
+    if (sortBy === 'name') return a.name.localeCompare(b.name);
+    if (sortBy === 'age') return a.age - b.age;
+    return 0;
+  });
+
+  return (
+    &lt;div&gt;
+      &lt;div&gt;
+        &lt;button onClick={() => setSortBy('name')}&gt;Sort by Name&lt;/button&gt;
+        &lt;button onClick={() => setSortBy('age')}&gt;Sort by Age&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;table&gt;
+        &lt;tr&gt;&lt;th&gt;Name&lt;/th&gt;&lt;th&gt;Age&lt;/th&gt;&lt;/tr&gt;
+        {sortedUsers.map(u => (
+          &lt;tr key={u.id} onClick={() => onSelect(u)}&gt;
+            &lt;td&gt;{u.name}&lt;/td&gt;
+            &lt;td&gt;{u.age}&lt;/td&gt;
+          &lt;/tr&gt;
+        ))}
+      &lt;/table&gt;
+    &lt;/div&gt;
+  );
+};
+</code></pre>
+                </div>
+
+                <div class="code-block">
+                    <h4>Step 2: Add Presentation</h4>
+<pre><code class="language-jsx">// ✅ With styling
+const UserTable = ({ users, onSelect }) => {
+  const [sortBy, setSortBy] = useState('name');
+  const [sortDirection, setSortDirection] = useState('asc');
+
+  const sortedUsers = [...users].sort((a, b) => {
+    let comparison = sortBy === 'name'
+      ? a.name.localeCompare(b.name)
+      : a.age - b.age;
+    return sortDirection === 'asc' ? comparison : -comparison;
+  });
+
+  return (
+    &lt;div className="user-table-container"&gt;
+      &lt;div className="sort-controls"&gt;
+        &lt;button
+          className={sortBy === 'name' ? 'active' : ''}
+          onClick={() => {
+            if (sortBy === 'name') {
+              setSortDirection(d => d === 'asc' ? 'desc' : 'asc');
+            } else {
+              setSortBy('name');
+              setSortDirection('asc');
+            }
+          }}
+        &gt;
+          Sort by Name {sortBy === 'name' && (sortDirection === 'asc' ? '↑' : '↓')}
+        &lt;/button&gt;
+      &lt;/div&gt;
+      &lt;table className="user-table"&gt;
+        &lt;thead&gt;
+          &lt;tr&gt;&lt;th&gt;Name&lt;/th&gt;&lt;th&gt;Age&lt;/th&gt;&lt;th&gt;Action&lt;/th&gt;&lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+          {sortedUsers.map(u => (
+            &lt;tr key={u.id} className="user-row"&gt;
+              &lt;td&gt;{u.name}&lt;/td&gt;
+              &lt;td&gt;{u.age}&lt;/td&gt;
+              &lt;td&gt;
+                &lt;button
+                  className="btn-select"
+                  onClick={() => onSelect(u)}
+                &gt;
+                  Select
+                &lt;/button&gt;
+              &lt;/td&gt;
+            &lt;/tr&gt;
+          ))}
+        &lt;/tbody&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
+  );
+};
+</code></pre>
+                </div>
+
+                <div class="analogy-block" data-title="💡 Analogy: Building a House">
+                    <p>Barebone is building the foundation, walls, and roof (the essentials). Then you paint, install electricity, add furniture (presentation and polish). Don't try to decorate before the walls are up.</p>
+                </div>
+
+                <h2>Advantages of the Barebone Method</h2>
+
+                <ul>
+                    <li><strong>Clarity:</strong> You focus on logic, not visual details</li>
+                    <li><strong>Testing:</strong> Easier to test pure functionality</li>
+                    <li><strong>Quick Iteration:</strong> Change logic easily without worrying about CSS</li>
+                    <li><strong>Interviews:</strong> Show functional code quickly without wasting time on styling</li>
+                    <li><strong>Collaboration:</strong> Backend developers can easily understand the logic</li>
+                </ul>
+
+                <div class="warning-block" data-title="⚠️ Senior Advice">
+                    <p>Use Barebone in coding interviews. Interviewers value seeing functional code quickly. You can say: "Here's the barebone functionality. In a real project, I'd add [list of improvements]".</p>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='08-state-antipatterns.html'">← Previous</button>
+                    <button class="btn btn-primary" onclick="window.location.href='10-web-accessibility.html'">Next →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

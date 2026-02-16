@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2.4 Essential vs Derived State - Frontend Mastery</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-essential-derived">
+                <h1>2.4 Essential vs Derived State</h1>
+
+                <p>Not everything that looks like "state" needs to be stored. Differentiating between essential state (source of truth) and derived state (calculated) is fundamental for clean and efficient applications.</p>
+
+                <div class="problem-block" data-title="The Problem: State Redundancy">
+                    <p>Many developers store everything in state, creating redundancy:</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">// ❌ Unnecessary redundancy
+const [products, setProducts] = useState([]);
+const [filteredProducts, setFilteredProducts] = useState([]);
+const [count, setCount] = useState(0);
+const [total, setTotal] = useState(0);
+
+// Now you have two "sources of truth" for the same data
+// If you update 'products' but forget to update 'filteredProducts',
+// your UI will show out-of-sync data!</code></pre>
+                    </div>
+                </div>
+
+                <div class="solution-block" data-title="Solution: Single Source of Truth">
+                    <p>Keep only essential state and derive the rest:</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">// ✅ Single source of truth
+const [products, setProducts] = useState([]);
+const [filterText, setFilterText] = useState('');
+
+// Derive, don't store
+const filteredProducts = products.filter(p =>
+  p.name.includes(filterText)
+);
+const count = filteredProducts.length;
+const total = filteredProducts.reduce((sum, p) => sum + p.price, 0);
+
+// These values are recalculated each render
+// Always consistent with the source of truth</code></pre>
+                    </div>
+                </div>
+
+                <h2>Identifying Essential vs Derived State</h2>
+
+                <div class="concept-block">
+                    <h4>Golden Rule</h4>
+                    <p><strong>Essential State:</strong> Data that cannot be calculated from other data. Example: user list from server, user preferences.</p>
+                    <p><strong>Derived State:</strong> Data that can be calculated from essential state. Example: user count, filtered users, total sales.</p>
+                </div>
+
+                <div class="concept-block">
+                    <h4>Examples Table</h4>
+                    <table class="cheat-sheet-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Type</th>
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Product list</td>
+                                <td>Essential</td>
+                                <td>Comes from server, cannot be calculated</td>
+                            </tr>
+                            <tr>
+                                <td>Filtered products</td>
+                                <td>Derived</td>
+                                <td>Calculated by filtering the essential list</td>
+                            </tr>
+                            <tr>
+                                <td>Search text</td>
+                                <td>Essential</td>
+                                <td>User input, source of truth</td>
+                            </tr>
+                            <tr>
+                                <td>Result count</td>
+                                <td>Derived</td>
+                                <td>Counted from filtered products</td>
+                            </tr>
+                            <tr>
+                                <td>Authenticated user</td>
+                                <td>Essential</td>
+                                <td>Critical server information</td>
+                            </tr>
+                            <tr>
+                                <td>Is admin?</td>
+                                <td>Derived</td>
+                                <td>Calculated from user role</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="warning-block" data-title="⚠️ Senior Advice">
+                    <p>If you find that you need to synchronize multiple state values, it's a signal that you're storing derived state. Instead, calculate derived values during render.</p>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='04-state-machine.html'">← Previous</button>
+                    <button class="btn btn-primary" onclick="window.location.href='06-state-patterns.html'">Next →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

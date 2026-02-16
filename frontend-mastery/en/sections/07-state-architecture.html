@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2.6 State Architecture - Frontend Mastery</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-state-architecture">
+                <h1>2.6 State Architecture</h1>
+
+                <p>State architecture in a complex application requires careful decisions. It's not just about where to store data, but how to structure and synchronize it.</p>
+
+                <h2>Fundamental Principles</h2>
+
+                <div class="concept-block">
+                    <h4>1. Minimize State</h4>
+                    <p>Store only what's absolutely necessary. Everything else should be derived.</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">// ❌ Too much state
+const [firstName, setFirstName] = useState('');
+const [lastName, setLastName] = useState('');
+const [fullName, setFullName] = useState('');
+
+// ✅ Correct
+const [firstName, setFirstName] = useState('');
+const [lastName, setLastName] = useState('');
+const fullName = `${firstName} ${lastName}`;
+</code></pre>
+                    </div>
+                </div>
+
+                <div class="concept-block">
+                    <h4>2. Normalize the Structure</h4>
+                    <p>Avoid deeply nested data. Normalize like a relational database.</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">// ❌ Deep nesting (hard to update)
+const [app, setApp] = useState({
+  user: {
+    profile: {
+      settings: {
+        notifications: true
+      }
+    }
+  }
+});
+
+// ✅ Normalized
+const [state, setState] = useState({
+  users: { [id]: { name, email } },
+  posts: { [id]: { title, userId } },
+  settings: { [userId]: { notifications: true } }
+});</code></pre>
+                    </div>
+                </div>
+
+                <div class="concept-block">
+                    <h4>3. Single Source of Truth</h4>
+                    <p>Don't duplicate data. If something changes, it should change in one place.</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">// ❌ Duplication
+const [user, setUser] = useState(userData);
+const [profile, setProfile] = useState(userData.profile);
+// Now you have two versions of the data
+
+// ✅ Single source of truth
+const [user, setUser] = useState(userData);
+const profile = user.profile;
+</code></pre>
+                    </div>
+                </div>
+
+                <h2>Recommended Structure for Large Applications</h2>
+
+                <div class="code-block">
+<pre><code class="language-jsx">const initialState = {
+  // Domain data
+  entities: {
+    users: { byId: {}, allIds: [] },
+    posts: { byId: {}, allIds: [] },
+    comments: { byId: {}, allIds: [] }
+  },
+
+  // UI state
+  ui: {
+    isLoading: false,
+    error: null,
+    filters: {
+      search: '',
+      category: 'all'
+    }
+  },
+
+  // Current selections
+  selection: {
+    selectedUserId: null,
+    selectedPostId: null
+  },
+
+  // Cache state
+  cache: {
+    fetchedAt: null,
+    ttl: 5 * 60 * 1000 // 5 minutes
+  }
+};</code></pre>
+                </div>
+
+                <div class="analogy-block" data-title="💡 Analogy: Company Organization">
+                    <p>State is like company information. Domain data is the product (what you sell). UI state is presentation (how you show it). Selections are current focus (what you're paying attention to). Cache is the archive (what you remember).</p>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='06-state-patterns.html'">← Previous</button>
+                    <button class="btn btn-primary" onclick="window.location.href='08-state-antipatterns.html'">Next →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

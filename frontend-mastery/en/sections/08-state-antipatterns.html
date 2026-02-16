@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2.7 State Anti-patterns - Frontend Mastery</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-state-antipatterns">
+                <h1>2.7 State Anti-patterns</h1>
+
+                <p>These are the most common mistakes developers make when handling state. Recognizing them will save you hours of debugging.</p>
+
+                <h2>1. State Duplication</h2>
+
+                <div class="problem-block" data-title="The Anti-pattern">
+                    <div class="code-block">
+<pre><code class="language-jsx">// ❌ Anti-pattern: Duplication
+const [users, setUsers] = useState([]);
+const [selectedUser, setSelectedUser] = useState(null);
+
+const selectUser = (id) => {
+  const user = users.find(u => u.id === id);
+  setSelectedUser(user); // ← Duplicating data
+};</code></pre>
+                    </div>
+                </div>
+
+                <div class="solution-block" data-title="The Solution">
+                    <div class="code-block">
+<pre><code class="language-jsx">// ✅ Correct: Single source of truth
+const [users, setUsers] = useState([]);
+const [selectedUserId, setSelectedUserId] = useState(null);
+
+const selectedUser = users.find(u => u.id === selectedUserId);
+</code></pre>
+                    </div>
+                </div>
+
+                <h2>2. Side Effects in Reducers</h2>
+
+                <div class="problem-block" data-title="The Anti-pattern">
+                    <div class="code-block">
+<pre><code class="language-jsx">// ❌ Anti-pattern: API call in reducer
+const reducer = (state, action) => {
+  if (action.type === 'FETCH') {
+    fetch('/api/data').then(...); // ❌ Side effect in reducer
+    return state;
+  }
+};
+</code></pre>
+                    </div>
+                </div>
+
+                <div class="solution-block" data-title="The Solution">
+                    <div class="code-block">
+<pre><code class="language-jsx">// ✅ Correct: Effects outside reducer
+const reducer = (state, action) => {
+  switch(action.type) {
+    case 'FETCH_START': return { ...state, loading: true };
+    case 'FETCH_SUCCESS': return { ...state, data: action.payload };
+    default: return state;
+  }
+};
+
+const Component = () => {
+  const [state, dispatch] = useReducer(reducer, init);
+
+  useEffect(() => {
+    dispatch({ type: 'FETCH_START' });
+    fetch('/api/data')
+      .then(r => r.json())
+      .then(data => dispatch({ type: 'FETCH_SUCCESS', payload: data }));
+  }, []);
+};
+</code></pre>
+                    </div>
+                </div>
+
+                <h2>3. Deriving State Without Recalculating</h2>
+
+                <div class="problem-block" data-title="The Anti-pattern">
+                    <div class="code-block">
+<pre><code class="language-jsx">// ❌ Anti-pattern: Precalculate and store
+const [users, setUsers] = useState([]);
+const [userCount, setUserCount] = useState(0);
+
+const addUser = (user) => {
+  setUsers([...users, user]);
+  setUserCount(userCount + 1); // ← Can become out of sync
+};</code></pre>
+                    </div>
+                </div>
+
+                <div class="solution-block" data-title="The Solution">
+                    <div class="code-block">
+<pre><code class="language-jsx">// ✅ Correct: Derive during render
+const [users, setUsers] = useState([]);
+const userCount = users.length; // Calculated each render
+
+const addUser = (user) => {
+  setUsers([...users, user]);
+};
+</code></pre>
+                    </div>
+                </div>
+
+                <h2>4. Prop Drilling</h2>
+
+                <div class="problem-block" data-title="The Anti-pattern">
+                    <div class="code-block">
+<pre><code class="language-jsx">// ❌ Passing props through 5 intermediate components
+&lt;App theme={theme}&gt;
+  &lt;Header theme={theme}&gt;
+    &lt;Nav theme={theme}&gt;
+      &lt;Button theme={theme}&gt;
+</code></pre>
+                    </div>
+                </div>
+
+                <div class="solution-block" data-title="The Solution: Context">
+                    <div class="code-block">
+<pre><code class="language-jsx">// ✅ Context avoids prop drilling
+const ThemeContext = createContext();
+
+&lt;ThemeContext.Provider value={theme}&gt;
+  &lt;App /&gt;
+&lt;/ThemeContext.Provider&gt;
+
+// In Button:
+const theme = useContext(ThemeContext);
+</code></pre>
+                    </div>
+                </div>
+
+                <h2>5. Direct Mutation</h2>
+
+                <div class="problem-block" data-title="The Anti-pattern">
+                    <div class="code-block">
+<pre><code class="language-jsx">// ❌ Anti-pattern: Mutating directly
+const [user, setUser] = useState({ name: 'John', age: 30 });
+
+const updateAge = (newAge) => {
+  user.age = newAge; // ❌ Direct mutation
+  setUser(user); // React doesn't detect the change
+};
+</code></pre>
+                    </div>
+                </div>
+
+                <div class="solution-block" data-title="The Solution">
+                    <div class="code-block">
+<pre><code class="language-jsx">// ✅ Correct: Create new object
+const [user, setUser] = useState({ name: 'John', age: 30 });
+
+const updateAge = (newAge) => {
+  setUser({ ...user, age: newAge });
+};
+</code></pre>
+                    </div>
+                </div>
+
+                <div class="warning-block" data-title="⚠️ Senior Advice">
+                    <p>90% of React state-related bugs come from these 5 anti-patterns. Memorize them and avoid them religiously. When something doesn't work, check these first before investigating deeper.</p>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='07-state-architecture.html'">← Previous</button>
+                    <button class="btn btn-primary" onclick="window.location.href='09-barebone-method.html'">Next →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1. Por qué Frameworks - Frontend Mastery</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-frameworks">
+                <h1 data-lang-es="1. Por qué importan los Frameworks: Una Perspectiva Histórica" data-lang-en="1. Why Component Frameworks Matter: A Historical Perspective">1. Por qué importan los Frameworks: Una Perspectiva Histórica</h1>
+
+                <div class="problem-block" data-title="El Problema Principal: Omitir el Conocimiento Fundamental">
+                    <p data-lang-es="Muchos desarrolladores saltan directamente a React sin comprender los principios fundamentales de la web. Es como un pintor que intenta hacer arte abstracto sin haber aprendido nunca a dibujar de forma realista." data-lang-en="Many developers jump directly into React without understanding core web principles. It's like a painter trying abstraction without ever learning realism.">Muchos desarrolladores saltan directamente a React sin comprender los principios fundamentales de la web. Es como un pintor que intenta hacer arte abstracto sin haber aprendido nunca a dibujar de forma realista.</p>
+                    <p><strong>Consecuencia:</strong> Esto crea una mentalidad de "copiar y pegar" sin entender el porqué, lo que lleva a:</p>
+                    <ul>
+                        <li>Incapacidad para depurar problemas complejos</li>
+                        <li>Bajo rendimiento en entrevistas técnicas</li>
+                        <li>Dificultad para distinguir a un senior de un junior</li>
+                    </ul>
+                </div>
+
+                <h2>Por qué los Frameworks Revolucionaron el Desarrollo Web</h2>
+
+                <div class="concept-block">
+                    <h4>La Crisis Pre-React</h4>
+                    <p>Antes de React y frameworks modernos, los desarrolladores enfrentaban un dilema clásico:</p>
+                    <ul>
+                        <li><strong>jQuery/DOM Vanilla:</strong> Total control pero caótico a escala</li>
+                        <li><strong>MVC Heavy (Backbone, Angular 1):</strong> Estructura pero mucho boilerplate</li>
+                        <li><strong>El Problema:</strong> Mantener la UI sincronizada con el estado era un infierno</li>
+                    </ul>
+                </div>
+
+                <div class="solution-block" data-title="La Revolución de React">
+                    <p>React introdujo un cambio fundamental en el pensamiento:</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">// UI = f(estado)
+// Esta simple ecuación cambió todo
+
+const App = ({ users, isLoading }) => {
+  if (isLoading) return &lt;div&gt;Cargando...&lt;/div&gt;;
+  return (
+    &lt;ul&gt;
+      {users.map(user => &lt;li key={user.id}&gt;{user.name}&lt;/li&gt;)}
+    &lt;/ul&gt;
+  );
+};</code></pre>
+                    </div>
+                </div>
+
+                <div class="warning-block" data-title="⚠️ Consejo Senior">
+                    <p>Antes de aprender React, aprende JavaScript puro. Entiende cómo funcionan los eventos, el DOM API, promesas, async/await. Sin esto, React se vuelve "magia" y no entenderás qué está sucediendo cuando algo falla.</p>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='01-core-skill.html'">← Anterior</button>
+                    <button class="btn btn-primary" onclick="window.location.href='03-mental-models.html'">Siguiente →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

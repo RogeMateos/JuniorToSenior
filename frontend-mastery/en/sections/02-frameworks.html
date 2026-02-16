@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1. Why Frameworks - Frontend Mastery</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-frameworks">
+                <h1>1. Why Component Frameworks Matter: A Historical Perspective</h1>
+
+                <div class="problem-block" data-title="The Core Problem: Skipping Foundational Knowledge">
+                    <p>Many developers jump directly into React without understanding core web principles. It's like a painter trying abstraction without ever learning realism.</p>
+                    <p><strong>Consequence:</strong> This creates a 'monkey see, monkey do' mentality without understanding the why, leading to:</p>
+                    <ul>
+                        <li>Inability to debug complex issues.</li>
+                        <li>Poor performance in technical interviews.</li>
+                        <li>Difficulty distinguishing senior from junior developers.</li>
+                    </ul>
+                </div>
+
+                <h2>Why Frameworks Revolutionized Web Development</h2>
+
+                <div class="concept-block">
+                    <h4>The Pre-React Crisis</h4>
+                    <p>Before React and modern frameworks, developers faced a classic dilemma:</p>
+                    <ul>
+                        <li><strong>jQuery/Vanilla DOM:</strong> Total control but chaotic at scale</li>
+                        <li><strong>MVC Heavy (Backbone, Angular 1):</strong> Structure but lots of boilerplate</li>
+                        <li><strong>The Problem:</strong> Keeping the UI in sync with state was a nightmare</li>
+                    </ul>
+                </div>
+
+                <div class="solution-block" data-title="The React Revolution">
+                    <p>React introduced a fundamental shift in thinking:</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">// UI = f(state)
+// This simple equation changed everything
+
+const App = ({ users, isLoading }) => {
+  if (isLoading) return &lt;div&gt;Loading...&lt;/div&gt;;
+  return (
+    &lt;ul&gt;
+      {users.map(user => &lt;li key={user.id}&gt;{user.name}&lt;/li&gt;)}
+    &lt;/ul&gt;
+  );
+};</code></pre>
+                    </div>
+                </div>
+
+                <div class="warning-block" data-title="⚠️ Senior Advice">
+                    <p>Before learning React, learn pure JavaScript. Understand how events work, the DOM API, promises, async/await. Without this, React becomes "magic" and you won't understand what's happening when something fails.</p>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='01-core-skill.html'">← Previous</button>
+                    <button class="btn btn-primary" onclick="window.location.href='03-mental-models.html'">Next →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

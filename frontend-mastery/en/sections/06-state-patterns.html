@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2.5 State Patterns - Frontend Mastery</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-state-patterns">
+                <h1>2.5 State Application Patterns</h1>
+
+                <p>There are several proven patterns for managing state in modern applications. Each has its advantages and specific use cases.</p>
+
+                <h2>1. Component State (Local)</h2>
+
+                <div class="concept-block">
+                    <p><strong>When to use:</strong> State that only affects one component (e.g., input field value, if a modal is open).</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">const SearchBox = () => {
+  const [query, setQuery] = useState('');
+
+  return (
+    &lt;&gt;
+      &lt;input
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+      /&gt;
+      &lt;p&gt;Searching for: {query}&lt;/p&gt;
+    &lt;/&gt;
+  );
+};</code></pre>
+                    </div>
+                </div>
+
+                <h2>2. Lifted State</h2>
+
+                <div class="concept-block">
+                    <p><strong>When to use:</strong> When multiple sibling components need to share state.</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">const App = () => {
+  const [selected, setSelected] = useState(null);
+
+  return (
+    &lt;&gt;
+      &lt;List items={items} onSelect={setSelected} /&gt;
+      &lt;Details item={selected} /&gt;
+    &lt;/&gt;
+  );
+};</code></pre>
+                    </div>
+                </div>
+
+                <h2>3. Context API</h2>
+
+                <div class="concept-block">
+                    <p><strong>When to use:</strong> When you need to avoid prop drilling (passing props through many levels).</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">const ThemeContext = React.createContext();
+
+const App = () => {
+  const [theme, setTheme] = useState('light');
+
+  return (
+    &lt;ThemeContext.Provider value={{ theme, setTheme }}&gt;
+      &lt;Header /&gt;
+      &lt;Main /&gt;
+      &lt;Footer /&gt;
+    &lt;/ThemeContext.Provider&gt;
+  );
+};
+
+const Button = () => {
+  const { theme } = useContext(ThemeContext);
+  return &lt;button style={{ background: theme }}&gt;Click&lt;/button&gt;;
+};</code></pre>
+                    </div>
+                </div>
+
+                <h2>4. Global State Management (Redux, Zustand)</h2>
+
+                <div class="concept-block">
+                    <p><strong>When to use:</strong> For complex state in large applications, with multiple actions and middleware needed.</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">// With Zustand (simpler than Redux)
+const useStore = create((set) => ({
+  users: [],
+  addUser: (user) => set((state) => ({
+    users: [...state.users, user]
+  })),
+  removeUser: (id) => set((state) => ({
+    users: state.users.filter(u => u.id !== id)
+  }))
+}));
+
+const App = () => {
+  const users = useStore((state) => state.users);
+  const addUser = useStore((state) => state.addUser);
+
+  return (
+    &lt;div&gt;
+      {users.map(u => &lt;div key={u.id}&gt;{u.name}&lt;/div&gt;)}
+      &lt;button onClick={() => addUser({ id: 1, name: 'John' })}&gt;
+        Add User
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+};</code></pre>
+                    </div>
+                </div>
+
+                <div class="analogy-block" data-title="💡 Analogy: Levels of Scale">
+                    <p>Component State is like keeping money in your pocket (quick access, only what you need). Lifted State is like a savings box shared with siblings. Context is like a family vault. Global State is like a corporate bank for large organizations.</p>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='05-essential-derived.html'">← Previous</button>
+                    <button class="btn btn-primary" onclick="window.location.href='07-state-architecture.html'">Next →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

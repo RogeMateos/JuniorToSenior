@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2.9 Accesibilidad Web - Frontend Mastery</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-web-accessibility">
+                <h1>2.9 Accesibilidad Web (A11Y)</h1>
+
+                <p>La accesibilidad no es un "extra", es un requisito. Un desarrollador senior construye interfaces accesibles por defecto. A11Y (accesibilidad) es crucial para usuarios con discapacidades y para SEO.</p>
+
+                <h2>Principios WCAG 2.1</h2>
+
+                <div class="concept-block">
+                    <h4>1. Perceptible</h4>
+                    <p>La información debe ser presentada de formas que todos puedan percibir:</p>
+                    <ul>
+                        <li>Contraste suficiente entre texto y fondo (4.5:1 para texto normal)</li>
+                        <li>Descripciones de imágenes (alt text)</li>
+                        <li>Transcripciones para videos</li>
+                    </ul>
+                </div>
+
+                <div class="concept-block">
+                    <h4>2. Operable</h4>
+                    <p>La interfaz debe ser navegable con teclado:</p>
+                    <ul>
+                        <li>Todo debe ser accesible mediante Tab</li>
+                        <li>Los botones deben responder a Enter/Space</li>
+                        <li>Los enlaces deben ser distinguibles</li>
+                        <li>Skip links para saltar navegación repetitiva</li>
+                    </ul>
+                </div>
+
+                <div class="concept-block">
+                    <h4>3. Comprensible</h4>
+                    <p>El contenido debe ser claro y predecible:</p>
+                    <ul>
+                        <li>Lenguaje simple</li>
+                        <li>Instrucciones claras en formularios</li>
+                        <li>Predicción: si hago algo, espero que suceda X</li>
+                    </ul>
+                </div>
+
+                <div class="concept-block">
+                    <h4>4. Robusto</h4>
+                    <p>Compatible con tecnologías de asistencia:</p>
+                    <ul>
+                        <li>HTML semántico</li>
+                        <li>ARIA attributes cuando sea necesario</li>
+                        <li>Compatibilidad con screen readers</li>
+                    </ul>
+                </div>
+
+                <h2>Checklist de Accesibilidad</h2>
+
+                <div class="code-block">
+<pre><code class="language-jsx">// ✅ Formulario Accesible
+const Form = () => {
+  return (
+    &lt;form&gt;
+      {/* Labels asociados correctamente */}
+      &lt;label htmlFor="email"&gt;Email:&lt;/label&gt;
+      &lt;input
+        id="email"
+        type="email"
+        aria-label="Correo electrónico"
+        aria-required="true"
+      /&gt;
+
+      {/* Contraste suficiente */}
+      &lt;button
+        style={{ color: '#000', background: '#ffff00' }}
+        // Ratio 19.56:1 ✅
+      &gt;
+        Submit
+      &lt;/button&gt;
+
+      {/* Accesible con teclado */}
+      &lt;input
+        type="text"
+        placeholder="Buscar..."
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') handleSearch();
+        }}
+      /&gt;
+    &lt;/form&gt;
+  );
+};
+</code></pre>
+                </div>
+
+                <h2>Errores Comunes</h2>
+
+                <div class="problem-block" data-title="❌ Errores Comunes">
+                    <ul>
+                        <li>No usar labels en formularios</li>
+                        <li>Usar divs para botones en lugar de <code>&lt;button&gt;</code></li>
+                        <li>No tener atributos alt en imágenes</li>
+                        <li>Colores como única forma de comunicación</li>
+                        <li>No testear con screen readers (NVDA, JAWS)</li>
+                        <li>Zoom menor al 200% que cause overflow</li>
+                        <li>No permitir navegación por teclado</li>
+                    </ul>
+                </div>
+
+                <div class="analogy-block" data-title="💡 Analogía: Rampas de Acceso">
+                    <p>Una rampa de acceso no solo beneficia a personas en silla de ruedas. También ayuda a padres con cochecitos, personas mayores, y personas con maletas. La accesibilidad beneficia a TODOS.</p>
+                </div>
+
+                <div class="warning-block" data-title="⚠️ Consejo Senior">
+                    <p>A11Y no es opcional. Es ilegal en muchas jurisdicciones (bajo ADA en EE.UU., AODA en Canadá). Es una señal de profesionalismo. Los desarrolladores senior construyen interfaces accesibles por defecto.</p>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='09-barebone-method.html'">← Anterior</button>
+                    <button class="btn btn-primary" onclick="window.location.href='11-component-testing.html'">Siguiente →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

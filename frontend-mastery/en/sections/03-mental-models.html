@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2. Mental Models - Frontend Mastery</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-mental-models">
+                <h1>2. Evolution to Modern Mental Models</h1>
+
+                <div class="problem-block" data-title="The Pre-Framework Era: Manual DOM Manipulation">
+                    <p>Traditional development with vanilla JavaScript (or jQuery) required direct DOM manipulation. This approach presented critical challenges:</p>
+                    <ul>
+                        <li><strong>Complexity at Scale:</strong> The code to keep the UI in sync with data became unmanageable.</li>
+                        <li><strong>Conflicts & Bugs:</strong> The shared global scope created conflicts and unpredictable behavior.</li>
+                        <li><strong>No Reusability:</strong> Code was tightly coupled to the HTML structure, making it hard to reuse.</li>
+                    </ul>
+                </div>
+
+                <div class="solution-block" data-title="The Component Revolution: Applying OOP Principles">
+                    <p>Modern frameworks applied key Object-Oriented Programming concepts to solve these issues. The fundamental shift is thinking of the UI as a set of 'Lego pieces' (components) instead of one large page.</p>
+                    <ul>
+                        <li><strong>Isolation:</strong> A form component doesn't interfere with a navigation component.</li>
+                        <li><strong>Encapsulation:</strong> Each component manages its own logic, state, and styling.</li>
+                        <li><strong>Reusability:</strong> A 'Button' component can be used across the entire app with different text and actions.</li>
+                    </ul>
+                </div>
+
+                <h2>Key Paradigm Shifts</h2>
+
+                <div class="concept-block">
+                    <h4>Declarative Programming with JSX</h4>
+                    <p>Instead of writing step-by-step instructions (imperative), we now simply declare how the UI should look based on the current state. The framework handles the 'how'.</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">// Declarative Approach with React
+const UserList = ({ users, isLoading }) => {
+  if (isLoading) return &lt;div&gt;Loading...&lt;/div&gt;;
+  return (
+    &lt;ul&gt;
+      {users.map(user => (
+        &lt;li key={user.id}&gt;{user.name}&lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+};</code></pre>
+                    </div>
+                </div>
+
+                <div class="concept-block">
+                    <h4>Unidirectional Data Flow</h4>
+                    <p>React introduces a unidirectional data flow: Props flow down from parent to child, events flow up from child to parent. This predictability makes debugging easier.</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">// Parent Component
+const App = () => {
+  const [count, setCount] = React.useState(0);
+
+  return &lt;Counter value={count} onChange={setCount} /&gt;;
+};
+
+// Child Component
+const Counter = ({ value, onChange }) => (
+  &lt;button onClick={() => onChange(value + 1)}&gt;
+    Count: {value}
+  &lt;/button&gt;
+);</code></pre>
+                    </div>
+                </div>
+
+                <div class="analogy-block" data-title="💡 Analogy: From Chessboard to Pieces">
+                    <p>If jQuery is like a chessboard where you manually move each piece (imperative), React is like saying: "I have 16 pieces in starting position" and React places them (declarative). You change the state of the pieces, and React updates the board automatically.</p>
+                </div>
+
+                <div class="warning-block" data-title="⚠️ Senior Advice">
+                    <p>Many developers understand React but don't understand <strong>why</strong> it's better than jQuery. The reason: predictability. With React, given the same state, you always get the same UI. With jQuery, everything depends on the order of actions, side effects, and global conflicts.</p>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='02-frameworks.html'">← Previous</button>
+                    <button class="btn btn-primary" onclick="window.location.href='04-state-machine.html'">Next →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

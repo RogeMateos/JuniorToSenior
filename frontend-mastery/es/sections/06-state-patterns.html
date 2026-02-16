@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2.5 Patrones de Estado - Frontend Mastery</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-state-patterns">
+                <h1>2.5 Patrones de Aplicación del Estado</h1>
+
+                <p>Existen varios patrones comprobados para gestionar estado en aplicaciones modernas. Cada uno tiene sus ventajas y casos de uso específicos.</p>
+
+                <h2>1. Component State (Local)</h2>
+
+                <div class="concept-block">
+                    <p><strong>Cuándo usar:</strong> Estado que solo afecta a un componente (ej: valor de un campo de entrada, si un modal está abierto).</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">const SearchBox = () => {
+  const [query, setQuery] = useState('');
+
+  return (
+    &lt;&gt;
+      &lt;input
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+      /&gt;
+      &lt;p&gt;Buscando: {query}&lt;/p&gt;
+    &lt;/&gt;
+  );
+};</code></pre>
+                    </div>
+                </div>
+
+                <h2>2. Lifted State</h2>
+
+                <div class="concept-block">
+                    <p><strong>Cuándo usar:</strong> Cuando múltiples componentes hermanos necesitan compartir estado.</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">const App = () => {
+  const [selected, setSelected] = useState(null);
+
+  return (
+    &lt;&gt;
+      &lt;List items={items} onSelect={setSelected} /&gt;
+      &lt;Details item={selected} /&gt;
+    &lt;/&gt;
+  );
+};</code></pre>
+                    </div>
+                </div>
+
+                <h2>3. Context API</h2>
+
+                <div class="concept-block">
+                    <p><strong>Cuándo usar:</strong> Cuando necesitas evitar prop drilling (pasar props a través de muchos niveles).</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">const ThemeContext = React.createContext();
+
+const App = () => {
+  const [theme, setTheme] = useState('light');
+
+  return (
+    &lt;ThemeContext.Provider value={{ theme, setTheme }}&gt;
+      &lt;Header /&gt;
+      &lt;Main /&gt;
+      &lt;Footer /&gt;
+    &lt;/ThemeContext.Provider&gt;
+  );
+};
+
+const Button = () => {
+  const { theme } = useContext(ThemeContext);
+  return &lt;button style={{ background: theme }}&gt;Click&lt;/button&gt;;
+};</code></pre>
+                    </div>
+                </div>
+
+                <h2>4. Global State Management (Redux, Zustand)</h2>
+
+                <div class="concept-block">
+                    <p><strong>Cuándo usar:</strong> Para estado complejo en aplicaciones grandes, con múltiples acciones y middleware necesario.</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">// Con Zustand (más simple que Redux)
+const useStore = create((set) => ({
+  users: [],
+  addUser: (user) => set((state) => ({
+    users: [...state.users, user]
+  })),
+  removeUser: (id) => set((state) => ({
+    users: state.users.filter(u => u.id !== id)
+  }))
+}));
+
+const App = () => {
+  const users = useStore((state) => state.users);
+  const addUser = useStore((state) => state.addUser);
+
+  return (
+    &lt;div&gt;
+      {users.map(u => &lt;div key={u.id}&gt;{u.name}&lt;/div&gt;)}
+      &lt;button onClick={() => addUser({ id: 1, name: 'Juan' })}&gt;
+        Agregar
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+};</code></pre>
+                    </div>
+                </div>
+
+                <div class="analogy-block" data-title="💡 Analogía: Niveles de Escala">
+                    <p>Component State es como guardar dinero en tu bolsillo (acceso rápido, solo lo que necesitas). Lifted State es como una caja de ahorros compartida con hermanos. Context es como una bóveda familiar. Global State es como un banco corporativo para grandes organizaciones.</p>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='05-essential-derived.html'">← Anterior</button>
+                    <button class="btn btn-primary" onclick="window.location.href='07-state-architecture.html'">Siguiente →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

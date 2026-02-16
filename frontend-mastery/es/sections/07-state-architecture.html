@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2.6 Arquitectura del Estado - Frontend Mastery</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-state-architecture">
+                <h1>2.6 Arquitectura del Estado</h1>
+
+                <p>La arquitectura del estado en una aplicación compleja requiere decisiones cuidadosas. No se trata solo de dónde guardar datos, sino de cómo estructurarlos y sincronizarlos.</p>
+
+                <h2>Principios Fundamentales</h2>
+
+                <div class="concept-block">
+                    <h4>1. Minimizar Estado</h4>
+                    <p>Solo guarda lo que es absolutamente necesario. Todo lo demás debe ser derivado.</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">// ❌ Demasiado estado
+const [firstName, setFirstName] = useState('');
+const [lastName, setLastName] = useState('');
+const [fullName, setFullName] = useState('');
+
+// ✅ Correcto
+const [firstName, setFirstName] = useState('');
+const [lastName, setLastName] = useState('');
+const fullName = `${firstName} ${lastName}`;
+</code></pre>
+                    </div>
+                </div>
+
+                <div class="concept-block">
+                    <h4>2. Normalizar la Estructura</h4>
+                    <p>Evita datos anidados profundos. Normaliza como una base de datos relacional.</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">// ❌ Anidación profunda (difícil de actualizar)
+const [app, setApp] = useState({
+  user: {
+    profile: {
+      settings: {
+        notifications: true
+      }
+    }
+  }
+});
+
+// ✅ Normalizado
+const [state, setState] = useState({
+  users: { [id]: { name, email } },
+  posts: { [id]: { title, userId } },
+  settings: { [userId]: { notifications: true } }
+});</code></pre>
+                    </div>
+                </div>
+
+                <div class="concept-block">
+                    <h4>3. Una Sola Fuente de Verdad</h4>
+                    <p>No duplicar datos. Si algo cambia, debe cambiar en un único lugar.</p>
+                    <div class="code-block">
+<pre><code class="language-jsx">// ❌ Duplicación
+const [user, setUser] = useState(userData);
+const [profile, setProfile] = useState(userData.profile);
+// Ahora tienes dos versiones de los datos
+
+// ✅ Una sola fuente de verdad
+const [user, setUser] = useState(userData);
+const profile = user.profile;
+</code></pre>
+                    </div>
+                </div>
+
+                <h2>Estructura Recomendada para Aplicaciones Grandes</h2>
+
+                <div class="code-block">
+<pre><code class="language-jsx">const initialState = {
+  // Datos del dominio
+  entities: {
+    users: { byId: {}, allIds: [] },
+    posts: { byId: {}, allIds: [] },
+    comments: { byId: {}, allIds: [] }
+  },
+
+  // Estado de UI
+  ui: {
+    isLoading: false,
+    error: null,
+    filters: {
+      search: '',
+      category: 'all'
+    }
+  },
+
+  // Selecciones actuales
+  selection: {
+    selectedUserId: null,
+    selectedPostId: null
+  },
+
+  // Estado de caché
+  cache: {
+    fetchedAt: null,
+    ttl: 5 * 60 * 1000 // 5 minutos
+  }
+};</code></pre>
+                </div>
+
+                <div class="analogy-block" data-title="💡 Analogía: Organización de una Empresa">
+                    <p>El estado es como la información de una empresa. Los datos del dominio son el producto (qué vendes). El estado de UI es la presentación (cómo lo muestras). Las selecciones son la atención actual (en qué te enfocas). El caché es el archivo (qué recuerdas de antes).</p>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='06-state-patterns.html'">← Anterior</button>
+                    <button class="btn btn-primary" onclick="window.location.href='08-state-antipatterns.html'">Siguiente →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>
