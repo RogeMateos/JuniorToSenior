@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3.3 The 5 Steps Web Performance - Frontend Mastery</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-five-steps-web-performance">
+                <h1>🚀 De Aplicación Lenta a Fórmula 1 — Los 5 Pasos</h1>
+                <p><strong>La Estrategia Comprobada para Optimizar Web Performance sin Tocar Código Innecesariamente</strong></p>
+
+                <div class="warning-block" data-title="⚠️ El Error Más Común">
+                    <p>Muchos desarrolladores empiezan optimizando React.memo, useMemo y useCallback.</p>
+                    <p>Pero si el servidor es lento o las imágenes pesan 5MB, eso es irrelevante.</p>
+                    <p><strong>La optimización sin diagnóstico es ruido.</strong></p>
+                </div>
+
+                <h2>1️⃣ El Modelo Mental Correcto</h2>
+
+                <div class="analogy-block" data-title="🧠 Piénsalo Como Reparar un Coche">
+                    <p>Un coche lento no se arregla cambiando el volante.</p>
+                    <ol>
+                        <li>Primero miras el <strong>motor</strong> (servidor)</li>
+                        <li>Luego el <strong>peso</strong> (assets)</li>
+                        <li>Después la <strong>aerodinámica</strong> (JavaScript)</li>
+                        <li>Finalmente <strong>ajustes finos</strong> (framework tuning)</li>
+                    </ol>
+                    <p>La web performance funciona igual.</p>
+                </div>
+
+                <h2>2️⃣ La Fórmula: Siempre el Mismo Orden</h2>
+
+                <div class="solution-block" data-title="🎯 Los 5 Pasos (En Orden de Impacto)">
+                    <ol>
+                        <li><strong>Diagnosis</strong> — Entender qué está fallando</li>
+                        <li><strong>Server Optimization</strong> — Entrega más rápido lo mismo</li>
+                        <li><strong>Static Assets</strong> — Imágenes, fuentes, CSS ligero</li>
+                        <li><strong>JavaScript</strong> — Reducir bundle y bloqueos</li>
+                        <li><strong>Framework Optimizations</strong> — React.memo, useMemo, etc.</li>
+                    </ol>
+                    <p><strong>Pasos 1-3 = 80% de mejora</strong></p>
+                    <p><strong>Pasos 4-5 = 20% restante</strong></p>
+                </div>
+
+                <h2>3️⃣ Paso 1: Diagnosis — Nunca Optimices a Ciegas</h2>
+
+                <div class="concept-block">
+                    <h3>🎯 Objetivo</h3>
+                    <p>Entender qué métrica está fallando antes de tocar código.</p>
+                    <p>Sin diagnóstico, cualquier optimización es aleatoria.</p>
+                </div>
+
+                <h3>📊 Qué Medir</h3>
+
+                <div class="solution-block" data-title="Las Core Web Vitals Clave">
+                    <ul>
+                        <li><strong>LCP</strong> (Largest Contentful Paint) — ¿Qué tan rápido se ve el contenido?</li>
+                        <li><strong>CLS</strong> (Cumulative Layout Shift) — ¿Cuánto se mueve la página?</li>
+                        <li><strong>INP</strong> (Interaction to Next Paint) — ¿Qué tan rápido responde?</li>
+                        <li><strong>TTFB</strong> (Time to First Byte) — ¿Qué tan rápido responde el servidor?</li>
+                    </ul>
+                </div>
+
+                <h3>🧩 Cómo Piensa un Senior</h3>
+
+                <div class="concept-block">
+                    <p><strong>Si el problema es LCP alto:</strong> probablemente imágenes grandes, CSS bloqueante o servidor lento</p>
+                    <p><strong>Si el problema es CLS alto:</strong> imágenes sin tamaño o fuentes cargando tarde</p>
+                    <p><strong>Si el problema es INP alto:</strong> demasiado JavaScript bloqueando el main thread</p>
+                    <p><strong>Si TTFB es alto:</strong> problema de backend, caché deficiente o falta de CDN</p>
+                </div>
+
+                <h3>⚡ Acción Práctica</h3>
+
+                <div class="problem-block" data-title="❌ Forma Incorrecta">
+                    <p>Empezar a optimizar sin medir. "La app se siente lenta".</p>
+                </div>
+
+                <div class="solution-block" data-title="✅ Forma Correcta">
+                    <ol>
+                        <li>Abre Lighthouse en modo Mobile</li>
+                        <li>Anota los números de LCP, CLS, INP, TTFB</li>
+                        <li>Identifica la métrica peor</li>
+                        <li>Decide en qué paso vas a trabajar</li>
+                    </ol>
+                </div>
+
+                <h2>4️⃣ Paso 2: Server Optimization — Entrega Más Rápido</h2>
+
+                <div class="warning-block" data-title="⚠️ La Verdad Incómoda">
+                    <p>Si tu servidor tarda 2 segundos en responder, nada más importa.</p>
+                    <p>El TTFB impacta directamente en LCP, FCP y toda la experiencia.</p>
+                </div>
+
+                <h3>🔹 Compresión (Brotli / Gzip)</h3>
+
+                <div class="solution-block" data-title="💻 Resultado">
+                    <p>Reducir el tamaño de HTML, CSS y JS antes de enviarlos:</p>
+                    <pre><code>// En servidor nginx/apache
+gzip on;
+gzip_types text/html text/plain text/css application/javascript;
+gzip_level 9;  // máximo</code></pre>
+                    <p><strong>Impacto:</strong> 50-70% menos KB enviados</p>
+                </div>
+
+                <h3>🔹 Caché HTTP Inteligente</h3>
+
+                <div class="solution-block" data-title="💻 Estrategia Profesional">
+                    <pre><code>// HTML - cambios frecuentes
+Cache-Control: public, max-age=3600  // 1 hora
+
+// CSS/JS con versionado - cambian poco
+Cache-Control: public, max-age=31536000  // 1 año
+
+// Assets (imágenes, fuentes) - casi nunca cambian
+Cache-Control: public, max-age=31536000, immutable</code></pre>
+                    <p><strong>Resultado:</strong> Segunda carga hasta 70% más rápida</p>
+                </div>
+
+                <h3>🔹 Usar CDN y Compresión Moderna</h3>
+
+                <div class="concept-block">
+                    <ul>
+                        <li>Cloudflare, AWS CloudFront, Netlify Edge Functions</li>
+                        <li>Brotli es mejor que Gzip (pero más lento de comprimir)</li>
+                        <li>Edge caching cerca del usuario = TTFB bajo</li>
+                    </ul>
+                </div>
+
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>🧠 Por Qué Server Optimization Es Primero</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <p>Impacta en TTFB, que impacta en LCP.</p>
+                        <p>Si el servidor responde en 500ms, el usuario está esperando antes de nada.</p>
+                        <p>Es el cuello de botella #1 en la mayoría de apps.</p>
+                    </div>
+                </div>
+
+                <h2>5️⃣ Paso 3: Static Assets — Aquí Está el Peso Real</h2>
+
+                <div class="problem-block" data-title="❌ Realidad">
+                    <p>Las imágenes pesan 80% de una página.</p>
+                    <p>Las fuentes pesan más que el JavaScript.</p>
+                    <p>Tu código es lo menos importante.</p>
+                </div>
+
+                <h3>🖼️ Optimización de Imágenes</h3>
+
+                <div class="solution-block" data-title="💻 Checklist Profesional">
+                    <ol>
+                        <li><strong>Formato moderno</strong> — WebP o AVIF (no JPG/PNG por defecto)</li>
+                        <li><strong>Tamaños responsivos</strong> — srcset para diferentes pantallas</li>
+                        <li><strong>Dimensiones explícitas</strong> — width y height para evitar CLS</li>
+                        <li><strong>Lazy load inteligente</strong> — Solo para imágenes debajo del fold</li>
+                        <li><strong>Compresor de calidad</strong> — Tinypng, ImageOptim, etc.</li>
+                    </ol>
+                </div>
+
+                <div class="solution-block" data-title="✅ Ejemplo: LCP Image Optimizado">
+                    <pre><code>&lt;!-- Antes: 3MB JPG sin optimizar --&gt;
+&lt;img src="/hero.jpg" /&gt;
+
+&lt;!-- Después: Moderno, responsivo, optimizado --&gt;
+&lt;picture&gt;
+  &lt;source srcset="/hero.avif" type="image/avif"&gt;
+  &lt;source srcset="/hero.webp" type="image/webp"&gt;
+  &lt;img
+    src="/hero.jpg"
+    srcset="/hero-large.jpg 1200w, /hero-small.jpg 600w"
+    sizes="(max-width: 768px) 100vw, 1200px"
+    width="1200"
+    height="600"
+    loading="eager"
+    alt="Hero"
+  /&gt;
+&lt;/picture&gt;</code></pre>
+                    <p><strong>Resultado:</strong> 300KB → 40KB (87% menos)</p>
+                </div>
+
+                <h3>🎨 CSS Optimización</h3>
+
+                <div class="solution-block" data-title="💻 Estrategia">
+                    <ul>
+                        <li>Minificar</li>
+                        <li>Eliminar CSS no usado (PurgeCSS, Tailwind)</li>
+                        <li>Inline CSS crítico (above-the-fold)</li>
+                        <li>Diferir CSS no crítico</li>
+                    </ul>
+                </div>
+
+                <h3>🔤 Fuentes Web</h3>
+
+                <div class="solution-block" data-title="💻 Evitar Traps Comunes">
+                    <pre><code>@font-face {
+  font-family: "CustomFont";
+  src: url("/font.woff2") format("woff2");
+  font-display: swap;  /* Mostrar fallback mientras carga */
+  font-weight: normal;
+  font-style: normal;
+}
+
+&lt;link rel="preload" as="font" href="/font.woff2" crossorigin /&gt;</code></pre>
+                    <p><strong>Problemas típicos:</strong> Invisible text, Layout shift, Demora en carga</p>
+                </div>
+
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>📊 Impacto Real de Assets</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <p>Este paso suele mejorar:</p>
+                        <ul>
+                            <li>LCP: 40-60% mejora</li>
+                            <li>CLS: 50-80% mejora</li>
+                            <li>FCP: 30-50% mejora</li>
+                        </ul>
+                        <p><strong>Después de pasos 1-3, ya tienes 70-80% de mejora total.</strong></p>
+                    </div>
+                </div>
+
+                <h2>6️⃣ Paso 4: JavaScript Optimization</h2>
+
+                <div class="warning-block" data-title="⚠️ El Verdadero Bloqueador">
+                    <p>Hoy enviamos demasiado JavaScript.</p>
+                    <p>Más JS = más parseo, más compilación, más ejecución, más bloqueo del main thread.</p>
+                </div>
+
+                <h3>🔹 Reduce el Bundle Inicial</h3>
+
+                <div class="solution-block" data-title="🧩 Preguntas Clave">
+                    <ul>
+                        <li>¿Qué librerías estoy enviando en el primer render?</li>
+                        <li>¿Necesito lodash, moment.js, o puedo usar alternativas modernas?</li>
+                        <li>¿Hay dependencias pesadas pero innecesarias?</li>
+                        <li>¿Puedo usar versiones menores (ESM)?</li>
+                    </ul>
+                </div>
+
+                <h3>🔹 Code Splitting</h3>
+
+                <div class="solution-block" data-title="💻 Divide por Ruta/Funcionalidad">
+                    <pre><code>// Antes: Un bundle gigante (2MB)
+import App from "./App";
+
+// Después: Code splitting por ruta
+const Home = React.lazy(() => import("./pages/Home"));
+const Dashboard = React.lazy(() => import("./pages/Dashboard"));
+const Admin = React.lazy(() => import("./pages/Admin"));
+
+// Solo carga lo necesario en cada ruta</code></pre>
+                </div>
+
+                <h3>🔹 Lazy Load Inteligente</h3>
+
+                <div class="solution-block" data-title="💻 Qué No Cargar en el Primer Render">
+                    <pre><code>// Modal no visible inicialmente
+const Modal = React.lazy(() => import("./Modal"));
+
+// Chart pesado
+const Chart = React.lazy(() => import("./Chart"));
+
+// Feature debajo del fold
+const BelowFold = React.lazy(() => import("./BelowFold"));
+
+// Scripts de terceros
+&lt;script async src="https://cdn.analytics.com/script.js"&gt;&lt;/script&gt;</code></pre>
+                    <p><strong>Impacto en INP:</strong> Muy alto. Scripts de terceros son enemigos #1.</p>
+                </div>
+
+                <h3>🔹 Eliminación de Scripts Innecesarios</h3>
+
+                <div class="problem-block" data-title="❌ Culpritos Comunes">
+                    <ul>
+                        <li>Analytics bloqueante</li>
+                        <li>Ads frameworks</li>
+                        <li>Chat widgets</li>
+                        <li>Múltiples tracking scripts</li>
+                    </ul>
+                </div>
+
+                <div class="solution-block" data-title="✅ Solución">
+                    <pre><code>&lt;!-- Antes: Bloquea todo --&gt;
+&lt;script src="/analytics.js"&gt;&lt;/script&gt;
+
+&lt;!-- Después: Async/defer --&gt;
+&lt;script async src="/analytics.js"&gt;&lt;/script&gt;
+
+&lt;!-- O mejor: Load en background --&gt;
+&lt;script&gt;
+  window.addEventListener('load', () => {
+    const s = document.createElement('script');
+    s.src = '/analytics.js';
+    document.body.appendChild(s);
+  });
+&lt;/script&gt;</code></pre>
+                </div>
+
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>🎯 Impacto en Métricas</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <p>Este paso mejora:</p>
+                        <ul>
+                            <li>INP: 30-50% mejora</li>
+                            <li>TBT: 40-60% mejora</li>
+                            <li>FCP: 20-40% mejora</li>
+                        </ul>
+                        <p><strong>Pero solo si hiciste los pasos 1-3 bien.</strong></p>
+                    </div>
+                </div>
+
+                <h2>7️⃣ Paso 5: Framework Optimizations — Lo Fino</h2>
+
+                <div class="problem-block" data-title="❌ El Error Clásico">
+                    <p>Empezar aquí sin haber hecho los pasos previos.</p>
+                    <p>React.memo sin diagnóstico es perder tiempo.</p>
+                </div>
+
+                <h3>🔹 React.memo — Evitar Re-Renders Innecesarios</h3>
+
+                <div class="solution-block" data-title="💻 Úsalo Solo Cuando">
+                    <ul>
+                        <li>El componente renderiza muy frecuentemente</li>
+                        <li>El render es costoso (cálculos pesados)</li>
+                        <li>El profiling demuestra que es necesario</li>
+                    </ul>
+                </div>
+
+                <div class="solution-block" data-title="✅ Ejemplo Correcto">
+                    <pre><code>// Componente pesado que recibe props iguales frecuentemente
+const ExpensiveList = React.memo(({ items, onSelect }) => {
+  return (
+    &lt;ul&gt;
+      {items.map(item => (
+        &lt;li key={item.id} onClick={() => onSelect(item)}&gt;
+          {item.name}
+        &lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}, (prevProps, nextProps) => {
+  // Comparación personalizada si es necesaria
+  return prevProps.items === nextProps.items;
+});
+
+export default ExpensiveList;</code></pre>
+                </div>
+
+                <h3>🔹 useMemo y useCallback</h3>
+
+                <div class="problem-block" data-title="❌ Abuso Común">
+                    <pre><code>// NO HAGAS ESTO
+const value = useMemo(() => ({ a: 1 }), []);
+const handler = useCallback(() => console.log('click'), []);</code></pre>
+                </div>
+
+                <div class="solution-block" data-title="✅ Usa Solo Para">
+                    <ul>
+                        <li>Cálculos realmente costosos (análisis de 1000 items, etc.)</li>
+                        <li>Objetos/funciones pasadas a dependencias de Effects</li>
+                        <li>Cuando el profiling lo muestre necesario</li>
+                    </ul>
+                </div>
+
+                <h3>🔹 Virtualización de Listas Largas</h3>
+
+                <div class="solution-block" data-title="💻 Para Listas con 1000+ Items">
+                    <pre><code>import { FixedSizeList } from 'react-window';
+
+const BigList = ({ items }) => (
+  &lt;FixedSizeList
+    height={600}
+    itemCount={items.length}
+    itemSize={35}
+    width="100%"
+  &gt;
+    {({ index, style }) => (
+      &lt;div style={style}&gt;{items[index].name}&lt;/div&gt;
+    )}
+  &lt;/FixedSizeList&gt;
+);
+
+// Renderiza solo lo visible. Impacto masivo en INP y FCP.</code></pre>
+                </div>
+
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>🧠 Realidad de Optimizaciones Framework</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <p>Estos son el 10-20% final de mejora.</p>
+                        <p>No el primer 80%.</p>
+                        <p>Si los primeros 4 pasos están bien, la mayoría de apps no necesitan nada aquí.</p>
+                    </div>
+                </div>
+
+                <h2>8️⃣ El Flujo Completo — La Fórmula Que Funciona</h2>
+
+                <div class="solution-block" data-title="🔄 Cómo Los Seniors Lo Hacen">
+                    <ol>
+                        <li><strong>Abre Lighthouse</strong> → anota métricas</li>
+                        <li><strong>Optimiza servidor</strong> → caché, compresión, CDN (2-3 horas)</li>
+                        <li><strong>Vuelve a medir</strong> → ¿mejora? sí → continúa</li>
+                        <li><strong>Optimiza assets</strong> → imágenes, fuentes, CSS (3-5 horas)</li>
+                        <li><strong>Vuelve a medir</strong> → ¿mejora? sí → continúa</li>
+                        <li><strong>Reduce JS</strong> → code splitting, eliminación (2-4 horas)</li>
+                        <li><strong>Vuelve a medir</strong> → ¿mejora? sí → continúa</li>
+                        <li><strong>Framework tuning</strong> → solo si necesario (1-2 horas)</li>
+                        <li><strong>Mide final</strong> → compara antes/después</li>
+                    </ol>
+                </div>
+
+                <h2>9️⃣ Resultados Esperados</h2>
+
+                <div class="concept-block">
+                    <h3>Típicamente después de seguir la fórmula:</h3>
+                    <ul>
+                        <li>LCP: 60-70% mejora</li>
+                        <li>CLS: 50-80% mejora</li>
+                        <li>INP: 40-60% mejora</li>
+                        <li>TTFB: 30-50% mejora</li>
+                    </ul>
+                </div>
+
+                <div class="warning-block" data-title="⚠️ Importante">
+                    <p>No todos los pasos aplicarán a tu proyecto.</p>
+                    <p>Si TTFB ya es bajo, salta paso 2.</p>
+                    <p>Si tu app es 90% código sin assets, salta paso 3.</p>
+                    <p>Siempre diagnostica primero.</p>
+                </div>
+
+                <h2>🔟 Resumen para Entrevistas</h2>
+
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>🎙️ "¿Cómo Optimizarías una App Lenta?"</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <p><strong>Respuesta Senior:</strong></p>
+                        <blockquote>
+                            <p>"Primero diagnostico con Lighthouse para entender la métrica problema.</p>
+                            <p>Luego sigo los 5 pasos en orden: servidor, assets, JavaScript, framework.</p>
+                            <p>Nunca empiezo por React.memo. Eso es síntoma, no causa.</p>
+                            <p>Cambio una cosa, mido de nuevo, y continúo.</p>
+                            <p>Típicamente, los primeros 3 pasos dan 80% de mejora."</p>
+                        </blockquote>
+                    </div>
+                </div>
+
+                <h2>1️⃣1️⃣ Checklist Accionable para Tu Proyecto</h2>
+
+                <div class="solution-block" data-title="✅ Haz Esto Mañana">
+                    <ol>
+                        <li>Abre Lighthouse en modo Mobile en tu proyecto</li>
+                        <li>Anota: LCP, CLS, INP, TTFB</li>
+                        <li>Identifica la métrica peor (probablemente LCP o INP)</li>
+                        <li>Elige UN paso (1-5) basado en el diagnóstico</li>
+                        <li>Dedica 2-3 horas a ese paso solamente</li>
+                        <li>Vuelve a medir</li>
+                        <li>Repite 3 veces más (máximo 2 semanas total)</li>
+                    </ol>
+                    <p><strong>Te prometo que verás cambios reales.</strong></p>
+                </div>
+
+                <!-- ACCORDION SECTION -->
+                <h2>📋 Temas Avanzados y Recursos</h2>
+
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>💡 Herramientas Profesionales</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <h4>Diagnosis</h4>
+                        <ul>
+                            <li>Lighthouse (Chrome DevTools)</li>
+                            <li>WebPageTest</li>
+                            <li>Chrome User Experience Report (CrUX)</li>
+                            <li>PageSpeed Insights</li>
+                        </ul>
+
+                        <h4>Optimización de Imágenes</h4>
+                        <ul>
+                            <li>TinyPNG / TinyJPG</li>
+                            <li>ImageOptim</li>
+                            <li>Squoosh (Google)</li>
+                        </ul>
+
+                        <h4>Análisis de Bundle</h4>
+                        <ul>
+                            <li>Webpack Bundle Analyzer</li>
+                            <li>Vite Bundle Visualizer</li>
+                            <li>Bundlephobia</li>
+                        </ul>
+
+                        <h4>Monitoring Real</h4>
+                        <ul>
+                            <li>Sentry</li>
+                            <li>DataDog</li>
+                            <li>New Relic</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>🛠️ Configuraciones Reales de Producción</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <h4>Next.js Optimización</h4>
+                        <pre><code>// next.config.js
+module.exports = {
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200],
+    imageSizes: [16, 32, 48, 64, 96, 128],
+  },
+  compress: true,
+  swcMinify: true,
+};</code></pre>
+
+                        <h4>Vite Optimización</h4>
+                        <pre><code>// vite.config.js
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor': ['react', 'react-dom'],
+          'utils': ['lodash'],
+        },
+      },
+    },
+  },
+});</code></pre>
+
+                        <h4>Web.config (IIS)</h4>
+                        <pre><code>&lt;configuration&gt;
+  &lt;system.webServer&gt;
+    &lt;httpCompression&gt;
+      &lt;dynamicTypes&gt;
+        &lt;add mimeType="application/json" enabled="true" /&gt;
+      &lt;/dynamicTypes&gt;
+    &lt;/httpCompression&gt;
+    &lt;httpCaching&gt;
+      &lt;clientCache cacheControlMode="UseMaxAge" cacheControlMaxAge="30.00:00:00" /&gt;
+    &lt;/httpCaching&gt;
+  &lt;/system.webServer&gt;
+&lt;/configuration&gt;</code></pre>
+                    </div>
+                </div>
+
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>📚 Referencias y Aprendizaje Adicional</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <ul>
+                            <li><a href="https://web.dev/performance/" target="_blank">web.dev: Performance</a></li>
+                            <li><a href="https://developers.google.com/speed" target="_blank">Google Speed Documentation</a></li>
+                            <li><a href="https://developer.mozilla.org/en-US/docs/Web/Performance" target="_blank">MDN: Web Performance</a></li>
+                            <li><a href="https://www.smashingmagazine.com/category/performance" target="_blank">Smashing Magazine: Performance</a></li>
+                            <li><a href="https://www.freecodecamp.org/news/web-performance-fundamentals/" target="_blank">FreeCodeCamp: Web Performance</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- REFERENCES SECTION -->
+                <h2>📚 Referencias y Recursos Adicionales</h2>
+
+                <div class="solution-block" data-title="Documentación Oficial">
+                    <ul>
+                        <li><a href="https://web.dev/performance/" target="_blank">Google web.dev Performance</a></li>
+                        <li><a href="https://developers.google.com/speed/pagespeed/insights" target="_blank">PageSpeed Insights</a></li>
+                        <li><a href="https://www.webpagetest.org/" target="_blank">WebPageTest</a></li>
+                    </ul>
+                </div>
+
+                <div class="concept-block">
+                    <h4>Herramientas de Diagnosis</h4>
+                    <ul>
+                        <li><a href="https://developers.google.com/speed/pagespeed/insights" target="_blank">Google PageSpeed Insights</a></li>
+                        <li><a href="https://www.webpagetest.org/" target="_blank">WebPageTest (Análisis profundo)</a></li>
+                        <li><a href="https://github.com/GoogleChrome/web-vitals" target="_blank">Web Vitals Library</a></li>
+                    </ul>
+                </div>
+
+                <div class="analogy-block" data-title="Recursos de Aprendizaje">
+                    <ul>
+                        <li><a href="https://web.dev/" target="_blank">web.dev — Hub de Performance</a></li>
+                        <li><a href="https://developer.mozilla.org/en-US/docs/Web/Performance" target="_blank">MDN: Web Performance</a></li>
+                        <li><a href="https://www.smashingmagazine.com/" target="_blank">Smashing Magazine</a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='15-critical-rendering-path.html'">← Anterior</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../../index.html'">Volver al Inicio →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

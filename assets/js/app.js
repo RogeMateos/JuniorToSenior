@@ -24,6 +24,7 @@ const SECTION_ROUTES = {
   "section-web-performance-scalability": "13-web-performance-scalability.html",
   "section-core-web-vitals": "14-core-web-vitals.html",
   "section-critical-rendering-path": "15-critical-rendering-path.html",
+  "section-five-steps-web-performance": "16-five-steps-web-performance.html",
 };
 
 // ============================================================
@@ -271,6 +272,7 @@ function injectSidebarAndNav() {
                 <li><a href="13-web-performance-scalability.html" class="nav-link">3. Web Performance & Scalability</a></li>
                 <li><a href="14-core-web-vitals.html" class="nav-link">3.1 The Core Web Vitals</a></li>
                 <li><a href="15-critical-rendering-path.html" class="nav-link">3.2 The Critical Rendering Path</a></li>
+                <li><a href="16-five-steps-web-performance.html" class="nav-link">3.3 Los 5 Pasos Web Performance</a></li>
                 `
                     : `
                 <li><a href="../../../index.html" class="nav-link">← Back to home</a></li>
@@ -289,6 +291,7 @@ function injectSidebarAndNav() {
                 <li><a href="13-web-performance-scalability.html" class="nav-link">3. Web Performance & Scalability</a></li>
                 <li><a href="14-core-web-vitals.html" class="nav-link">3.1 The Core Web Vitals</a></li>
                 <li><a href="15-critical-rendering-path.html" class="nav-link">3.2 The Critical Rendering Path</a></li>
+                <li><a href="16-five-steps-web-performance.html" class="nav-link">3.3 The 5 Steps Web Performance</a></li>
                 `
                 }
             </ul>
