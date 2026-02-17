@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimising the JavaScript Bundle | Frontend Mastery</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section class="content-section">
+                <h1>📦 Optimising the JavaScript Bundle</h1>
+                <p class="section-description">How to Reduce JS and Improve Performance in Real SPAs</p>
+
+                <!-- MENTAL MODEL -->
+                <div class="analogy-block" data-title="Mental Model: JavaScript Weighs Twice">
+                    <p><strong>It's not just downloading.</strong></p>
+                    <p>JavaScript has two costs:</p>
+                    <ul>
+                        <li><strong>🌐 Network cost:</strong> KB/MB (compressed) that get downloaded</li>
+                        <li><strong>⚙️ CPU cost:</strong> parse → compile → execute on main thread</li>
+                    </ul>
+                    <p>In SPAs, often the <strong>CPU (not the network) is the killer on mobile.</strong></p>
+                </div>
+
+                <!-- OBJECTIVE -->
+                <div class="concept-block">
+                    <h2>🎯 Module Objective</h2>
+                    <p>Understand how to optimize real bundles and measure impact on:</p>
+                    <ul>
+                        <li>⚡ Initial JS ≤ 300–500KB gzip (depends on product)</li>
+                        <li>🚫 Avoid long tasks (&gt;50ms) during first render</li>
+                        <li>📊 Improve LCP and INP</li>
+                    </ul>
+                </div>
+
+                <!-- STEP 0 - DEFINE OBJECTIVE -->
+                <h2>🧪 Step 0 — Define Objective with Metrics (before touching code)</h2>
+
+                <h3>Typical Realistic Goal in SPA</h3>
+                <div class="solution-block">
+                    <ul>
+                        <li><strong>Initial JS ≤ 300–500KB gzip</strong> (depends on product)</li>
+                        <li><strong>Avoid long tasks (&gt;50ms)</strong> during first render</li>
+                        <li><strong>Improve LCP and INP</strong></li>
+                    </ul>
+                </div>
+
+                <h3>How to Measure</h3>
+                <div class="solution-block">
+                    <ul>
+                        <li><strong>Lighthouse</strong> (lab)</li>
+                        <li><strong>DevTools → Network</strong> (Disable cache) and Performance</li>
+                        <li><strong>Real Web Vitals</strong> in production (if possible)</li>
+                    </ul>
+                    <p><strong>⚠️ Why:</strong> if you don't measure, you optimize "blindly" and can worsen UX.</p>
+                </div>
+
+                <!-- STEP 1 - WHAT WEIGHS -->
+                <h2>🔍 Step 1 — Find "What Weighs" (don't guess)</h2>
+
+                <h3>A) Bundle Analyzer</h3>
+                <div class="solution-block">
+                    <p>Tools depending on your stack:</p>
+                    <ul>
+                        <li><strong>Webpack:</strong> webpack-bundle-analyzer</li>
+                        <li><strong>Vite/Rollup:</strong> rollup-plugin-visualizer</li>
+                        <li><strong>Create React App:</strong> source-map-explorer</li>
+                    </ul>
+                    <p>What to look for:</p>
+                    <ul>
+                        <li>Huge libraries (moment, chart libs, editors, maps)</li>
+                        <li>Duplicates (two date libs, two lodash-like)</li>
+                        <li>Unnecessary polyfills</li>
+                    </ul>
+                    <p><strong>Reality:</strong> 80% of size usually comes from 20% of dependencies.</p>
+                </div>
+
+                <h3>B) DevTools → Coverage</h3>
+                <div class="solution-block">
+                    <p>Shows how much JS is unused on initial load.</p>
+                    <ol>
+                        <li>Open DevTools</li>
+                        <li>More Tools → Coverage</li>
+                        <li>Click Reload</li>
+                        <li>Observe what's in red</li>
+                    </ol>
+                    <p><strong>Red = unused on initial load</strong></p>
+                    <p>This is gold for finding code splitting opportunities.</p>
+                </div>
+
+                <!-- STEP 2 - BUNDLE CLEANUP -->
+                <h2>🧹 Step 2 — "Bundle Cleanup" (reduce what doesn't help)</h2>
+
+                <h3>Typical Actions</h3>
+                <div class="solution-block">
+                    <ul>
+                        <li>Uninstall unused dependencies</li>
+                        <li>Replace with lighter alternatives</li>
+                        <li>Change imports so tree-shaking works</li>
+                    </ul>
+                </div>
+
+                <h3>Example 1: Lodash (the classic mistake)</h3>
+                <div class="problem-block" data-title="❌ Imports entire library">
+                    <pre><code>import _ from "lodash";
+const debounced = _.debounce(myFn, 300);</code></pre>
+                    <p><strong>Problem:</strong> You get the ENTIRE library (~70KB).</p>
+                </div>
+
+                <div class="solution-block" data-title="✅ Import only what you need">
+                    <pre><code>import debounce from "lodash/debounce";
+const debounced = debounce(myFn, 300);</code></pre>
+                    <p><strong>Result:</strong> Only ~10KB.</p>
+                </div>
+
+                <div class="concept-block">
+                    <p><strong>Or even better:</strong> implement it yourself if it's simple.</p>
+                    <pre><code>const debounce = (fn, ms) => {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn(...args), ms);
+  };
+};</code></pre>
+                    <p>0KB of dependency.</p>
+                </div>
+
+                <h3>Example 2: Dates (the other common mistake)</h3>
+                <div class="problem-block">
+                    <p>If you only need to format 1 date:</p>
+                    <pre><code>// ❌ moment.js = 70KB
+import moment from 'moment';
+moment(date).format('DD/MM/YYYY');</code></pre>
+                </div>
+
+                <div class="solution-block">
+                    <p>✅ Lighter alternatives or native:</p>
+                    <pre><code>// Option 1: Lighter library (date-fns: ~15KB)
+import { format } from 'date-fns';
+format(date, 'dd/MM/yyyy');
+
+// Option 2: Native API (if your target allows)
+new Intl.DateTimeFormat('en-US').format(date);</code></pre>
+                </div>
+
+                <div class="warning-block" data-title="Why each dependency costs">
+                    <ul>
+                        <li><strong>Bytes:</strong> the library occupies KB</li>
+                        <li><strong>Parse/execute:</strong> browser must process that code</li>
+                        <li><strong>Maintenance:</strong> risk of updates, breaking changes</li>
+                        <li><strong>Build time:</strong> slower</li>
+                    </ul>
+                </div>
+
+                <!-- STEP 3 - TREE SHAKING -->
+                <h2>🌳 Step 3 — Ensure Tree-Shaking + Production Build</h2>
+
+                <div class="concept-block">
+                    <h3>What is Tree-Shaking?</h3>
+                    <p>The bundler removes "dead" code (not imported).</p>
+                    <p><strong>Works well when:</strong></p>
+                    <ul>
+                        <li>You use <strong>ESM imports</strong> (import { x } from 'lib')</li>
+                        <li>The package is prepared (sideEffects: false)</li>
+                        <li>Build is "production"</li>
+                    </ul>
+                </div>
+
+                <h3>Checklist to Enable Tree-Shaking</h3>
+                <div class="solution-block">
+                    <ul>
+                        <li>☐ Compile in <strong>production</strong> mode</li>
+                        <li>☐ Prefer <strong>ESM</strong> libraries</li>
+                        <li>☐ Avoid "barrel" imports that break tree-shaking</li>
+                        <li>☐ In own packages: mark <strong>"sideEffects": false</strong> when correct</li>
+                    </ul>
+                </div>
+
+                <h3>Example: Barrel imports (be careful)</h3>
+                <div class="problem-block">
+                    <pre><code>// ❌ Might bring everything even if you use one
+import { Button } from './components';</code></pre>
+                    <p>Depends on how the barrel file is written.</p>
+                </div>
+
+                <div class="solution-block">
+                    <pre><code>// ✅ More explicit (and safer for tree-shaking)
+import Button from './components/Button';</code></pre>
+                </div>
+
+                <!-- STEP 4 - CODE SPLITTING -->
+                <h2>🎯 Step 4 — Code Splitting (the big impact)</h2>
+
+                <div class="analogy-block" data-title="Mental Model: Don't load what you don't need">
+                    <p>If the user is on /home, why download the JS for /checkout?</p>
+                    <p>Code splitting lets you load each route as a separate file.</p>
+                </div>
+
+                <h3>4.1 Split by Routes (React)</h3>
+                <div class="solution-block">
+                    <pre><code>import { lazy, Suspense } from "react";
+import { Routes, Route } from "react-router-dom";
+
+const Home = lazy(() => import("./pages/Home"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+
+export function AppRoutes() {
+  return (
+    &lt;Suspense fallback={&lt;LoadingSpinner /&gt;}&gt;
+      &lt;Routes&gt;
+        &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
+        &lt;Route path="/checkout" element={&lt;Checkout /&gt;} /&gt;
+        &lt;Route path="/dashboard" element={&lt;Dashboard /&gt;} /&gt;
+      &lt;/Routes&gt;
+    &lt;/Suspense&gt;
+  );
+}</code></pre>
+                    <p><strong>What you get:</strong> On / you don't download the JS for /checkout or /dashboard.</p>
+                    <p><strong>How it works:</strong> import() creates a separate chunk (Webpack/Rollup/Vite split it automatically).</p>
+                </div>
+
+                <h3>4.2 Split by "Heavy Feature"</h3>
+                <div class="solution-block">
+                    <p>Examples: editor, charts, maps, pdf viewer, etc.</p>
+                    <pre><code>import { lazy, Suspense, useState } from "react";
+
+const ChartPanel = lazy(() => import("./ChartPanel"));
+
+function Dashboard() {
+  const [showCharts, setShowCharts] = useState(false);
+
+  return (
+    &lt;&gt;
+      &lt;button onClick={() => setShowCharts(true)}&gt;
+        Show Charts
+      &lt;/button&gt;
+      {showCharts && (
+        &lt;Suspense fallback={&lt;div&gt;Loading charts...&lt;/div&gt;}&gt;
+          &lt;ChartPanel /&gt;
+        &lt;/Suspense&gt;
+      )}
+    &lt;/&gt;
+  );
+}</code></pre>
+                    <p><strong>Advantage:</strong> If the user doesn't open that feature, you don't pay the cost.</p>
+                </div>
+
+                <h3>4.3 Smart Prefetch / Preload</h3>
+                <div class="concept-block">
+                    <p>Once you split, you introduce a "mini delay" when navigating.</p>
+                    <p><strong>Solution:</strong> Smart prefetch.</p>
+                    <ul>
+                        <li>Prefetch when link enters viewport</li>
+                        <li>Prefetch on hover</li>
+                        <li>Prefetch when user shows intent</li>
+                    </ul>
+                    <p><strong>Result:</strong> Better UX without putting everything back in initial bundle.</p>
+                </div>
+
+                <!-- STEP 5 - MINIFICATION -->
+                <h2>🔨 Step 5 — Minification/Uglification (good, but don't oversell it)</h2>
+
+                <div class="concept-block">
+                    <p>Minify: rename variables, remove whitespace/comments.</p>
+                    <p><strong>Today:</strong> Comes "out of the box" in production builds (Terser/esbuild).</p>
+                </div>
+
+                <h3>What's Important for Junior to Understand</h3>
+                <div class="warning-block">
+                    <ul>
+                        <li>✅ Minify reduces bytes</li>
+                        <li>❌ But doesn't eliminate dependencies</li>
+                        <li>❌ And doesn't reduce CPU much compared to "less actual code"</li>
+                    </ul>
+                    <p><strong>Takeaway:</strong> Minify is last. First, reduce actual code (cleanup + splitting).</p>
+                </div>
+
+                <!-- STEP 6 - 3RD PARTY -->
+                <h2>⚠️ Step 6 — Avoid "Critical Request Chains" (especially 3rd-party)</h2>
+
+                <div class="problem-block" data-title="The Classic Problem">
+                    <p>GTM, trackers, analytics, ads, etc.</p>
+                    <p>Load in parallel, inject each other, and block main thread.</p>
+                    <p><strong>Result:</strong> A chain of scripts destroys LCP/INP even if your bundle is small.</p>
+                </div>
+
+                <h3>Practical Rules</h3>
+                <div class="solution-block">
+                    <ul>
+                        <li>Anything not needed to paint UI → <strong>async/defer</strong></li>
+                        <li>Even better: load it <strong>after first render</strong></li>
+                        <li>Watch out for tags that <strong>inject more scripts</strong> (chains)</li>
+                        <li>If something blocks main thread → move it to <strong>"idle"</strong> (when possible)</li>
+                    </ul>
+                </div>
+
+                <h3>Example: Difference between async and defer</h3>
+                <div class="solution-block">
+                    <pre><code>// ❌ Without async or defer: blocks parser
+&lt;script src="analytics.js"&gt;&lt;/script&gt;
+
+// ✅ async: download in parallel, execute when ready
+// Use for scripts that DON'T depend on order (analytics, ads)
+&lt;script async src="analytics.js"&gt;&lt;/script&gt;
+
+// ✅ defer: download in parallel, execute when HTML finishes
+// Use for your app / main chunks
+&lt;script defer src="app.js"&gt;&lt;/script&gt;</code></pre>
+                </div>
+
+                <div class="warning-block" data-title="Clear Criteria">
+                    <ul>
+                        <li><strong>Your app / main chunks → defer</strong> (execute in order after HTML)</li>
+                        <li><strong>Analytics → async</strong> (execute when ready, block nothing)</li>
+                    </ul>
+                </div>
+
+                <!-- STEP 7 - CACHING -->
+                <h2>💾 Step 7 — Caching (the cherry on top that makes optimization "persistent")</h2>
+
+                <div class="analogy-block" data-title="Mental Model: 2nd visit must be much faster">
+                    <p>Not just reduce initial bundle.</p>
+                    <p>But ensure what didn't change isn't re-downloaded.</p>
+                </div>
+
+                <h3>Strategy: Hash + Long Cache</h3>
+                <div class="solution-block">
+                    <pre><code>// ❌ Bad: browser always re-asks
+&lt;script src="app.js"&gt;&lt;/script&gt;
+
+// ✅ Good: hash in name = safe cache
+&lt;script src="app.8f3a1.js"&gt;&lt;/script&gt;</code></pre>
+                    <p><strong>Workflow:</strong></p>
+                    <ol>
+                        <li>Your bundler generates hashes based on content</li>
+                        <li>app.8f3a1.js → cache for 1 year</li>
+                        <li>Only when code changes → new hash → new file downloaded</li>
+                    </ol>
+                </div>
+
+                <h3>Example with Webpack</h3>
+                <div class="solution-block">
+                    <pre><code>// webpack.config.js
+module.exports = {
+  output: {
+    filename: '[name].[contenthash:8].js',
+    chunkFilename: '[name].[contenthash:8].chunk.js',
+  },
+};</code></pre>
+                </div>
+
+                <div class="concept-block">
+                    <p><strong>Result:</strong></p>
+                    <ul>
+                        <li>1st visit: download everything (but cacheable after)</li>
+                        <li>2nd visit: only load what changed</li>
+                        <li>Internal navigation: much faster</li>
+                    </ul>
+                </div>
+
+                <!-- FINAL CHECKLIST -->
+                <h2>📋 Mini Final Checklist</h2>
+
+                <div class="solution-block">
+                    <ul>
+                        <li>☐ <strong>Measure:</strong> Lighthouse + Network (disable cache) + Performance</li>
+                        <li>☐ <strong>See "what weighs":</strong> Bundle analyzer</li>
+                        <li>☐ <strong>See "what's unused":</strong> Coverage</li>
+                        <li>☐ <strong>Clean dependencies + imports:</strong> Real tree-shaking</li>
+                        <li>☐ <strong>Code split by routes:</strong> Lazy routes</li>
+                        <li>☐ <strong>Code split by heavy features:</strong> Lazy components</li>
+                        <li>☐ <strong>Smart prefetch:</strong> For likely routes</li>
+                        <li>☐ <strong>3rd-party scripts:</strong> async/defer + avoid chains</li>
+                        <li>☐ <strong>Hash + long cache:</strong> On statics</li>
+                    </ul>
+                </div>
+
+                <!-- PRACTICAL EXERCISE -->
+                <h2>🧪 Practical Exercise Step by Step</h2>
+
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>🎯 Apply this to your project TODAY</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <ol>
+                            <li><strong>Run Lighthouse on your SPA</strong>
+                                <ul>
+                                    <li>Note initial JS (no cache)</li>
+                                </ul>
+                            </li>
+                            <li><strong>Open bundle analyzer</strong>
+                                <ul>
+                                    <li>Identify top 3 largest dependencies</li>
+                                </ul>
+                            </li>
+                            <li><strong>Open DevTools → Coverage</strong>
+                                <ul>
+                                    <li>Observe % red on initial load</li>
+                                </ul>
+                            </li>
+                            <li><strong>Pick ONE action:</strong>
+                                <ul>
+                                    <li>Option A: Replace dependency with lighter alternative</li>
+                                    <li>Option B: Add 1 lazy route</li>
+                                    <li>Option C: Add hash to bundles</li>
+                                </ul>
+                            </li>
+                            <li><strong>Measure again</strong>
+                                <ul>
+                                    <li>Lighthouse</li>
+                                    <li>Bundle size</li>
+                                    <li>Compare before and after</li>
+                                </ul>
+                            </li>
+                            <li><strong>Repeat 2-3 times</strong></li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- INTERVIEW -->
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>🧠 Summary for Interview</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <p><strong>If tomorrow they ask: "How do you optimize the bundle in an SPA?"</strong></p>
+                        <p><strong>Senior answer:</strong></p>
+                        <blockquote>
+                            <p>"There are two costs: network and CPU.</p>
+                            <p>First I measure: Lighthouse + Coverage + Bundle analyzer.</p>
+                            <p>I clean dependencies (proper tree-shaking).</p>
+                            <p>I code split by routes and heavy features.</p>
+                            <p>Async/defer for 3rd-party.</p>
+                            <p>Hash + long cache for statics.</p>
+                            <p>If it's still slow, I check CPU (Performance panel), not just network."</p>
+                        </blockquote>
+                    </div>
+                </div>
+
+                <!-- SENIOR REFLECTION -->
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>💡 What Sets a Senior Apart</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <p>A junior: "I need to use React.memo and useMemo."</p>
+                        <p>A senior: "My bundle is 200KB. React optimization is 20KB."</p>
+                        <p><strong>The difference:</strong> Measure first, reduce dependencies, then optimize React.</p>
+                        <p><strong>That's what separates a project that "works" from one that "flies".</strong></p>
+                    </div>
+                </div>
+
+                <!-- REFERENCES -->
+                <div class="solution-block">
+                    <h3>📚 References and Resources</h3>
+                    <ul>
+                        <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/6993bb8e-62b4-8392-929e-2351d1b96787" target="_blank">ChatGPT Dragos - Performance Expert</a></li>
+                    </ul>
+                </div>
+
+                <!-- NAVIGATION BUTTONS -->
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='19-static-assets.html'">← Previous</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../../index.html'">Back to Home →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

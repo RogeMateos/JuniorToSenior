@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3.3.2 Optimising The Server - Frontend Mastery</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-optimising-the-server">
+                <h1>⚡ Optimización del Servidor: El Segundo Paso</h1>
+                <p><strong>HTTP Caching, Compression, CDN y DNS Preconnect — Cómo Reducir Latencia y Bytes</strong></p>
+
+                <div class="warning-block" data-title="⚠️ La Verdad">
+                    <p>Si el servidor tarda 2 segundos, nada más importa.</p>
+                    <p>El TTFB (Time to First Byte) es el cuello de botella #1 en la mayoría de apps.</p>
+                    <p><strong>Este paso suele dar mejoras de 30-50% en LCP.</strong></p>
+                </div>
+
+                <h2>1️⃣ Mental Model: ¿Qué Pasa Cuando Entra un Usuario?</h2>
+
+                <div class="analogy-block" data-title="🧠 La Cadena Completa">
+                    <ol>
+                        <li><strong>DNS lookup</strong> — ¿Cuál es la IP del servidor?</li>
+                        <li><strong>TCP + TLS handshake</strong> — Establecer conexión segura (si HTTPS)</li>
+                        <li><strong>Request enviado</strong> — El navegador pide el HTML</li>
+                        <li><strong>Servidor genera respuesta</strong> — Backend procesa</li>
+                        <li><strong>Download de bytes</strong> — Transferencia de red</li>
+                        <li><strong>Browser parsea y ejecuta</strong> — Finalmente se ve algo</li>
+                    </ol>
+                </div>
+
+                <h3>¿Dónde Optimizamos?</h3>
+
+                <div class="concept-block">
+                    <ul>
+                        <li>❌ Eliminar requests innecesarias → <strong>Caching</strong></li>
+                        <li>📉 Reducir bytes transferidos → <strong>Compression</strong></li>
+                        <li>🌍 Acercar contenido al usuario → <strong>CDN</strong></li>
+                        <li>⚡ Adelantar conexiones → <strong>DNS Preconnect</strong></li>
+                    </ul>
+                </div>
+
+                <h2>2️⃣ HTTP Compression: Reducir Tamaño</h2>
+
+                <div class="concept-block">
+                    <p><strong>¿Qué es?</strong></p>
+                    <p>Comprimir archivos (JS, CSS, HTML) antes de enviarlos al navegador.</p>
+                    <p>El navegador los descomprime automáticamente.</p>
+                </div>
+
+                <h3>¿Cuántos Bytes Ahorras?</h3>
+
+                <div class="analogy-block" data-title="Ejemplo Real">
+                    <ul>
+                        <li>Bundle JS: 3MB sin compresión</li>
+                        <li>Bundle JS: 1MB comprimido</li>
+                        <li><strong>Resultado: 3x más rápido de descargar</strong></li>
+                    </ul>
+                </div>
+
+                <h3>Tipos de Compresión</h3>
+
+                <div class="solution-block" data-title="🧩 Gzip vs Brotli">
+                    <ul>
+                        <li><strong>Gzip:</strong> Estándar, más compatible, más rápido</li>
+                        <li><strong>Brotli (br):</strong> Más moderno, comprime mejor, más lento (pero en servidor)</li>
+                    </ul>
+                </div>
+
+                <h3>Cómo Verificar en DevTools</h3>
+
+                <div class="solution-block" data-title="💻 Pasos">
+                    <ol>
+                        <li>Abre DevTools → Network tab</li>
+                        <li>Click en un archivo .js</li>
+                        <li>Ve a Headers</li>
+                        <li>Busca <strong>content-encoding</strong></li>
+                    </ol>
+                </div>
+
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>🔍 Qué Deberías Ver</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <h4>✅ Correcto</h4>
+                        <pre><code>content-encoding: gzip
+content-encoding: br
+vary: Accept-Encoding</code></pre>
+
+                        <h4>❌ Incorrecto</h4>
+                        <pre><code>(no existe content-encoding)</code></pre>
+
+                        <p><strong>Detalle Senior:</strong> Debe existir también <code>Vary: Accept-Encoding</code> para que proxies y CDNs no mezclen versiones.</p>
+                    </div>
+                </div>
+
+                <h3>Qué Comprimir y Qué No</h3>
+
+                <div class="concept-block">
+                    <h4>✅ Siempre Comprime</h4>
+                    <ul>
+                        <li>JavaScript</li>
+                        <li>CSS</li>
+                        <li>HTML</li>
+                        <li>JSON</li>
+                        <li>SVG</li>
+                    </ul>
+                </div>
+
+                <div class="problem-block" data-title="❌ No Comprimas">
+                    <ul>
+                        <li>JPEG/PNG (ya están comprimidos)</li>
+                        <li>WebP/AVIF (ya están comprimidos)</li>
+                        <li>Videos (ya están comprimidos)</li>
+                    </ul>
+                </div>
+
+                <h2>3️⃣ HTTP Caching: Eliminar Requests</h2>
+
+                <div class="warning-block" data-title="⚠️ La Mejor Optimización">
+                    <p>No descargar es más rápido que descargar comprimido.</p>
+                    <p>El caché es donde realmente ganas.</p>
+                </div>
+
+                <h3>Tipo A: Strong Cache (Caché de Larga Duración)</h3>
+
+                <div class="solution-block" data-title="💻 Header">
+                    <pre><code>Cache-Control: public, max-age=31536000, immutable</code></pre>
+                </div>
+
+                <div class="concept-block">
+                    <h4>¿Qué significa?</h4>
+                    <ul>
+                        <li><strong>public:</strong> Público, puede cachear en proxy/CDN</li>
+                        <li><strong>max-age=31536000:</strong> Guardar 1 año</li>
+                        <li><strong>immutable:</strong> Nunca cambiará, no validar</li>
+                    </ul>
+                </div>
+
+                <div class="warning-block" data-title="⚠️ Pero Espera">
+                    <p>¿Qué pasa si subo código nuevo?</p>
+                    <p>El navegador sigue usando el archivo viejo 1 año.</p>
+                    <p><strong>Solución: Fingerprinting (hash en el nombre)</strong></p>
+                </div>
+
+                <h3>Fingerprinting: El Patrón Correcto</h3>
+
+                <div class="solution-block" data-title="✅ Ejemplo Correcto">
+                    <pre><code>app.a34f9c.js      // Hash del contenido
+app.b95d2e.js      // Código cambió → hash nuevo</code></pre>
+                </div>
+
+                <div class="analogy-block" data-title="🧠 Cómo Funciona">
+                    <ol>
+                        <li>Archivo original: app.js</li>
+                        <li>Build genera: app.a34f9c.js (hash)</li>
+                        <li>HTML apunta a: app.a34f9c.js</li>
+                        <li>Usuario cachea: app.a34f9c.js durante 1 año</li>
+                        <li>Código cambia → nuevo build</li>
+                        <li>Build genera: app.b95d2e.js (hash diferente)</li>
+                        <li>HTML apunta a: app.b95d2e.js</li>
+                        <li>Usuario descarga: app.b95d2e.js (nuevo)</li>
+                        <li>Usuario sigue cacheando: app.a34f9c.js (viejo, pero no se usa)</li>
+                    </ol>
+                </div>
+
+                <h3>Tipo B: Revalidation Cache</h3>
+
+                <div class="solution-block" data-title="💻 Header para HTML">
+                    <pre><code>Cache-Control: no-cache
+ETag: "abc123"</code></pre>
+                </div>
+
+                <div class="concept-block">
+                    <h4>Cómo Funciona</h4>
+                    <ol>
+                        <li>Navegador carga: index.html</li>
+                        <li>Servidor envía: ETag: "abc123"</li>
+                        <li>Navegador guarda el archivo</li>
+                        <li>Próxima carga, navegador pregunta: ¿ETag sigue siendo "abc123"?</li>
+                        <li>Si sí → Servidor responde: 304 Not Modified (sin descargar)</li>
+                        <li>Si no → Servidor envía: 200 OK (descarga nueva versión)</li>
+                    </ol>
+                </div>
+
+                <h3>Estrategia Senior Real (En Producción)</h3>
+
+                <div class="solution-block" data-title="🎯 El Patrón Ganador">
+                    <pre><code>// HTML (index.html)
+Cache-Control: no-cache
+ETag: "xyz789"
+
+// JS/CSS con hash
+Cache-Control: public, max-age=31536000, immutable
+
+// Imágenes
+Cache-Control: public, max-age=31536000
+
+// API responses
+Cache-Control: public, max-age=3600 (1 hora)</code></pre>
+                </div>
+
+                <h3>Verificar en DevTools</h3>
+
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>🔍 Qué Ver en Network</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <h4>Primera Carga</h4>
+                        <pre><code>Status: 200 OK
+Size: 45 KB</code></pre>
+
+                        <h4>Segunda Carga (Mismo navegador)</h4>
+                        <pre><code>Status: 304 Not Modified
+Size: 0 B
+
+O verás: (memory cache) o (disk cache)</code></pre>
+
+                        <h4>Tercera Carga (Diferentes máquinas sin caché)</h4>
+                        <pre><code>Status: 200 OK
+Size: 45 KB
+
+(Sin caché local)</code></pre>
+                    </div>
+                </div>
+
+                <h2>4️⃣ CDN: Reducir Latencia Física</h2>
+
+                <div class="problem-block" data-title="❌ El Problema">
+                    <p>Tu servidor está en Alemania.</p>
+                    <p>El usuario está en Los Ángeles.</p>
+                    <p>La distancia afecta. La velocidad máxima es la velocidad de la luz.</p>
+                    <p><strong>Ejemplo:</strong> 200ms extra solo por latencia.</p>
+                </div>
+
+                <h3>¿Qué es un CDN?</h3>
+
+                <div class="concept-block">
+                    <p>Un CDN (Content Delivery Network) replica tus assets en múltiples servidores globales:</p>
+                    <ul>
+                        <li>🇪🇸 Europa</li>
+                        <li>🇺🇸 EEUU</li>
+                        <li>🇦🇺 Asia</li>
+                        <li>etc</li>
+                    </ul>
+                </div>
+
+                <h3>CDNs Populares</h3>
+
+                <div class="solution-block" data-title="🌍 Opciones Reales">
+                    <ul>
+                        <li><strong>Cloudflare:</strong> Gratis plan básico, muy popular</li>
+                        <li><strong>AWS CloudFront:</strong> Enterprise, caro pero poderoso</li>
+                        <li><strong>Netlify:</strong> Automático si hosteas ahí</li>
+                        <li><strong>Vercel:</strong> Automático para Next.js</li>
+                    </ul>
+                </div>
+
+                <h3>Cómo Detectar si Usas CDN</h3>
+
+                <div class="solution-block" data-title="💻 Headers en DevTools">
+                    <h4>Cloudflare</h4>
+                    <pre><code>cf-cache-status: HIT
+server: cloudflare</code></pre>
+
+                    <h4>AWS CloudFront</h4>
+                    <pre><code>x-cache: Hit from cloudfront
+x-amz-cf-pop: LAX50-C1</code></pre>
+                </div>
+
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>🎯 Beneficio Senior</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <p>Los CDNs normalmente:</p>
+                        <ul>
+                            <li>✅ Aplican compresión automáticamente</li>
+                            <li>✅ Cachean automáticamente</li>
+                            <li>✅ Sirven desde la ubicación más cercana al usuario</li>
+                            <li>✅ Pueden minificar automáticamente</li>
+                            <li>✅ Pueden optimizar imágenes</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h2>5️⃣ DNS Preconnect: Adelantar Conexiones</h2>
+
+                <div class="concept-block">
+                    <p><strong>Problema:</strong> Cuando necesitas un recurso externo (fonts, APIs, analytics), primero hace:</p>
+                    <ul>
+                        <li>1️⃣ DNS lookup</li>
+                        <li>2️⃣ TCP handshake</li>
+                        <li>3️⃣ TLS negotiation</li>
+                        <li>4️⃣ Request</li>
+                    </ul>
+                    <p>Cada paso tarda 50-100ms.</p>
+                </div>
+
+                <h3>Solución: Preconnect</h3>
+
+                <div class="solution-block" data-title="💻 En el Head">
+                    <pre><code>&lt;head&gt;
+  &lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin&gt;
+  &lt;link rel="preconnect" href="https://api.example.com"&gt;
+  &lt;link rel="preconnect" href="https://cdn.analytics.com"&gt;
+&lt;/head&gt;</code></pre>
+                </div>
+
+                <div class="analogy-block" data-title="🧠 Qué Pasa">
+                    <p><strong>Sin preconnect:</strong> DNS → TCP → TLS → Request → Response</p>
+                    <p><strong>Con preconnect:</strong> DNS + TCP + TLS (en paralelo) → Request (cuando se necesita)</p>
+                </div>
+
+                <h3>⚠️ Importante</h3>
+
+                <div class="warning-block" data-title="No abuses de Preconnect">
+                    <p><strong>Usa para:</strong> Máximo 3-4 dominios críticos</p>
+                    <p><strong>NO uses para:</strong> Todos los CDNs, analytics, ads</p>
+                    <p>Preconnect consume recursos.</p>
+                </div>
+
+                <h2>6️⃣ Cómo Auditar tu App (Paso a Paso)</h2>
+
+                <div class="solution-block" data-title="🔍 Auditoría Real en DevTools">
+                    <ol>
+                        <li><strong>Abre DevTools → Network</strong></li>
+                        <li><strong>Enable "Preserve log"</strong> (checkbox)</li>
+                        <li><strong>Hard reload:</strong> Right click → Empty cache and hard reload</li>
+                        <li><strong>Inspecciona el JS más grande</strong>
+                            <ul>
+                                <li>¿Tiene content-encoding?</li>
+                                <li>¿Tiene cache-control?</li>
+                                <li>¿Tiene hash en el nombre?</li>
+                                <li>¿Qué tamaño tiene?</li>
+                            </ul>
+                        </li>
+                        <li><strong>Recarga normal (Ctrl+R)</strong>
+                            <ul>
+                                <li>¿Aparece 304?</li>
+                                <li>¿Aparece (memory cache)?</li>
+                                <li>¿Cuánto tiempo tardó?</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+
+                <h2>7️⃣ Checklist: Qué Debería Tener tu App</h2>
+
+                <div class="concept-block">
+                    <table class="cheat-sheet-table">
+                        <thead>
+                            <tr>
+                                <th>Recurso</th>
+                                <th>Compresión</th>
+                                <th>Caché</th>
+                                <th>CDN</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>HTML</td>
+                                <td>✅ gzip/br</td>
+                                <td>no-cache + ETag</td>
+                                <td>✅ Sí</td>
+                            </tr>
+                            <tr>
+                                <td>JS (con hash)</td>
+                                <td>✅ gzip/br</td>
+                                <td>max-age: 1 año</td>
+                                <td>✅ Sí</td>
+                            </tr>
+                            <tr>
+                                <td>CSS (con hash)</td>
+                                <td>✅ gzip/br</td>
+                                <td>max-age: 1 año</td>
+                                <td>✅ Sí</td>
+                            </tr>
+                            <tr>
+                                <td>Imágenes</td>
+                                <td>Nativa</td>
+                                <td>max-age: 30 días</td>
+                                <td>✅ Sí</td>
+                            </tr>
+                            <tr>
+                                <td>API Responses</td>
+                                <td>✅ gzip/br</td>
+                                <td>max-age: 1 hora</td>
+                                <td>❌ No</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h2>8️⃣ Errores Comunes (Debes Evitar)</h2>
+
+                <div class="problem-block" data-title="❌ Error #1: Cachear fuerte el HTML">
+                    <p>Si cacheas index.html 1 año, los usuarios quedan atrapados en versión vieja.</p>
+                    <p><strong>Solución:</strong> Usar no-cache + ETag.</p>
+                </div>
+
+                <div class="problem-block" data-title="❌ Error #2: No usar fingerprint en archivos">
+                    <p>Si cambias el código pero el nombre no cambia, usuarios siguen con versión vieja.</p>
+                    <p><strong>Solución:</strong> Hash en el nombre (app.a34f9c.js).</p>
+                </div>
+
+                <div class="problem-block" data-title="❌ Error #3: No revisar headers reales">
+                    <p>Crees que todo está comprimido pero DevTools muestra lo contrario.</p>
+                    <p><strong>Solución:</strong> Auditar en DevTools o ejecutar curl.</p>
+                </div>
+
+                <div class="problem-block" data-title="❌ Error #4: Preconnect a todo">
+                    <p>Preconnecta a 20 dominios y ralentiza la página.</p>
+                    <p><strong>Solución:</strong> Solo 3-4 dominios críticos.</p>
+                </div>
+
+                <h2>9️⃣ Respuesta Senior en Entrevista</h2>
+
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>🎤 "¿Cómo optimizarías el servidor?"</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <p><strong>Respuesta Senior:</strong></p>
+                        <blockquote>
+                            <p>"Primero aplicaría compresión (Brotli o gzip) verificando que los headers tengan content-encoding y vary: accept-encoding.</p>
+                            <p>Implementaría caching fuerte para assets con hash usando Cache-Control: public, max-age=31536000, immutable para JS/CSS.</p>
+                            <p>Para HTML usaría no-cache con ETag para revalidación, evitando que usuarios queden atrapados en versiones viejas.</p>
+                            <p>Usaría un CDN para reducir la latencia geográfica.</p>
+                            <p>Para recursos externos críticos, añadiría preconnect limitado a 3-4 dominios.</p>
+                            <p>Auditaría todo en DevTools Network tab verificando headers reales.</p>
+                            <p>El objetivo es reducir TTFB y asegurar que cambios en deploy invaliden caché automáticamente."</p>
+                        </blockquote>
+                    </div>
+                </div>
+
+                <h2>🔟 Conexión con Core Web Vitals</h2>
+
+                <div class="solution-block" data-title="📊 Impacto Real">
+                    <ul>
+                        <li><strong>Caching:</strong> Mejora TTFB, FCP, LCP (50% en caso ideal)</li>
+                        <li><strong>Compression:</strong> Mejora LCP (30-40%)</li>
+                        <li><strong>CDN:</strong> Mejora TTFB (20-30%)</li>
+                        <li><strong>Preconnect:</strong> Mejora LCP para recursos críticos (10-15%)</li>
+                    </ul>
+                </div>
+
+                <h2>1️⃣1️⃣ Checklist Accionable Ahora</h2>
+
+                <div class="solution-block" data-title="✅ Haz Esto Hoy">
+                    <ol>
+                        <li>Abre tu app en Chrome</li>
+                        <li>DevTools → Network → Hard reload</li>
+                        <li>Click en un .js grande</li>
+                        <li>Mira Headers → ¿Tiene content-encoding?</li>
+                        <li>Mira Headers → ¿Tiene cache-control?</li>
+                        <li>Si no tiene compresión, activar en servidor</li>
+                        <li>Si no cachea bien, ajustar headers</li>
+                        <li>Si estás en EEUU pero servidor en Alemania, urgente CDN</li>
+                        <li>Recarga normal y mira si aparece 304</li>
+                    </ol>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='17-diagnosis.html'">← Volver a Diagnosis</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../../index.html'">Volver al Inicio →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

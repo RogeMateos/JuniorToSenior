@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Static Assets: Images, Fonts & CSS | Frontend Mastery</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section class="content-section">
+                <h1>🖼 Static Assets: Images, Fonts & CSS</h1>
+                <p class="section-description">Static Assets Optimization in Web Performance</p>
+
+                <!-- OBJECTIVE -->
+                <div class="concept-block">
+                    <h2>🎯 Module Objective</h2>
+                    <p>Learn how to optimize CSS, images, and fonts to improve:</p>
+                    <ul>
+                        <li>⚡ First Contentful Paint (FCP)</li>
+                        <li>🖼 Largest Contentful Paint (LCP)</li>
+                        <li>📉 CLS (Cumulative Layout Shift)</li>
+                        <li>⏱ Total load time</li>
+                    </ul>
+                </div>
+
+                <!-- MENTAL MODEL -->
+                <div class="analogy-block" data-title="Mental Model: Order Matters">
+                    <p>Before optimizing React, memoization or hooks…</p>
+                    <p>👉 If your images weigh 2MB each</p>
+                    <p>👉 If your CSS blocks rendering</p>
+                    <p>👉 If your fonts delay text</p>
+                    <p><strong>Nothing else matters.</strong></p>
+                    <p><strong>First we optimize assets. Then JavaScript.</strong></p>
+                </div>
+
+                <!-- STEP 1 - DIAGNOSIS -->
+                <h2>🧪 Step 1 — Diagnosis (ALWAYS first)</h2>
+
+                <h3>Key Tools</h3>
+                <ul>
+                    <li><strong>Lighthouse</strong></li>
+                    <li><strong>DevTools → Network</strong></li>
+                    <li><strong>DevTools → Coverage</strong></li>
+                </ul>
+
+                <h3>📊 Using Coverage for Unused CSS</h3>
+                <div class="solution-block">
+                    <ol>
+                        <li>Open DevTools</li>
+                        <li>More Tools → Coverage</li>
+                        <li>Click Reload</li>
+                        <li>Observe what percentage of CSS is in red</li>
+                    </ol>
+                    <p><strong>🔴 Red = not used in this render</strong></p>
+                    <p><strong>🟢 Green = used</strong></p>
+                </div>
+
+                <div class="warning-block" data-title="Senior Interpretation">
+                    <p>Coverage doesn't mean "this is never used".</p>
+                    <p>It means "this is not used now".</p>
+                    <p>But it's perfect for detecting:</p>
+                    <ul>
+                        <li>Legacy CSS</li>
+                        <li>CSS from other routes</li>
+                        <li>Unnecessary libraries</li>
+                    </ul>
+                </div>
+
+                <!-- PART 1 - CSS -->
+                <h2>🎨 Part 1 — CSS Optimization</h2>
+
+                <div class="problem-block" data-title="Why is CSS Critical?">
+                    <p><strong>CSS is render-blocking.</strong></p>
+                    <p>The browser:</p>
+                    <ol>
+                        <li>Downloads HTML</li>
+                        <li>Finds &lt;link rel="stylesheet"&gt;</li>
+                        <li><strong>Stops everything</strong></li>
+                        <li>Downloads CSS</li>
+                        <li>Builds CSSOM</li>
+                        <li>Then renders</li>
+                    </ol>
+                    <p><strong>Until it has enough CSS, it won't paint.</strong></p>
+                </div>
+
+                <div class="concept-block">
+                    <h3>🔥 Key Concept: Critical CSS</h3>
+                    <p><strong>Critical CSS =</strong></p>
+                    <p>The CSS needed to paint "above the fold" content.</p>
+                    <p>In other words:</p>
+                    <p>👉 What the user sees without scrolling.</p>
+                    <h4>🎯 Ideal Strategy</h4>
+                    <ul>
+                        <li>Inline the Critical CSS</li>
+                        <li>Load the rest later</li>
+                    </ul>
+                    <p><strong>Result:</strong></p>
+                    <ul>
+                        <li>First render much faster</li>
+                        <li>Better FCP</li>
+                    </ul>
+                </div>
+
+                <div class="warning-block" data-title="Reality in React (SPA)">
+                    <p>In a typical SPA:</p>
+                    <ul>
+                        <li>Initial HTML is minimal</li>
+                        <li>Real content appears after JS loads</li>
+                    </ul>
+                    <p><strong>That's why:</strong></p>
+                    <ul>
+                        <li>👉 Critical CSS is more effective in SSR (Next.js)</li>
+                        <li>👉 In pure SPA it depends heavily on tooling</li>
+                    </ul>
+                </div>
+
+                <h3>✅ CSS Best Practices</h3>
+
+                <div class="solution-block">
+                    <h4>1️⃣ Extract CSS from JS</h4>
+                    <p>In production, CSS should be a separate file.</p>
+                    <p>Example in Vite / Webpack:</p>
+                    <pre><code>build: {
+  cssCodeSplit: true
+}</code></pre>
+
+                    <h4>2️⃣ Minify</h4>
+                    <p>Automatic in production, but always verify.</p>
+
+                    <h4>3️⃣ Remove Unused CSS (Purge)</h4>
+                    <p>If you use Tailwind → already optimized in build.</p>
+                    <p>If not:</p>
+                    <ul>
+                        <li>Check large libraries</li>
+                        <li>Remove legacy styles</li>
+                        <li>Split CSS by routes</li>
+                    </ul>
+
+                    <h4>4️⃣ CSS Code Splitting per Page</h4>
+                    <p>If /admin doesn't need /home styles, don't load them.</p>
+                </div>
+
+                <!-- PART 2 - IMAGES -->
+                <h2>🖼 Part 2 — Image Optimization (Greatest Impact)</h2>
+
+                <div class="analogy-block" data-title="If you fix just one thing...">
+                    <p><strong>If you fix just one thing, make it images.</strong></p>
+                </div>
+
+                <h3>🎯 Rule 1 — Correct Size</h3>
+                <div class="problem-block">
+                    <p>If the image renders at 400px,</p>
+                    <p><strong>DON'T send a 3000px one.</strong></p>
+                </div>
+
+                <h3>🎯 Rule 2 — Modern Format</h3>
+                <div class="solution-block">
+                    <p>Recommended order:</p>
+                    <ol>
+                        <li><strong>AVIF</strong> (best compression)</li>
+                        <li><strong>WebP</strong></li>
+                        <li><strong>JPEG/PNG</strong> (fallback)</li>
+                    </ol>
+                </div>
+
+                <h3>🎯 Rule 3 — Responsive Images</h3>
+                <div class="solution-block">
+                    <pre><code>&lt;img
+  src="image-800.webp"
+  srcset="
+    image-400.webp 400w,
+    image-800.webp 800w,
+    image-1200.webp 1200w
+  "
+  sizes="(max-width: 600px) 100vw, 600px"
+  width="600"
+  height="400"
+  alt="Product"
+/&gt;</code></pre>
+                </div>
+
+                <h3>🎯 Rule 4 — Lazy Loading</h3>
+                <div class="solution-block">
+                    <p>For images not visible at first:</p>
+                    <pre><code>&lt;img loading="lazy" /&gt;</code></pre>
+                    <p><strong>But ⚠️</strong></p>
+                    <p>Don't lazy-load the main image (LCP).</p>
+                </div>
+
+                <h3>🎯 Rule 5 — Avoid CLS</h3>
+                <div class="solution-block">
+                    <p>Always define:</p>
+                    <pre><code>width="600"
+height="400"</code></pre>
+                    <p>Or use <strong>aspect-ratio</strong> in CSS.</p>
+                    <p><strong>This prevents the layout from jumping.</strong></p>
+                </div>
+
+                <div class="warning-block" data-title="LCP Image (Very Important)">
+                    <p>The main image must:</p>
+                    <ul>
+                        <li>Be compressed</li>
+                        <li>Have correct size</li>
+                        <li>NOT use lazy-load</li>
+                        <li>Be prioritized</li>
+                    </ul>
+                    <p><strong>In React (Next.js example):</strong></p>
+                    <pre><code>&lt;Image priority /&gt;</code></pre>
+                </div>
+
+                <!-- PART 3 - FONTS -->
+                <h2>🔤 Part 3 — Font Optimization</h2>
+
+                <div class="problem-block" data-title="Common Problem">
+                    <p>Without optimization:</p>
+                    <ul>
+                        <li>FOIT (invisible text)</li>
+                        <li>Slow loading</li>
+                        <li>Visual shifts</li>
+                    </ul>
+                </div>
+
+                <h3>🎯 Best Practices</h3>
+
+                <div class="solution-block">
+                    <h4>1️⃣ Use woff2</h4>
+                    <p>Modern and compressed format.</p>
+
+                    <h4>2️⃣ font-display: swap</h4>
+                    <pre><code>@font-face {
+  font-family: "Inter";
+  src: url("/fonts/inter.woff2") format("woff2");
+  font-display: swap;
+}</code></pre>
+                    <p><strong>Result:</strong></p>
+                    <ul>
+                        <li>Text appears immediately</li>
+                        <li>Changes to final font later</li>
+                        <li>Better UX</li>
+                    </ul>
+
+                    <h4>3️⃣ Subsetting</h4>
+                    <p>If you only use:</p>
+                    <ul>
+                        <li>Latin</li>
+                        <li>Weight 400 and 700</li>
+                    </ul>
+                    <p><strong>Don't load 8 weights and 4 alphabets.</strong></p>
+
+                    <h4>4️⃣ Variable Fonts</h4>
+                    <p>A single font can replace multiple weights.</p>
+                    <p><strong>Fewer requests. Fewer KB.</strong></p>
+                </div>
+
+                <!-- RECOMMENDED ORDER -->
+                <h2>🧩 Recommended Optimization Order</h2>
+                <div class="concept-block">
+                    <ol>
+                        <li><strong>🧪 Diagnosis</strong></li>
+                        <li><strong>🖼 Images</strong></li>
+                        <li><strong>🎨 CSS</strong></li>
+                        <li><strong>🔤 Fonts</strong></li>
+                        <li><strong>📦 Then JavaScript</strong></li>
+                    </ol>
+                </div>
+
+                <!-- FINAL CHECKLIST -->
+                <h2>📋 Production Checklist</h2>
+
+                <div class="solution-block">
+                    <h3>CSS</h3>
+                    <ul>
+                        <li>☐ Extracted</li>
+                        <li>☐ Minified</li>
+                        <li>☐ Unused CSS removed</li>
+                        <li>☐ Code split by routes (if applicable)</li>
+                    </ul>
+
+                    <h3>Images</h3>
+                    <ul>
+                        <li>☐ Correct size</li>
+                        <li>☐ Modern format</li>
+                        <li>☐ Responsive</li>
+                        <li>☐ Lazy load only where appropriate</li>
+                        <li>☐ No CLS</li>
+                    </ul>
+
+                    <h3>Fonts</h3>
+                    <ul>
+                        <li>☐ woff2</li>
+                        <li>☐ font-display swap</li>
+                        <li>☐ Subsetting</li>
+                        <li>☐ Variable fonts if possible</li>
+                    </ul>
+                </div>
+
+                <!-- PRACTICAL EXERCISE -->
+                <h2>🧪 Mini Practical Exercise</h2>
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>🎯 Apply Right Now</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <ol>
+                            <li><strong>Open your project.</strong></li>
+                            <li><strong>Run Lighthouse.</strong></li>
+                            <li><strong>Identify:</strong>
+                                <ul>
+                                    <li>Heaviest image</li>
+                                    <li>Largest CSS file</li>
+                                    <li>Largest font</li>
+                                </ul>
+                            </li>
+                            <li><strong>Optimize just one.</strong></li>
+                            <li><strong>Measure again.</strong></li>
+                            <li><strong>Compare before and after.</strong></li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- SENIOR REFLECTION -->
+                <h2>🧠 Senior Reflection</h2>
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>💡 What You Need to Remember</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <p>Optimizing performance is not about doing magic with React.</p>
+                        <p><strong>It's about understanding:</strong></p>
+                        <ul>
+                            <li>How the browser works</li>
+                            <li>What blocks rendering</li>
+                            <li>What weighs most on the network</li>
+                            <li>What affects LCP</li>
+                        </ul>
+                        <p><strong>React comes after.</strong></p>
+                        <p>Those who master this can optimize almost any project.</p>
+                    </div>
+                </div>
+
+                <!-- NEXT TOPICS -->
+                <div class="concept-block">
+                    <h3>📚 Next Topics</h3>
+                    <p>In the following modules:</p>
+                    <ul>
+                        <li>👉 JavaScript Optimization</li>
+                        <li>👉 How Frameworks Affect Performance</li>
+                        <li>👉 How to Connect Everything with Core Web Vitals</li>
+                    </ul>
+                </div>
+
+                <!-- REFERENCES -->
+                <div class="solution-block">
+                    <h3>📚 References and Resources</h3>
+                    <ul>
+                        <li><a href="https://chatgpt.com/g/g-p-696fbea2755481919c8258fb23e8f822-react/c/6993b926-0a4c-8392-beff-8d065f995cb0" target="_blank">ChatGPT React Performance Assistant</a></li>
+                    </ul>
+                </div>
+
+                <!-- NAVIGATION BUTTONS -->
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='18-optimising-the-server.html'">← Previous</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../../index.html'">Back to Home →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Framework Optimizations | Frontend Mastery</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section class="content-section">
+                <h1>⚛️ Framework Optimizations</h1>
+                <p class="section-description">How to Remove Unnecessary Renders and Make Your App Faster</p>
+
+                <!-- REAL PROBLEM -->
+                <div class="problem-block" data-title="1️⃣ The Real Problem">
+                    <p>In modern React, the biggest performance issue usually isn't the DOM.</p>
+                    <p>It's this:</p>
+                    <ul>
+                        <li>🔥 Too many unnecessary renders</li>
+                        <li>🔥 Expensive renders</li>
+                        <li>🔥 Updates affecting more components than needed</li>
+                    </ul>
+                    <p><strong>When you type in an input and 20 components light up in DevTools… something's wrong.</strong></p>
+                </div>
+
+                <!-- SENIOR MINDSET -->
+                <h2>2️⃣ Senior Mindset: Always Diagnose First</h2>
+
+                <div class="analogy-block" data-title="Before optimizing, measure">
+                    <p>Before using memo, useMemo, or useCallback, do this:</p>
+                </div>
+
+                <h3>Step 1 — Enable Highlight Updates</h3>
+                <div class="solution-block">
+                    <ol>
+                        <li>React DevTools → Settings</li>
+                        <li>Highlight updates when components render</li>
+                        <li>Type in an input</li>
+                        <li>Do things light up that shouldn't?</li>
+                    </ol>
+                    <p>👉 If yes, there are unnecessary renders.</p>
+                </div>
+
+                <h3>Step 2 — Use the Profiler</h3>
+                <div class="solution-block">
+                    <ol>
+                        <li>React DevTools → Profiler → Record</li>
+                        <li>Do an interaction (type, change theme, etc.)</li>
+                        <li>Look at:
+                            <ul>
+                                <li>Which component takes longest</li>
+                                <li>Which component renders most</li>
+                                <li>What triggered the render (state, props, context)</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    <p><strong>🎯 Never optimize without profiler.</strong></p>
+                </div>
+
+                <!-- WHY DOES IT RENDER -->
+                <h2>3️⃣ Why Does a Component Render?</h2>
+
+                <div class="concept-block">
+                    <p>A component renders when:</p>
+                    <ul>
+                        <li>Its state changes</li>
+                        <li>Its props change</li>
+                        <li>Its context changes</li>
+                        <li>A hook it depends on changes</li>
+                    </ul>
+                    <p><strong>If a parent renders, its children also render.</strong></p>
+                    <p><strong>That's the origin of the problem.</strong></p>
+                </div>
+
+                <!-- STRATEGY 1 -->
+                <h2>4️⃣ Strategy #1 — Reduce Renders (Most Important)</h2>
+
+                <div class="warning-block" data-title="Before memoizing anything">
+                    <p>Do this first.</p>
+                </div>
+
+                <h3>🔹 Golden Rule: Lower the State as Much as Possible</h3>
+
+                <div class="problem-block" data-title="❌ Wrong">
+                    <pre><code>function Page() {
+  const [query, setQuery] = useState("");
+
+  return (
+    &lt;&gt;
+      &lt;Header /&gt;
+      &lt;Search value={query} onChange={setQuery} /&gt;
+      &lt;BigList query={query} /&gt;
+      &lt;Sidebar /&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+                    <p><strong>Every time you type:</strong></p>
+                    <ul>
+                        <li>Page renders</li>
+                        <li>Header renders</li>
+                        <li>Sidebar renders</li>
+                        <li>BigList renders</li>
+                    </ul>
+                    <p>Does Sidebar change when you type? No.</p>
+                </div>
+
+                <div class="solution-block" data-title="✅ Better">
+                    <pre><code>function Page() {
+  return (
+    &lt;&gt;
+      &lt;Header /&gt;
+      &lt;Sidebar /&gt;
+      &lt;SearchSection /&gt;
+    &lt;/&gt;
+  );
+}
+
+function SearchSection() {
+  const [query, setQuery] = useState("");
+
+  return (
+    &lt;&gt;
+      &lt;Search value={query} onChange={setQuery} /&gt;
+      &lt;BigList query={query} /&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+                    <p><strong>🎯 Now only the necessary subtree renders.</strong></p>
+                </div>
+
+                <!-- STRATEGY 2 -->
+                <h2>5️⃣ Strategy #2 — React.memo (Prevent Unnecessary Renders)</h2>
+
+                <div class="concept-block">
+                    <p>React.memo prevents a component from rendering if its props haven't changed.</p>
+                </div>
+
+                <h3>Example</h3>
+                <div class="solution-block">
+                    <pre><code>const Card = React.memo(function Card({ title }) {
+  console.log("Card render");
+  return &lt;h2&gt;{title}&lt;/h2&gt;;
+});
+
+
+// If parent renders but title doesn't change:
+// 👉 Card does NOT render.</code></pre>
+                </div>
+
+                <h3>⚠️ Classic Problem</h3>
+                <div class="problem-block">
+                    <p>This breaks memo:</p>
+                    <pre><code>&lt;Card title="Hello" style={{ marginTop: 10 }} /&gt;</code></pre>
+                    <p><strong>Why:</strong></p>
+                    <ul>
+                        <li>Each render creates a new style object</li>
+                        <li>React.memo compares props by reference</li>
+                        <li>New object = new reference = render</li>
+                    </ul>
+                </div>
+
+                <!-- STRATEGY 3 -->
+                <h2>6️⃣ Strategy #3 — useCallback (Memoize Functions)</h2>
+
+                <div class="concept-block">
+                    <p>Inline functions change reference on each render.</p>
+                </div>
+
+                <h3>❌ Problem</h3>
+                <div class="problem-block">
+                    <pre><code>&lt;Item onClick={() => setSelected(id)} /&gt;
+
+
+// New function each render → child renders.</code></pre>
+                </div>
+
+                <h3>✅ Solution</h3>
+                <div class="solution-block">
+                    <pre><code>const handleClick = useCallback((id) => {
+  setSelected(id);
+}, []);
+
+&lt;Item onClick={handleClick} /&gt;
+
+
+// Now function is stable.</code></pre>
+                </div>
+
+                <h3>⚠️ Dependencies</h3>
+                <div class="warning-block">
+                    <p>If you use external variables:</p>
+                    <pre><code>const handleClick = useCallback(() => {
+  doSomething(value);
+}, [value]);
+
+
+// Always include dependencies correctly.</code></pre>
+                </div>
+
+                <!-- STRATEGY 4 -->
+                <h2>7️⃣ Strategy #4 — useMemo (Memoize Values)</h2>
+
+                <div class="concept-block">
+                    <p>Useful for:</p>
+                    <ul>
+                        <li>Avoiding expensive calculations repeated</li>
+                        <li>Keeping references stable</li>
+                    </ul>
+                </div>
+
+                <h3>Real Case: Filter Large List</h3>
+                <div class="solution-block">
+                    <pre><code>const filtered = useMemo(() => {
+  return items.filter(item =>
+    item.name.includes(query)
+  );
+}, [items, query]);
+
+
+// Without useMemo:
+// Recalculates every render.
+
+// With useMemo:
+// Only when items or query change.</code></pre>
+                </div>
+
+                <h3>⚠️ Important Rule</h3>
+                <div class="warning-block">
+                    <p>Don't use useMemo for everything.</p>
+                    <p><strong>If the calculation is cheap, don't use it.</strong></p>
+                </div>
+
+                <!-- CONTEXT -->
+                <h2>8️⃣ Context: The Big Render Trigger</h2>
+
+                <div class="problem-block" data-title="When Provider value changes">
+                    <p>👉 ALL consumers render.</p>
+                </div>
+
+                <h3>❌ Anti-pattern</h3>
+                <div class="problem-block">
+                    <pre><code>&lt;AppContext.Provider value={{ theme, user, cart }}&gt;
+  ...
+&lt;/AppContext.Provider&gt;
+
+
+// Change cart → all components using theme
+// also render.</code></pre>
+                </div>
+
+                <h3>✅ Better</h3>
+                <div class="solution-block">
+                    <p>Separate contexts:</p>
+                    <ul>
+                        <li>ThemeContext</li>
+                        <li>UserContext</li>
+                        <li>CartContext</li>
+                    </ul>
+                    <p><strong>Prevents render explosion.</strong></p>
+                </div>
+
+                <!-- KEY DIFFERENCE -->
+                <h2>9️⃣ Key Difference: Avoid Render vs Make it Faster</h2>
+
+                <div class="concept-block">
+                    <p>There are two types of optimization:</p>
+                    <h3>1️⃣ Avoid renders</h3>
+                    <ul>
+                        <li>Lower state</li>
+                        <li>Split tree</li>
+                        <li>React.memo</li>
+                    </ul>
+                    <p>👉 <strong>Usually has more impact.</strong></p>
+
+                    <h3>2️⃣ Make renders faster</h3>
+                    <ul>
+                        <li>useMemo</li>
+                        <li>useCallback</li>
+                    </ul>
+                    <p>👉 <strong>Less impact, more complexity.</strong></p>
+                    <p>That's why it's the last step.</p>
+                </div>
+
+                <!-- PRACTICAL CASE -->
+                <h2>🔟 Complete Practical Case</h2>
+
+                <h3>❌ Before</h3>
+                <div class="problem-block">
+                    <pre><code>function Page({ items }) {
+  const [query, setQuery] = useState("");
+
+  return (
+    &lt;div&gt;
+      &lt;input
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+      /&gt;
+      &lt;BigList items={items} /&gt;
+    &lt;/div&gt;
+  );
+}
+
+
+// BigList renders every time you type.</code></pre>
+                </div>
+
+                <h3>✅ After</h3>
+                <div class="solution-block">
+                    <pre><code>const BigList = React.memo(function BigList({ items }) {
+  return items.map(item => (
+    &lt;Row key={item.id} item={item} /&gt;
+  ));
+});
+
+function Page({ items }) {
+  const [query, setQuery] = useState("");
+
+  const filtered = useMemo(() => {
+    return items.filter(item =>
+      item.name.includes(query)
+    );
+  }, [items, query]);
+
+  const handleChange = useCallback((e) => {
+    setQuery(e.target.value);
+  }, []);
+
+  return (
+    &lt;div&gt;
+      &lt;input value={query} onChange={handleChange} /&gt;
+      &lt;BigList items={filtered} /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+                </div>
+
+                <!-- DECISION TREE -->
+                <h2>🧠 Senior Decision Tree</h2>
+
+                <div class="concept-block">
+                    <p><strong>When something is slow:</strong></p>
+                    <ol>
+                        <li><strong>What does the profiler say?</strong></li>
+                        <li>Are there unnecessary renders?
+                            <ul>
+                                <li>→ Lower state</li>
+                                <li>→ Split tree</li>
+                            </ul>
+                        </li>
+                        <li>Still rendering unnecessarily?
+                            <ul>
+                                <li>→ React.memo</li>
+                            </ul>
+                        </li>
+                        <li>Props changing by reference?
+                            <ul>
+                                <li>→ useCallback / useMemo</li>
+                            </ul>
+                        </li>
+                        <li>Huge list?
+                            <ul>
+                                <li>→ Virtualization</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+
+                <!-- COMMON MISTAKES -->
+                <h2>⚠️ Common Mistakes</h2>
+
+                <div class="warning-block">
+                    <ul>
+                        <li>❌ Using useMemo for everything</li>
+                        <li>❌ Using useCallback in every function</li>
+                        <li>❌ Putting everything in one Context</li>
+                        <li>❌ Optimizing without measuring</li>
+                        <li>❌ Breaking hook dependencies</li>
+                    </ul>
+                </div>
+
+                <!-- WHEN IT MAKES SENSE -->
+                <h2>🎯 When Optimization Really Matters</h2>
+
+                <div class="solution-block">
+                    <ul>
+                        <li>Drag & Drop like Google Sheets</li>
+                        <li>Dashboard with many tables</li>
+                        <li>Heavy charts</li>
+                        <li>Huge lists</li>
+                        <li>Apps like Figma, Notion, Trello</li>
+                    </ul>
+                    <p><strong>In a typical small CRUD app, you don't need this much.</strong></p>
+                </div>
+
+                <!-- INTERVIEW -->
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>📌 Senior Interview Quote</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <blockquote>
+                            <p>"I measure first with the profiler. Then I reduce the render radius by lowering state and splitting context. Then I use React.memo and stabilize props with useCallback/useMemo only if the profiler proves it's necessary."</p>
+                        </blockquote>
+                    </div>
+                </div>
+
+                <!-- EXERCISES -->
+                <h2>🧪 Practical Exercises</h2>
+
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>💪 Exercise 1</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <p><strong>Create an input that renders 20 cards.</strong></p>
+                        <p>Optimize until only cards render when their props change.</p>
+                        <p>Use: lower state, React.memo, and stabilize props.</p>
+                    </div>
+                </div>
+
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>💪 Exercise 2</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <p><strong>Create a context with theme and cart.</strong></p>
+                        <p>Split context into two.</p>
+                        <p>Measure the difference with React DevTools Profiler.</p>
+                    </div>
+                </div>
+
+                <!-- SUMMARY -->
+                <div class="concept-block">
+                    <h2>📚 Strategy Summary</h2>
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <th style="padding: 10px; text-align: left;"><strong>Strategy</strong></th>
+                            <th style="padding: 10px; text-align: left;"><strong>When</strong></th>
+                            <th style="padding: 10px; text-align: left;"><strong>Impact</strong></th>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 10px;">Lower state</td>
+                            <td style="padding: 10px;">State not needed by all</td>
+                            <td style="padding: 10px;">🔥 High</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 10px;">Split tree</td>
+                            <td style="padding: 10px;">Subtree changes frequently</td>
+                            <td style="padding: 10px;">🔥 High</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 10px;">React.memo</td>
+                            <td style="padding: 10px;">Props don't change often</td>
+                            <td style="padding: 10px;">⚡ Medium</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 10px;">useCallback</td>
+                            <td style="padding: 10px;">Functions passed to memo components</td>
+                            <td style="padding: 10px;">⚡ Medium</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 10px;">useMemo</td>
+                            <td style="padding: 10px;">Expensive calculation repeats</td>
+                            <td style="padding: 10px;">⚡ Medium</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Split contexts</td>
+                            <td style="padding: 10px;">Context used by few</td>
+                            <td style="padding: 10px;">🔥 High</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- REFERENCES -->
+                <div class="solution-block">
+                    <h3>📚 References and Resources</h3>
+                    <ul>
+                        <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/6993bd0b-b1d4-838d-b850-34c4d9771170" target="_blank">ChatGPT Dragos - React Performance Expert</a></li>
+                    </ul>
+                </div>
+
+                <!-- NAVIGATION BUTTONS -->
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='20-optimising-javascript-bundle.html'">← Previous</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../../index.html'">Back to Home →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

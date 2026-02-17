@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3.3.1 Diagnosis - Frontend Mastery</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-diagnosis">
+                <h1>🔍 Professional Diagnosis: The First Step</h1>
+                <p><strong>Never Optimize What You Haven't Measured — The Senior Mindset</strong></p>
+
+                <div class="warning-block" data-title="⚠️ The Uncomfortable Truth">
+                    <p>A junior hears "the app is slow" and thinks React.memo.</p>
+                    <p>A senior thinks diagnosis.</p>
+                    <p><strong>Without diagnosis, any optimization is noise.</strong></p>
+                </div>
+
+                <h2>1️⃣ Senior Mindset: Before You Touch Code</h2>
+
+                <div class="concept-block">
+                    <p>Before opening DevTools, ask questions.</p>
+                    <p>This is not wasting time.</p>
+                    <p>This is being professional.</p>
+                </div>
+
+                <h3>Critical Questions</h3>
+
+                <div class="solution-block" data-title="🧩 Always Ask These">
+                    <ul>
+                        <li><strong>Slow to load or slow to interact?</strong> (This answer defines everything)</li>
+                        <li><strong>Desktop, mobile, or both?</strong> (Mobile is usually worse)</li>
+                        <li><strong>All pages or some?</strong> (Recent regression vs chronic issue)</li>
+                        <li><strong>Is this recent?</strong> (Recent deploy? User comparing with before?)</li>
+                        <li><strong>Do we have real metrics (RUM)?</strong> (Not just "it feels slow")</li>
+                        <li><strong>What % of users are affected?</strong> (5% vs 60% = different priorities)</li>
+                    </ul>
+                </div>
+
+                <h2>2️⃣ Classify the Problem Type</h2>
+
+                <h3>🟢 Type A: Slow to Load</h3>
+
+                <div class="problem-block" data-title="Symptoms">
+                    <ul>
+                        <li>Blank screen for long time</li>
+                        <li>Content takes time to appear</li>
+                        <li>Images are slow</li>
+                    </ul>
+                </div>
+
+                <div class="solution-block" data-title="Key Metrics">
+                    <ul>
+                        <li><strong>LCP</strong> — When does main content appear?</li>
+                        <li><strong>FCP</strong> — When does anything appear?</li>
+                        <li><strong>CLS</strong> — How much does the page move while loading?</li>
+                        <li><strong>TTFB</strong> — How fast does the server respond?</li>
+                    </ul>
+                </div>
+
+                <div class="concept-block">
+                    <h4>Typical Root Causes</h4>
+                    <ul>
+                        <li>Heavy JavaScript blocking</li>
+                        <li>Unoptimized images</li>
+                        <li>CSS blocking render</li>
+                        <li>Many requests waiting</li>
+                        <li>Slow server (high TTFB)</li>
+                    </ul>
+                </div>
+
+                <h3>🔵 Type B: Slow to Interact</h3>
+
+                <div class="problem-block" data-title="Symptoms">
+                    <ul>
+                        <li>Clicks take time to respond</li>
+                        <li>Scroll lags / stuttering</li>
+                        <li>Slow to type in inputs</li>
+                        <li>Choppy animations</li>
+                    </ul>
+                </div>
+
+                <div class="solution-block" data-title="Key Metrics">
+                    <ul>
+                        <li><strong>INP</strong> — How long to react after interaction?</li>
+                        <li><strong>TBT</strong> — How much does JavaScript block main thread?</li>
+                        <li><strong>Long Tasks</strong> — Are there tasks > 50ms blocking?</li>
+                    </ul>
+                </div>
+
+                <div class="concept-block">
+                    <h4>Typical Root Causes</h4>
+                    <ul>
+                        <li>Too many re-renders in React</li>
+                        <li>Expensive calculations without debounce</li>
+                        <li>Large lists without virtualization</li>
+                        <li>Heavy JavaScript running on interaction</li>
+                        <li>Main thread blocked</li>
+                    </ul>
+                </div>
+
+                <h2>3️⃣ Lighthouse: Quick Diagnosis</h2>
+
+                <h3>How to Run It</h3>
+
+                <div class="solution-block" data-title="💻 Steps">
+                    <ol>
+                        <li>Open Chrome</li>
+                        <li>Press F12 (DevTools)</li>
+                        <li>Go to <strong>Lighthouse</strong> tab</li>
+                        <li>Select <strong>Mobile</strong> (most important)</li>
+                        <li>Click <strong>Analyze page load</strong></li>
+                        <li>Wait for result</li>
+                    </ol>
+                </div>
+
+                <div class="warning-block" data-title="⚠️ IMPORTANT: Use Incognito">
+                    <p><strong>Always run in incognito mode.</strong></p>
+                    <p>Reason: Chrome extensions inject scripts that contaminate measurements.</p>
+                    <p>Result without incognito: False score (might show 50 instead of 85).</p>
+                </div>
+
+                <h3>What to Actually Look At (Not Just the Score)</h3>
+
+                <div class="concept-block">
+                    <p><strong>The score doesn't matter.</strong></p>
+                    <p>Real metrics matter:</p>
+                </div>
+
+                <div class="solution-block" data-title="🎯 Metrics That Actually Matter">
+                    <ul>
+                        <li><strong>LCP:</strong> Is it ≤ 2.5s? If > 4s, there's a problem</li>
+                        <li><strong>CLS:</strong> Is it ≤ 0.1? If > 0.25, there are visible jumps</li>
+                        <li><strong>INP:</strong> Is it ≤ 200ms? If > 500ms, it feels laggy</li>
+                        <li><strong>Render Blocking Resources:</strong> Which CSS/JS blocks?</li>
+                        <li><strong>JavaScript Size:</strong> How many total KB?</li>
+                    </ul>
+                </div>
+
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>🧠 Correct Mindset About Lighthouse</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <p><strong>Lighthouse is a lab tool, not reality.</strong></p>
+                        <p>It runs on a powerful desktop computer.</p>
+                        <p>Your real user is on an old iPhone 7 on 4G.</p>
+                        <p>That's why Lighthouse can show green and your users suffer.</p>
+                        <p>Never trust Lighthouse alone.</p>
+                    </div>
+                </div>
+
+                <h2>4️⃣ RUM: Real User Monitoring (The Truth)</h2>
+
+                <div class="warning-block" data-title="⚠️ The Truth">
+                    <p>Lighthouse is simulation.</p>
+                    <p>RUM is reality.</p>
+                    <p><strong>Always choose reality.</strong></p>
+                </div>
+
+                <h3>What is RUM</h3>
+
+                <div class="concept-block">
+                    <p>RUM tools measure real users in production:</p>
+                    <ul>
+                        <li>Sentry</li>
+                        <li>Datadog</li>
+                        <li>New Relic</li>
+                        <li>Google Analytics (Core Web Vitals)</li>
+                        <li>Chrome User Experience Report (CrUX)</li>
+                    </ul>
+                </div>
+
+                <h3>What to Look for in RUM</h3>
+
+                <div class="solution-block" data-title="📊 Important Metrics">
+                    <ul>
+                        <li><strong>P75 (75th percentile):</strong> 75% of users experience this or better</li>
+                        <li><strong>P95 (95th percentile):</strong> The slowest 5% experience this</li>
+                        <li><strong>By device:</strong> Desktop vs Mobile (probably 2-5x difference)</li>
+                        <li><strong>By region/network:</strong> 4G vs 3G vs WiFi (massive difference)</li>
+                        <li><strong>By route:</strong> Which page has the problem?</li>
+                    </ul>
+                </div>
+
+                <h3>The Golden Senior Rule</h3>
+
+                <div class="problem-block" data-title="❌ Wrong Way">
+                    <p>Optimize because Lighthouse score dropped 2 points.</p>
+                </div>
+
+                <div class="solution-block" data-title="✅ Right Way">
+                    <p><strong>Optimize based on real impact:</strong></p>
+                    <ul>
+                        <li>60% of mobile users suffering? → URGENT</li>
+                        <li>5% has problem? → Can wait</li>
+                        <li>P95 is fine? → Problem is recent</li>
+                        <li>Score dropped but RUM improved? → Don't touch (false alarm)</li>
+                    </ul>
+                </div>
+
+                <h2>5️⃣ Performance Insights: Gold</h2>
+
+                <div class="concept-block">
+                    <p>Performance Insights in DevTools is incredibly valuable.</p>
+                    <p>Here you see exactly what happens during load.</p>
+                </div>
+
+                <h3>How to Use It</h3>
+
+                <div class="solution-block" data-title="💻 Steps">
+                    <ol>
+                        <li>DevTools → Performance Insights</li>
+                        <li>Click <strong>Reload and measure page load</strong></li>
+                        <li>Wait</li>
+                        <li>Analyze the timeline</li>
+                    </ol>
+                </div>
+
+                <h3>What to Look For</h3>
+
+                <div class="solution-block" data-title="🔍 Key Elements">
+                    <ul>
+                        <li><strong>First Contentful Paint (FCP):</strong> Blue vertical line</li>
+                        <li><strong>Largest Contentful Paint (LCP):</strong> Red vertical line</li>
+                        <li><strong>Layout Shift:</strong> Orange dots = layout changes</li>
+                        <li><strong>Long Tasks:</strong> Red bars = JavaScript > 50ms blocking</li>
+                    </ul>
+                </div>
+
+                <h3>Real Example: Diagnosing CLS</h3>
+
+                <div class="analogy-block" data-title="Case: Image Causing Layout Shift">
+                    <p><strong>Symptom:</strong> High CLS</p>
+                    <p><strong>In Performance Insights:</strong> You see an orange dot</p>
+                    <p><strong>Root cause:</strong> An image without dimensions loads and pushes content</p>
+                    <p><strong>Solution:</strong> Define width/height on the image</p>
+                </div>
+
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>💡 CLS: Before vs After</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <h4>Before (No Dimensions)</h4>
+                        <pre><code>&lt;img src="/hero.jpg" /&gt;
+&lt;!-- Browser doesn't know what space to reserve --&gt;
+&lt;!-- Content jumps when image loads --&gt;</code></pre>
+
+                        <h4>After (With Dimensions)</h4>
+                        <pre><code>&lt;img
+  src="/hero.jpg"
+  width="1200"
+  height="600"
+  alt="Hero"
+/&gt;
+&lt;!-- Layout reserved → nothing jumps --&gt;</code></pre>
+
+                        <p><strong>Result:</strong> CLS improves from 0.3 to 0.02</p>
+                    </div>
+                </div>
+
+                <h2>6️⃣ Performance Tab (Advanced)</h2>
+
+                <div class="warning-block" data-title="⚠️ Advanced Tool">
+                    <p>This is the most complex to understand.</p>
+                    <p>Use it only when you need to dive deep.</p>
+                </div>
+
+                <h3>When to Use It</h3>
+
+                <div class="concept-block">
+                    <ul>
+                        <li>You know there's heavy scripting but don't know where</li>
+                        <li>You need to know exactly which function blocks</li>
+                        <li>You have long tasks and need to identify them</li>
+                    </ul>
+                </div>
+
+                <h3>What to Look For</h3>
+
+                <div class="solution-block" data-title="🔎 Time Breakdown">
+                    <ul>
+                        <li><strong>Scripting:</strong> If > 30%, there's heavy JS</li>
+                        <li><strong>Rendering:</strong> If high, layout is expensive</li>
+                        <li><strong>Painting:</strong> If high, draw is slow</li>
+                        <li><strong>Recalculate Style:</strong> Complex CSS</li>
+                        <li><strong>Long Tasks:</strong> Red = blocks main thread</li>
+                    </ul>
+                </div>
+
+                <h2>7️⃣ Bundle Analysis: Tree Map</h2>
+
+                <div class="concept-block">
+                    <p>From Lighthouse you can analyze exactly which libraries weigh most.</p>
+                    <p>This is crucial for identifying bloat.</p>
+                </div>
+
+                <h3>How to Access</h3>
+
+                <div class="solution-block" data-title="💻 In Lighthouse">
+                    <ol>
+                        <li>Run Lighthouse analysis</li>
+                        <li>At bottom right, look for "View original treemap"</li>
+                        <li>Opens treemap showing all JS</li>
+                    </ol>
+                </div>
+
+                <h3>How to Interpret</h3>
+
+                <div class="solution-block" data-title="🧩 Critical Reading">
+                    <p><strong>Size = rectangle area</strong></p>
+                    <p>A giant rectangle = library that weighs too much</p>
+                </div>
+
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>🎯 Real Example: Identifying Bloat</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <p><strong>Scenario:</strong> You see Google Tag Manager takes 9% of bundle.</p>
+                        <p><strong>Senior question:</strong> Is it necessary to load on first render?</p>
+                        <p><strong>Answer probably:</strong> No. It's there for analytics.</p>
+                        <p><strong>Action:</strong> Load it async/defer.</p>
+                        <p><strong>Impact:</strong> LCP improves significantly.</p>
+                    </div>
+                </div>
+
+                <h2>8️⃣ The Complete Professional Playbook</h2>
+
+                <div class="solution-block" data-title="🔄 The Senior Diagnostic Flow">
+                    <ol>
+                        <li><strong>Clarify:</strong> Load slow or interaction slow?</li>
+                        <li><strong>Lighthouse:</strong> Run in incognito (quick baseline)</li>
+                        <li><strong>RUM:</strong> Review real data (what percentile suffers?)</li>
+                        <li><strong>Performance Insights:</strong> Visualize what happens</li>
+                        <li><strong>Performance Tab:</strong> If you need to dig deeper (optional)</li>
+                        <li><strong>Bundle Analysis:</strong> Identify what weighs most</li>
+                        <li><strong>Prioritize:</strong> What fix gives most impact?</li>
+                        <li><strong>Measure:</strong> Before and after</li>
+                    </ol>
+                </div>
+
+                <h2>9️⃣ Common Junior Mistakes (Avoid These)</h2>
+
+                <div class="problem-block" data-title="❌ Mistake #1: Optimize without measurement">
+                    <p>Apply useMemo, React.memo, useCallback without evidence.</p>
+                    <p><strong>Result:</strong> More complex code with no benefit.</p>
+                </div>
+
+                <div class="problem-block" data-title="❌ Mistake #2: Trust only Lighthouse">
+                    <p>Desktop shows green. Mobile on 4G suffers.</p>
+                    <p><strong>Solution:</strong> Always check RUM.</p>
+                </div>
+
+                <div class="problem-block" data-title="❌ Mistake #3: Optimize the wrong thing">
+                    <p>High LCP? → Optimize React when the problem is the image.</p>
+                    <p><strong>Solution:</strong> Performance Insights first.</p>
+                </div>
+
+                <div class="problem-block" data-title="❌ Mistake #4: Don't use incognito">
+                    <p>Chrome extensions contaminate measurement.</p>
+                    <p><strong>Result:</strong> Optimizing false problems.</p>
+                </div>
+
+                <h2>🔟 Senior Answer in Interview</h2>
+
+                <div class="interview-block">
+                    <div class="interview-title">
+                        <span>🎤 "The app is slow, what would you do?"</span>
+                        <span class="toggle-arrow">▶</span>
+                    </div>
+                    <div class="interview-content">
+                        <p><strong>Senior Response (model):</strong></p>
+                        <blockquote>
+                            <p>"First I'd ask: slow to load or interact? Desktop or mobile? What % of users report it?</p>
+                            <p>Then I'd run Lighthouse in incognito for a quick baseline.</p>
+                            <p>I'd review RUM to see real metrics in the field and which percentile suffers.</p>
+                            <p>I'd use Performance Insights to visualize exactly what happens during load.</p>
+                            <p>If problem is LCP, I'd look for render-blocking resources. If INP, I'd review long tasks in Performance tab.</p>
+                            <p>I'd analyze the bundle to identify which libraries weigh most.</p>
+                            <p>Then I'd prioritize by impact: server, assets, JS, framework tuning — in that order.</p>
+                            <p>And always measure before and after each change."</p>
+                        </blockquote>
+                    </div>
+                </div>
+
+                <h2>1️⃣1️⃣ Actionable Checklist Right Now</h2>
+
+                <div class="solution-block" data-title="✅ Do This Today">
+                    <ol>
+                        <li>Open your project in Chrome</li>
+                        <li>Open incognito (Ctrl+Shift+N)</li>
+                        <li>Go to your site</li>
+                        <li>F12 → Lighthouse</li>
+                        <li>Select Mobile</li>
+                        <li>Click Analyze</li>
+                        <li>Wait for result</li>
+                        <li>Note: LCP, CLS, INP, TTFB</li>
+                        <li>Identify the red number (the worst)</li>
+                        <li>Open Performance Insights</li>
+                        <li>Watch the timeline</li>
+                        <li>Identify if it's load or interaction</li>
+                    </ol>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='16-five-steps-web-performance.html'">← Back to 5 Steps</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../../index.html'">Back to Start →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

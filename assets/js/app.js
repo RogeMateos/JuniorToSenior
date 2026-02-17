@@ -25,6 +25,11 @@ const SECTION_ROUTES = {
   "section-core-web-vitals": "14-core-web-vitals.html",
   "section-critical-rendering-path": "15-critical-rendering-path.html",
   "section-five-steps-web-performance": "16-five-steps-web-performance.html",
+  "section-diagnosis": "17-diagnosis.html",
+  "section-optimising-the-server": "18-optimising-the-server.html",
+  "section-static-assets": "19-static-assets.html",
+  "section-optimising-javascript-bundle": "20-optimising-javascript-bundle.html",
+  "section-framework-optimizations": "21-framework-optimizations.html",
 };
 
 // ============================================================
@@ -273,6 +278,11 @@ function injectSidebarAndNav() {
                 <li><a href="14-core-web-vitals.html" class="nav-link">3.1 The Core Web Vitals</a></li>
                 <li><a href="15-critical-rendering-path.html" class="nav-link">3.2 The Critical Rendering Path</a></li>
                 <li><a href="16-five-steps-web-performance.html" class="nav-link">3.3 Los 5 Pasos Web Performance</a></li>
+                <li><a href="17-diagnosis.html" class="nav-link">3.3.1 Diagnóstico Profesional</a></li>
+                <li><a href="18-optimising-the-server.html" class="nav-link">3.3.2 Optimización del Servidor</a></li>
+                <li><a href="19-static-assets.html" class="nav-link">3.3.3 Static Assets: Imágenes, Fuentes & CSS</a></li>
+                <li><a href="20-optimising-javascript-bundle.html" class="nav-link">3.3.4 Optimising the JavaScript Bundle</a></li>
+                <li><a href="21-framework-optimizations.html" class="nav-link">3.3.5 Framework Optimizations</a></li>
                 `
                     : `
                 <li><a href="../../../index.html" class="nav-link">← Back to home</a></li>
@@ -292,6 +302,11 @@ function injectSidebarAndNav() {
                 <li><a href="14-core-web-vitals.html" class="nav-link">3.1 The Core Web Vitals</a></li>
                 <li><a href="15-critical-rendering-path.html" class="nav-link">3.2 The Critical Rendering Path</a></li>
                 <li><a href="16-five-steps-web-performance.html" class="nav-link">3.3 The 5 Steps Web Performance</a></li>
+                <li><a href="17-diagnosis.html" class="nav-link">3.3.1 Professional Diagnosis</a></li>
+                <li><a href="18-optimising-the-server.html" class="nav-link">3.3.2 Optimising The Server</a></li>
+                <li><a href="19-static-assets.html" class="nav-link">3.3.3 Static Assets: Images, Fonts & CSS</a></li>
+                <li><a href="20-optimising-javascript-bundle.html" class="nav-link">3.3.4 Optimising the JavaScript Bundle</a></li>
+                <li><a href="21-framework-optimizations.html" class="nav-link">3.3.5 Framework Optimizations</a></li>
                 `
                 }
             </ul>
