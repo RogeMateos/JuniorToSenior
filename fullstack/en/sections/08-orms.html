@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORMs - Object Relational Mapper | FullStack</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-orms">
+                <h1>2.4 ORMs: Object Relational Mapper</h1>
+                <p><strong>An ORM doesn't replace SQL. An ORM standardizes data access and a good developer knows when to trust it and when to go down to SQL level.</strong></p>
+
+                <h2>0️⃣ The Problem We Want to Solve</h2>
+
+                <p>Imagine you're building an API in Node.js with a SQL database.</p>
+
+                <p><strong>Without ORM you'd have something like this:</strong></p>
+
+                <pre><code>await db.query(
+  "INSERT INTO movies (title, year) VALUES ($1, $2)",
+  ["Inception", 2010]
+);</code></pre>
+
+                <p>That's fine… until:</p>
+                <ul>
+                    <li>You have 30 tables</li>
+                    <li>200 queries</li>
+                    <li>You change the schema</li>
+                    <li>You need complex joins</li>
+                    <li>Someone makes a mistake in a query</li>
+                </ul>
+
+                <p><strong>This is where ORM comes in.</strong></p>
+
+                <h2>1️⃣ What is an ORM Really?</h2>
+
+                <p><strong>ORM = Object-Relational Mapper</strong></p>
+
+                <p>It's a layer that:</p>
+                <ul>
+                    <li>Translates classes and objects to SQL tables</li>
+                    <li>Translates methods (find, save, delete) to SQL queries</li>
+                    <li>Manages schema through migrations</li>
+                </ul>
+
+                <h3>Key Mental Mapping</h3>
+
+                <table class="cheat-sheet-table">
+                    <thead>
+                        <tr>
+                            <th>Code (Object)</th>
+                            <th>Database</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Class</td>
+                            <td>Table</td>
+                        </tr>
+                        <tr>
+                            <td>Property</td>
+                            <td>Column</td>
+                        </tr>
+                        <tr>
+                            <td>Instance</td>
+                            <td>Row</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>2️⃣ Real Example with TypeORM (Data Mapper Pattern)</h2>
+
+                <h3>2.1 Define an Entity</h3>
+
+                <pre><code>import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
+
+@Entity("movies")
+export class Movie {
+  @PrimaryGeneratedColumn()
+  id!: number;
+
+  @Column({ type: "varchar", length: 200 })
+  title!: string;
+
+  @Column({ type: "int", nullable: true })
+  year?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+}</code></pre>
+
+                <p><strong>👉 This will generate a movies table with those columns.</strong></p>
+
+                <h3>2.2 CRUD Using Repository</h3>
+
+                <pre><code>import { AppDataSource } from "./data-source";
+import { Movie } from "./entities/Movie";
+
+const repo = AppDataSource.getRepository(Movie);
+
+// CREATE
+await repo.save({ title: "Inception", year: 2010 });
+
+// READ
+const movies = await repo.find({ where: { year: 2010 } });
+
+// UPDATE
+await repo.update({ title: "Inception" }, { year: 2011 });
+
+// DELETE
+await repo.delete({ title: "Inception" });</code></pre>
+
+                <p><strong>What happens underneath?</strong></p>
+
+                <p>The ORM translates this to:</p>
+
+                <pre><code>INSERT INTO movies (title, year) VALUES ('Inception', 2010);</code></pre>
+
+                <p><strong>But:</strong></p>
+                <ul>
+                    <li>✅ Parameterized</li>
+                    <li>✅ Safe against SQL injection</li>
+                    <li>✅ Typed with TypeScript</li>
+                </ul>
+
+                <h2>3️⃣ Migrations – Versioning the Schema</h2>
+
+                <p><strong>In real projects, the schema changes.</strong></p>
+
+                <p><strong>Example:</strong> We add a rating column</p>
+
+                <p>We don't modify the database manually. We generate a migration.</p>
+
+                <pre><code>typeorm migration:generate -n AddRatingToMovie</code></pre>
+
+                <p>Something like this gets generated:</p>
+
+                <pre><code>await queryRunner.addColumn(
+  "movies",
+  new TableColumn({
+    name: "rating",
+    type: "int",
+    isNullable: true,
+  })
+);</code></pre>
+
+                <p>Then we run:</p>
+
+                <pre><code>typeorm migration:run</code></pre>
+
+                <p><strong>Why is this professional?</strong></p>
+                <ul>
+                    <li>✅ Versions changes</li>
+                    <li>✅ Allows rollback</li>
+                    <li>✅ Works the same in dev, staging, and production</li>
+                    <li>✅ Avoids "it works on my machine"</li>
+                </ul>
+
+                <h2>4️⃣ Active Record vs Data Mapper</h2>
+
+                <p><strong>There are two main patterns in ORM.</strong></p>
+
+                <h3>🔹 Active Record</h3>
+
+                <p>The model has its own methods.</p>
+
+                <pre><code>const movie = new Movie();
+movie.title = "Inception";
+await movie.save();</code></pre>
+
+                <p><strong>Pros:</strong></p>
+                <ul>
+                    <li>✅ Very simple</li>
+                    <li>✅ Good for small projects</li>
+                </ul>
+
+                <p><strong>Cons:</strong></p>
+                <ul>
+                    <li>❌ Mixes business logic and persistence</li>
+                    <li>❌ Scales poorly in large projects</li>
+                </ul>
+
+                <h3>🔹 Data Mapper (Repository Pattern)</h3>
+
+                <p>You separate entity and persistence.</p>
+
+                <pre><code>const repo = dataSource.getRepository(Movie);
+await repo.save(movie);</code></pre>
+
+                <p><strong>Pros:</strong></p>
+                <ul>
+                    <li>✅ Cleaner architecture</li>
+                    <li>✅ More testable</li>
+                    <li>✅ Scales better</li>
+                </ul>
+
+                <p><strong>Cons:</strong></p>
+                <ul>
+                    <li>❌ A bit more boilerplate</li>
+                </ul>
+
+                <p><strong>👉 In professional applications, Data Mapper is usually preferred.</strong></p>
+
+                <h2>5️⃣ Relationships Between Entities</h2>
+
+                <p><strong>Example: A movie has many comments.</strong></p>
+
+                <pre><code>@Entity()
+export class Comment {
+  @PrimaryGeneratedColumn()
+  id!: number;
+
+  @Column()
+  text!: string;
+
+  @ManyToOne(() => Movie, movie => movie.comments)
+  movie!: Movie;
+}
+
+@Entity()
+export class Movie {
+  @OneToMany(() => Comment, comment => comment.movie)
+  comments!: Comment[];
+}</code></pre>
+
+                <p>Now you can make relational queries naturally.</p>
+
+                <h2>6️⃣ Real Problems with ORMs (This Makes You Senior)</h2>
+
+                <p><strong>This is where many juniors fail.</strong></p>
+
+                <h3>6.1 The N+1 Problem</h3>
+
+                <p><strong>Code:</strong></p>
+
+                <pre><code>const movies = await repo.find();
+for (const movie of movies) {
+  console.log(movie.comments);
+}</code></pre>
+
+                <p><strong>This can generate:</strong></p>
+                <ul>
+                    <li>1 query for movies</li>
+                    <li>1 query per movie for comments</li>
+                </ul>
+
+                <p><strong>Result: 👉 1 + N queries (inefficient)</strong></p>
+
+                <p><strong>Solution:</strong></p>
+
+                <pre><code>// Eager loading
+const movies = await repo.find({
+  relations: ["comments"]
+});
+
+// Or with Query Builder
+const movies = await repo
+  .createQueryBuilder("movie")
+  .leftJoinAndSelect("movie.comments", "comment")
+  .getMany();</code></pre>
+
+                <h3>6.2 Performance</h3>
+
+                <p><strong>ORMs can generate complex and poorly optimized queries.</strong></p>
+
+                <p><strong>Senior rules:</strong></p>
+                <ul>
+                    <li>✅ Enable query logging</li>
+                    <li>✅ Analyze execution plan</li>
+                    <li>✅ Use indexes</li>
+                    <li>✅ Use manual SQL when necessary</li>
+                </ul>
+
+                <h3>6.3 Transactions</h3>
+
+                <p><strong>Example:</strong></p>
+                <ul>
+                    <li>Create Order</li>
+                    <li>Create OrderItems</li>
+                    <li>Reduce stock</li>
+                </ul>
+
+                <p><strong>Everything must go inside a transaction:</strong></p>
+
+                <pre><code>await dataSource.transaction(async manager => {
+  await manager.save(order);
+  await manager.save(orderItems);
+  await manager.update(Product, { id: productId }, { stock });
+});
+
+// If something fails:
+// 👉 automatic rollback</code></pre>
+
+                <h2>7️⃣ Real Advantages of Using ORM</h2>
+
+                <ul>
+                    <li>✅ Productivity</li>
+                    <li>✅ Security (parameterized queries)</li>
+                    <li>✅ Strong typing with TypeScript</li>
+                    <li>✅ Migrations</li>
+                    <li>✅ Easier testing</li>
+                    <li>✅ Fewer human errors</li>
+                </ul>
+
+                <h2>8️⃣ Real Disadvantages</h2>
+
+                <ul>
+                    <li>❌ Can hide how SQL works</li>
+                    <li>❌ N+1 problem</li>
+                    <li>❌ Suboptimal queries</li>
+                    <li>❌ Learning curve</li>
+                    <li>❌ Sometimes you need raw SQL</li>
+                </ul>
+
+                <h2>9️⃣ When NOT to Use ORM?</h2>
+
+                <ul>
+                    <li>❌ Extremely optimized queries</li>
+                    <li>❌ Complex reporting</li>
+                    <li>❌ Very simple microservices</li>
+                    <li>❌ High load with very specific queries</li>
+                </ul>
+
+                <p><strong>In those cases: 👉 Query builder or raw SQL</strong></p>
+
+                <h2>🔟 Recommended Architecture in Modern Backend</h2>
+
+                <p><strong>In a professional backend:</strong></p>
+
+                <pre><code>Controller → Service → Repository (ORM) → Database</code></pre>
+
+                <ul>
+                    <li><strong>Controller:</strong> HTTP</li>
+                    <li><strong>Service:</strong> business logic</li>
+                    <li><strong>Repository:</strong> persistence</li>
+                    <li><strong>DB:</strong> storage</li>
+                </ul>
+
+                <p><strong>Never mix everything in the model.</strong></p>
+
+                <h2>1️⃣1️⃣ Typical Interview Questions</h2>
+
+                <h3>What is an ORM?</h3>
+
+                <p>A layer that maps objects from the language to SQL tables and translates operations to parameterized queries.</p>
+
+                <h3>Pros and Cons</h3>
+
+                <p>Productivity and security vs loss of control and possible performance problems.</p>
+
+                <h3>Active Record vs Data Mapper</h3>
+
+                <p>Active Record mixes data and persistence. Data Mapper separates concerns and scales better.</p>
+
+                <h3>Do I Need to Know SQL?</h3>
+
+                <p><strong>Yes. Always.</strong></p>
+
+                <h2>1️⃣2️⃣ Senior Checklist</h2>
+
+                <ul>
+                    <li>✅ Separate entities (models) from repositories</li>
+                    <li>✅ Use Data Mapper, not Active Record</li>
+                    <li>✅ Avoid N+1 queries with eager loading</li>
+                    <li>✅ Generate migrations, not manual changes</li>
+                    <li>✅ Understand when NOT to use ORM</li>
+                    <li>✅ Know how to write SQL when you need it</li>
+                    <li>✅ Monitor performance with EXPLAIN ANALYZE</li>
+                    <li>✅ Use transactions for critical operations</li>
+                    <li>✅ Test repositories without real database</li>
+                    <li>✅ Document complex relationships</li>
+                </ul>
+
+                <h2>1️⃣3️⃣ One Phrase to Remember</h2>
+
+                <p><strong>"An ORM saves you 80% of the work. The remaining 20% is learning when NOT to trust it and write pure SQL."</strong></p>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='07-mvc-architecture.html'">← Previous</button>
+                    <button class="btn btn-primary" onclick="window.location.href='08-1-migrations.html'">Next: Migrations →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arquitectura MVC | FullStack</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-mvc-architecture">
+                <h1>2.0 API Service Architecture: MVC</h1>
+                <p><strong>De Request Handlers a Arquitectura por Capas (MVC + Services)</strong></p>
+
+                <h2>0️⃣ El Problema: El "Spaghetti Handler"</h2>
+
+                <p>Cuando empezamos a construir APIs solemos hacer algo así:</p>
+
+                <pre><code>app.post("/users", async (req, res) => {
+  const { email, age } = req.body;
+
+  if (!email) return res.status(400).json({ error: "Email required" });
+
+  const existing = await db.user.findUnique({ where: { email } });
+  if (existing) return res.status(409).json({ error: "Email already used" });
+
+  if (age < 18) return res.status(400).json({ error: "Must be 18+" });
+
+  const user = await db.user.create({ data: { email, age } });
+
+  res.status(201).json(user);
+});</code></pre>
+
+                <p><strong>¿Qué está mal aquí?</strong></p>
+
+                <p>Todo está mezclado:</p>
+                <ul>
+                    <li>Validación de input</li>
+                    <li>Lógica de negocio</li>
+                    <li>Acceso a base de datos</li>
+                    <li>Construcción de respuesta HTTP</li>
+                </ul>
+
+                <p><strong>Problemas:</strong></p>
+                <ul>
+                    <li>👉 Esto escala mal</li>
+                    <li>👉 Es difícil de testear</li>
+                    <li>👉 Es difícil de mantener</li>
+                    <li>👉 Genera "spaghetti code"</li>
+                </ul>
+
+                <h2>1️⃣ La Solución: Separación de Responsabilidades</h2>
+
+                <p>Aquí aplicamos un principio fundamental de SOLID:</p>
+
+                <p><strong>S — Single Responsibility Principle</strong></p>
+
+                <p>Cada capa debe tener una responsabilidad clara.</p>
+
+                <h2>2️⃣ Arquitectura Moderna de un API Service</h2>
+
+                <p>Hoy en producción no usamos MVC clásico puro, usamos una arquitectura por capas inspirada en MVC:</p>
+
+                <pre><code>Request
+   ↓
+Middleware (auth, logging, validation)
+   ↓
+Router
+   ↓
+Controller
+   ↓
+Service (Business Logic)
+   ↓
+Repository (Data Access)
+   ↓
+Database</code></pre>
+
+                <h2>3️⃣ ¿Qué Hace Cada Capa?</h2>
+
+                <h3>🔹 1. Middleware</h3>
+
+                <p>Responsabilidades transversales:</p>
+                <ul>
+                    <li>Autenticación</li>
+                    <li>Autorización</li>
+                    <li>Logging</li>
+                    <li>Rate limiting</li>
+                    <li>Sanitización</li>
+                    <li>Manejo global de errores</li>
+                </ul>
+
+                <p><strong>No contienen lógica de negocio.</strong></p>
+
+                <h3>🔹 2. Router (View HTTP)</h3>
+
+                <p>En APIs modernas, la "View" no es HTML.</p>
+
+                <p>Es el contrato HTTP:</p>
+                <ul>
+                    <li>Endpoints</li>
+                    <li>Métodos</li>
+                    <li>JSON</li>
+                    <li>Status codes</li>
+                </ul>
+
+                <p>Ejemplo:</p>
+
+                <pre><code>router.post("/users", userController.create);</code></pre>
+
+                <h3>🔹 3. Controller (Traductor HTTP)</h3>
+
+                <p><strong>Responsabilidad:</strong></p>
+                <ul>
+                    <li>Recibir request</li>
+                    <li>Validar estructura (DTO)</li>
+                    <li>Llamar al service</li>
+                    <li>Convertir respuesta a HTTP</li>
+                </ul>
+
+                <p><strong>No contiene reglas complejas.</strong></p>
+
+                <pre><code>// controllers/user.controller.ts
+export async function create(req, res, next) {
+  try {
+    const input = createUserSchema.parse(req.body);
+    const user = await userService.createUser(input);
+    res.status(201).json({ id: user.id });
+  } catch (err) {
+    next(err);
+  }
+}</code></pre>
+
+                <h3>🔹 4. Service (Business Logic)</h3>
+
+                <p><strong>Aquí vive la lógica real del producto.</strong></p>
+
+                <pre><code>// services/user.service.ts
+export async function createUser(input) {
+  const existing = await userRepository.findByEmail(input.email);
+
+  if (existing) {
+    throw new DomainError("EMAIL_TAKEN");
+  }
+
+  if (input.age < 18) {
+    throw new DomainError("UNDERAGE");
+  }
+
+  return userRepository.create(input);
+}</code></pre>
+
+                <p><strong>¿Por qué separar esto?</strong></p>
+
+                <p>Porque ahora puedes:</p>
+                <ul>
+                    <li>Testear la lógica sin HTTP</li>
+                    <li>Reutilizarla en cron jobs</li>
+                    <li>Reutilizarla en colas</li>
+                    <li>Reutilizarla en otro API</li>
+                </ul>
+
+                <h3>🔹 5. Repository (Data Layer)</h3>
+
+                <p><strong>Responsabilidad única:</strong></p>
+                <ul>
+                    <li>Acceso a base de datos</li>
+                    <li>Ninguna lógica de negocio</li>
+                </ul>
+
+                <pre><code>// repositories/user.repository.ts
+export function findByEmail(email) {
+  return db.user.findUnique({ where: { email } });
+}
+
+export function create(data) {
+  return db.user.create({ data });
+}</code></pre>
+
+                <h2>4️⃣ Estructura Profesional de Proyecto</h2>
+
+                <pre><code>src/
+  routes/
+  controllers/
+  services/
+  repositories/
+  models/
+  dtos/
+  middleware/
+  errors/</code></pre>
+
+                <p><strong>Esto es lo que encontrarás en producción real.</strong></p>
+
+                <h2>5️⃣ DTOs y Validación (Clave en Producción)</h2>
+
+                <p><strong>Nunca pases req.body directo al sistema.</strong></p>
+
+                <p>Usa schemas:</p>
+
+                <pre><code>import { z } from "zod";
+
+export const createUserSchema = z.object({
+  email: z.string().email(),
+  age: z.number().min(0)
+});</code></pre>
+
+                <p><strong>Esto evita:</strong></p>
+                <ul>
+                    <li>Inputs inesperados</li>
+                    <li>Vulnerabilidades</li>
+                    <li>Acoplamiento con base de datos</li>
+                </ul>
+
+                <h2>6️⃣ Manejo Profesional de Errores</h2>
+
+                <p><strong>Nunca devuelvas errores sueltos.</strong></p>
+
+                <p>Centralízalos:</p>
+
+                <pre><code>// middleware/errorHandler.ts
+export function errorHandler(err, req, res, next) {
+  if (err.code === "EMAIL_TAKEN") {
+    return res.status(409).json({ error: "Email already used" });
+  }
+
+  if (err.code === "UNDERAGE") {
+    return res.status(400).json({ error: "Must be 18+" });
+  }
+
+  return res.status(500).json({ error: "Internal server error" });
+}</code></pre>
+
+                <h2>7️⃣ MVC Clásico vs APIs Modernas</h2>
+
+                <table class="cheat-sheet-table">
+                    <thead>
+                        <tr>
+                            <th>Época</th>
+                            <th>Flujo</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Antes (2005)</strong></td>
+                            <td>Controller → View HTML → Usuario</td>
+                            <td>Servidor generaba HTML directamente</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Ahora</strong></td>
+                            <td>SPA (React, Vue) → API → JSON</td>
+                            <td>La "View" ahora es el frontend. El backend solo expone datos.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>8️⃣ ¿Esto Es Microservicios?</h2>
+
+                <p><strong>No necesariamente.</strong></p>
+
+                <p><strong>MVC</strong> = organización interna</p>
+
+                <p><strong>Microservicios</strong> = organización del sistema</p>
+
+                <p>Un microservicio puede usar arquitectura por capas internamente.</p>
+
+                <h2>9️⃣ Beneficios Reales</h2>
+
+                <table class="cheat-sheet-table">
+                    <thead>
+                        <tr>
+                            <th>Problema</th>
+                            <th>Con Arquitectura por Capas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Código difícil de mantener</td>
+                            <td>Responsabilidades claras</td>
+                        </tr>
+                        <tr>
+                            <td>Testing complejo</td>
+                            <td>Tests por capa</td>
+                        </tr>
+                        <tr>
+                            <td>Cambios peligrosos</td>
+                            <td>Impacto aislado</td>
+                        </tr>
+                        <tr>
+                            <td>Lógica duplicada</td>
+                            <td>Reutilizable</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>🔟 Testing por Capa</h2>
+
+                <h3>Test del Service (sin HTTP)</h3>
+
+                <pre><code>it("should not allow duplicate email", async () => {
+  userRepository.findByEmail = jest.fn().mockResolvedValue(true);
+
+  await expect(
+    userService.createUser({ email: "test@test.com", age: 20 })
+  ).rejects.toThrow("EMAIL_TAKEN");
+});</code></pre>
+
+                <p><strong>Test del Controller</strong></p>
+
+                <p>Solo verificas contrato HTTP.</p>
+
+                <h2>1️⃣1️⃣ Anti-Patrones Comunes</h2>
+
+                <ul>
+                    <li>❌ Controller con 500 líneas</li>
+                    <li>❌ SQL directo en controller</li>
+                    <li>❌ Validación manual repetida</li>
+                    <li>❌ Mezclar lógica de negocio con HTTP</li>
+                    <li>❌ No tener error handler global</li>
+                </ul>
+
+                <h2>1️⃣2️⃣ Regla de Oro (Mentalidad Senior)</h2>
+
+                <p><strong>Controller no sabe de reglas complejas</strong></p>
+
+                <p><strong>Service no sabe de HTTP</strong></p>
+
+                <p><strong>Repository no sabe de negocio</strong></p>
+
+                <p><strong>Middleware no sabe de dominio</strong></p>
+
+                <p><strong>Cada capa cambia por motivos distintos.</strong></p>
+
+                <h2>1️⃣3️⃣ Resumen Final</h2>
+
+                <p>Si quieres acercarte a cómo se construyen APIs en producción:</p>
+
+                <ul>
+                    <li>✔️ Usa arquitectura por capas</li>
+                    <li>✔️ Separa responsabilidades</li>
+                    <li>✔️ Introduce services</li>
+                    <li>✔️ Usa DTOs y validación</li>
+                    <li>✔️ Centraliza errores</li>
+                    <li>✔️ Testea por capa</li>
+                </ul>
+
+                <p><strong>MVC no es un patrón mágico.</strong></p>
+
+                <p><strong>Es simplemente aplicar separación de responsabilidades a nivel de arquitectura.</strong></p>
+
+                <h2>1️⃣4️⃣ Ejercicio Final</h2>
+
+                <p><strong>Refactoriza este handler:</strong></p>
+
+                <pre><code>app.post("/orders", async (req, res) => {
+  // todo mezclado
+});</code></pre>
+
+                <p><strong>Y sepáralo en:</strong></p>
+                <ul>
+                    <li>controller</li>
+                    <li>service</li>
+                    <li>repository</li>
+                    <li>dto</li>
+                    <li>error handler</li>
+                </ul>
+
+                <h2>1️⃣5️⃣ Una Frase para Recordar</h2>
+
+                <p><strong>"Si todo está mezclado en el handler, nadie es feliz. Cuando todo está separado en capas, tu código crece sin dolor."</strong></p>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='06-databases.html'">← Anterior</button>
+                    <button class="btn btn-primary" onclick="window.location.href='08-orms.html'">Siguiente: ORMs →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

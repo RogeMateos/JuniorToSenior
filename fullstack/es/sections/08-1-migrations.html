@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Migrations | FullStack</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-migrations">
+                <h1>2.1 ORMs: Database Migrations</h1>
+                <p><strong>De Junior a Mentalidad Senior – Versionando tu base de datos sin romper nada en producción</strong></p>
+
+                <h2>0️⃣ El Problema Real</h2>
+
+                <p>Tienes:</p>
+                <ul>
+                    <li>Aplicación</li>
+                    <li>Base de datos</li>
+                    <li>Entorno local</li>
+                    <li>Staging</li>
+                    <li>Producción</li>
+                </ul>
+
+                <p><strong>Cada vez que cambias un modelo necesitas que:</strong></p>
+                <ul>
+                    <li>El esquema de la base de datos se actualice</li>
+                    <li>No se pierdan datos</li>
+                    <li>No se rompa producción</li>
+                    <li>Sea reproducible dentro de 6 meses</li>
+                </ul>
+
+                <p><strong>Aquí entran las migraciones.</strong></p>
+
+                <h2>1️⃣ Dos Enfoques: Database-First vs Code-First</h2>
+
+                <h3>🔹 Database-First</h3>
+
+                <p>Escribes SQL manual:</p>
+
+                <pre><code>CREATE TABLE movie (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(255),
+  release_date DATE
+);</code></pre>
+
+                <p>Versionas esos scripts. Tu código se adapta a la base de datos.</p>
+
+                <p><strong>Ventajas:</strong></p>
+                <ul>
+                    <li>✅ Control absoluto</li>
+                    <li>✅ Ideal para sistemas muy optimizados</li>
+                </ul>
+
+                <p><strong>Desventajas:</strong></p>
+                <ul>
+                    <li>❌ Muy manual</li>
+                    <li>❌ Fácil cometer errores</li>
+                    <li>❌ Difícil mantener consistencia entre entornos</li>
+                </ul>
+
+                <h3>🔹 Code-First (ORM + Migrations)</h3>
+
+                <p>Defines modelos en código. El ORM genera migraciones automáticamente.</p>
+
+                <p>Ejemplo de modelo:</p>
+
+                <pre><code>class Movie {
+  id: number
+  title: string
+  releaseDate: Date
+  revenue?: number
+}</code></pre>
+
+                <p>El ORM detecta el cambio y genera:</p>
+
+                <pre><code>ALTER TABLE movie ADD COLUMN revenue INTEGER;</code></pre>
+
+                <p><strong>Ventaja clave:</strong> La base de datos evoluciona junto al código, con historial controlado.</p>
+
+                <p><strong>👉 En la mayoría de frameworks modernos, este es el estándar.</strong></p>
+
+                <h2>2️⃣ ¿Qué es una Migración?</h2>
+
+                <p><strong>Una migración es un paso incremental versionado que transforma la base de datos.</strong></p>
+
+                <p>Cada migración tiene:</p>
+
+                <pre><code>UP   → aplica cambios
+DOWN → revierte cambios</code></pre>
+
+                <p><strong>Ejemplo:</strong></p>
+
+                <pre><code>-- UP
+ALTER TABLE movie ADD COLUMN revenue INTEGER;
+
+-- DOWN
+ALTER TABLE movie DROP COLUMN revenue;</code></pre>
+
+                <p><strong>Las migraciones se apilan:</strong></p>
+
+                <pre><code>001_create_movie
+002_add_reviews
+003_add_revenue
+004_modify_actor</code></pre>
+
+                <p><strong>Si ejecutas todas desde cero → obtienes el esquema actual.</strong></p>
+
+                <p>Esto permite:</p>
+                <ul>
+                    <li>✅ Reproducibilidad</li>
+                    <li>✅ Control de versiones</li>
+                    <li>✅ Rollbacks controlados</li>
+                </ul>
+
+                <h2>3️⃣ Cómo Funciona Internamente</h2>
+
+                <p><strong>Cuando ejecutas:</strong></p>
+
+                <pre><code>generate migration</code></pre>
+
+                <p>El ORM:</p>
+                <ul>
+                    <li>Lee el estado actual del modelo</li>
+                    <li>Compara con el estado de la base de datos</li>
+                    <li>Genera SQL diferencial</li>
+                    <li>Crea archivo versionado</li>
+                    <li>Lo guarda en el repositorio</li>
+                </ul>
+
+                <p><strong>Además, la base de datos mantiene una tabla interna:</strong></p>
+
+                <pre><code>migrations</code></pre>
+
+                <p>Ahí registra qué migraciones ya fueron ejecutadas. Así evita ejecutarlas dos veces.</p>
+
+                <h2>4️⃣ Ejemplo Real Profesional (Cambio Seguro)</h2>
+
+                <p><strong>Supongamos que quieres unificar:</strong></p>
+                <ul>
+                    <li>firstName</li>
+                    <li>lastName</li>
+                </ul>
+
+                <p><strong>En:</strong></p>
+                <ul>
+                    <li>name</li>
+                </ul>
+
+                <h3>⚠️ Junior Haría:</h3>
+
+                <pre><code>DROP firstName
+DROP lastName
+ADD name</code></pre>
+
+                <p><strong>💥 Resultado: pérdida de datos.</strong></p>
+
+                <h3>✅ Estrategia Senior (Expand → Contract)</h3>
+
+                <p><strong>Fase 1: Expand (seguro)</strong></p>
+
+                <pre><code>ALTER TABLE actor ADD COLUMN name VARCHAR(255);</code></pre>
+
+                <p>No borras nada.</p>
+
+                <p><strong>Fase 2: Data Backfill</strong></p>
+
+                <pre><code>UPDATE actor
+SET name = firstName || ' ' || lastName;</code></pre>
+
+                <p>Ahora todos los registros tienen datos.</p>
+
+                <p><strong>Fase 3: Cambiar la aplicación</strong></p>
+
+                <p>El código empieza a usar name. Durante un tiempo puedes mantener compatibilidad.</p>
+
+                <p><strong>Fase 4: Contract</strong></p>
+
+                <p>Cuando estás seguro:</p>
+
+                <pre><code>ALTER TABLE actor DROP COLUMN firstName;
+ALTER TABLE actor DROP COLUMN lastName;</code></pre>
+
+                <p><strong>🎯 Sin downtime</strong><br>
+                <strong>🎯 Sin pérdida de datos</strong><br>
+                <strong>🎯 Sin romper versiones anteriores</strong></p>
+
+                <p><strong>Este patrón se llama: Expand / Contract Pattern</strong><br>
+                <strong>Es estándar en sistemas grandes.</strong></p>
+
+                <h2>5️⃣ Diferencia Crítica: Schema vs Data Migrations</h2>
+
+                <h3>🔹 Schema Migration</h3>
+
+                <p>Cambia estructura:</p>
+                <ul>
+                    <li>ADD COLUMN</li>
+                    <li>DROP COLUMN</li>
+                    <li>CREATE TABLE</li>
+                    <li>ADD INDEX</li>
+                </ul>
+
+                <h3>🔹 Data Migration</h3>
+
+                <p>Transforma datos:</p>
+                <ul>
+                    <li>UPDATE</li>
+                    <li>Backfill</li>
+                    <li>Normalización</li>
+                    <li>Corrección masiva</li>
+                </ul>
+
+                <p><strong>En sistemas reales casi siempre necesitas ambos.</strong></p>
+
+                <h2>6️⃣ Riesgos Reales En Producción</h2>
+
+                <p>Un desarrollador senior piensa en:</p>
+
+                <h3>🔴 Locks</h3>
+
+                <p>Algunas operaciones bloquean tablas grandes.</p>
+
+                <h3>🔴 Pérdida de Datos</h3>
+
+                <p>DROP COLUMN no es reversible realmente.</p>
+
+                <h3>🔴 Incompatibilidad</h3>
+
+                <p>Si despliegas código antes que migraciones → error en runtime.</p>
+
+                <h3>🔴 Añadir NOT NULL</h3>
+
+                <p>Si hay datos antiguos → la migración falla.</p>
+
+                <p><strong>Solución profesional:</strong></p>
+                <ul>
+                    <li>Añadir columna nullable</li>
+                    <li>Backfill</li>
+                    <li>Luego hacer NOT NULL</li>
+                </ul>
+
+                <h2>7️⃣ Despliegue En Pipeline (Muy Importante)</h2>
+
+                <p><strong>Caso Seguro (Retrocompatible):</strong></p>
+                <ul>
+                    <li>Ejecutar migraciones</li>
+                    <li>Deploy aplicación</li>
+                </ul>
+
+                <p><strong>Caso No Retrocompatible:</strong></p>
+                <ul>
+                    <li>Expand migration</li>
+                    <li>Deploy aplicación</li>
+                    <li>Contract migration</li>
+                </ul>
+
+                <p><strong>❌ Nunca despliegues código que espera una columna que aún no existe.</strong></p>
+
+                <h2>8️⃣ Buenas Prácticas De Equipo</h2>
+
+                <ul>
+                    <li>✅ Migraciones pequeñas</li>
+                    <li>✅ Nombres descriptivos: <code>2026_02_17_add_revenue_to_movie</code></li>
+                    <li>✅ Nunca editar migraciones ya aplicadas</li>
+                    <li>✅ Revisar SQL generado en PR</li>
+                    <li>✅ Probar en staging</li>
+                    <li>✅ Ejecutar desde base limpia</li>
+                    <li>✅ Solo una instancia ejecuta migraciones en producción</li>
+                </ul>
+
+                <h2>9️⃣ Cuándo Usar Database-First</h2>
+
+                <p>Solo cuando:</p>
+                <ul>
+                    <li>❌ Necesitas SQL extremadamente optimizado</li>
+                    <li>❌ Tienes lógica compleja en la base</li>
+                    <li>❌ Trabajas en sistema legacy</li>
+                    <li>❌ DBA controla esquema</li>
+                </ul>
+
+                <p><strong>En el 90% de productos web modernos → Code-First + Migrations.</strong></p>
+
+                <h2>🔟 Mentalidad Senior</h2>
+
+                <p><strong>Un junior piensa:</strong></p>
+
+                <p>"Funciona en local."</p>
+
+                <p><strong>Un senior piensa:</strong></p>
+                <ul>
+                    <li>¿Es reproducible?</li>
+                    <li>¿Es reversible?</li>
+                    <li>¿Bloquea tablas grandes?</li>
+                    <li>¿Es retrocompatible?</li>
+                    <li>¿Puede ejecutarse dentro de 6 meses sin contexto?</li>
+                </ul>
+
+                <h2>1️⃣1️⃣ Checklist Profesional Antes De Merge</h2>
+
+                <ul>
+                    <li>✅ ¿Es pequeña y clara?</li>
+                    <li>✅ ¿Evita DROP inmediato?</li>
+                    <li>✅ ¿Tiene backfill si es necesario?</li>
+                    <li>✅ ¿Funciona con datos reales?</li>
+                    <li>✅ ¿Es retrocompatible?</li>
+                    <li>✅ ¿Está probada en staging?</li>
+                    <li>✅ ¿Revisé el SQL generado?</li>
+                </ul>
+
+                <h2>1️⃣2️⃣ Ejercicio Práctico</h2>
+
+                <p><strong>Añade columna budget NOT NULL a movie.</strong></p>
+
+                <p>Hazlo de forma segura sin romper datos existentes.</p>
+
+                <p>Escríbelo usando el patrón expand/contract.</p>
+
+                <p><strong>Si puedes resolverlo correctamente, ya estás pensando como backend engineer serio.</strong></p>
+
+                <h2>1️⃣3️⃣ Una Frase Para Recordar</h2>
+
+                <p><strong>"Las migraciones no son solo generar SQL. Son control de versiones de tu base de datos, seguridad en producción, estrategia de despliegue y protección contra pérdida de datos."</strong></p>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='08-orms.html'">← Anterior</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../../index.html'">Volver al Inicio →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

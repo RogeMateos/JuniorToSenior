@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MVC Architecture | FullStack</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-mvc-architecture">
+                <h1>2.0 API Service Architecture: MVC</h1>
+                <p><strong>From Request Handlers to Layered Architecture (MVC + Services)</strong></p>
+
+                <h2>0️⃣ The Problem: The "Spaghetti Handler"</h2>
+
+                <p>When we start building APIs we often do something like this:</p>
+
+                <pre><code>app.post("/users", async (req, res) => {
+  const { email, age } = req.body;
+
+  if (!email) return res.status(400).json({ error: "Email required" });
+
+  const existing = await db.user.findUnique({ where: { email } });
+  if (existing) return res.status(409).json({ error: "Email already used" });
+
+  if (age < 18) return res.status(400).json({ error: "Must be 18+" });
+
+  const user = await db.user.create({ data: { email, age } });
+
+  res.status(201).json(user);
+});</code></pre>
+
+                <p><strong>What's wrong here?</strong></p>
+
+                <p>Everything is mixed:</p>
+                <ul>
+                    <li>Input validation</li>
+                    <li>Business logic</li>
+                    <li>Database access</li>
+                    <li>HTTP response construction</li>
+                </ul>
+
+                <p><strong>Problems:</strong></p>
+                <ul>
+                    <li>👉 This scales poorly</li>
+                    <li>👉 It's hard to test</li>
+                    <li>👉 It's hard to maintain</li>
+                    <li>👉 Generates "spaghetti code"</li>
+                </ul>
+
+                <h2>1️⃣ The Solution: Separation of Concerns</h2>
+
+                <p>Here we apply a fundamental SOLID principle:</p>
+
+                <p><strong>S — Single Responsibility Principle</strong></p>
+
+                <p>Each layer should have a clear responsibility.</p>
+
+                <h2>2️⃣ Modern API Service Architecture</h2>
+
+                <p>Today in production we don't use pure classic MVC, we use a layered architecture inspired by MVC:</p>
+
+                <pre><code>Request
+   ↓
+Middleware (auth, logging, validation)
+   ↓
+Router
+   ↓
+Controller
+   ↓
+Service (Business Logic)
+   ↓
+Repository (Data Access)
+   ↓
+Database</code></pre>
+
+                <h2>3️⃣ What Does Each Layer Do?</h2>
+
+                <h3>🔹 1. Middleware</h3>
+
+                <p>Cross-cutting concerns:</p>
+                <ul>
+                    <li>Authentication</li>
+                    <li>Authorization</li>
+                    <li>Logging</li>
+                    <li>Rate limiting</li>
+                    <li>Sanitization</li>
+                    <li>Global error handling</li>
+                </ul>
+
+                <p><strong>Contains no business logic.</strong></p>
+
+                <h3>🔹 2. Router (HTTP View)</h3>
+
+                <p>In modern APIs, the "View" is not HTML.</p>
+
+                <p>It's the HTTP contract:</p>
+                <ul>
+                    <li>Endpoints</li>
+                    <li>Methods</li>
+                    <li>JSON</li>
+                    <li>Status codes</li>
+                </ul>
+
+                <p>Example:</p>
+
+                <pre><code>router.post("/users", userController.create);</code></pre>
+
+                <h3>🔹 3. Controller (HTTP Translator)</h3>
+
+                <p><strong>Responsibility:</strong></p>
+                <ul>
+                    <li>Receive request</li>
+                    <li>Validate structure (DTO)</li>
+                    <li>Call service</li>
+                    <li>Convert response to HTTP</li>
+                </ul>
+
+                <p><strong>Contains no complex rules.</strong></p>
+
+                <pre><code>// controllers/user.controller.ts
+export async function create(req, res, next) {
+  try {
+    const input = createUserSchema.parse(req.body);
+    const user = await userService.createUser(input);
+    res.status(201).json({ id: user.id });
+  } catch (err) {
+    next(err);
+  }
+}</code></pre>
+
+                <h3>🔹 4. Service (Business Logic)</h3>
+
+                <p><strong>This is where the real product logic lives.</strong></p>
+
+                <pre><code>// services/user.service.ts
+export async function createUser(input) {
+  const existing = await userRepository.findByEmail(input.email);
+
+  if (existing) {
+    throw new DomainError("EMAIL_TAKEN");
+  }
+
+  if (input.age < 18) {
+    throw new DomainError("UNDERAGE");
+  }
+
+  return userRepository.create(input);
+}</code></pre>
+
+                <p><strong>Why separate this?</strong></p>
+
+                <p>Because now you can:</p>
+                <ul>
+                    <li>Test logic without HTTP</li>
+                    <li>Reuse in cron jobs</li>
+                    <li>Reuse in queues</li>
+                    <li>Reuse in another API</li>
+                </ul>
+
+                <h3>🔹 5. Repository (Data Layer)</h3>
+
+                <p><strong>Single responsibility:</strong></p>
+                <ul>
+                    <li>Database access</li>
+                    <li>No business logic</li>
+                </ul>
+
+                <pre><code>// repositories/user.repository.ts
+export function findByEmail(email) {
+  return db.user.findUnique({ where: { email } });
+}
+
+export function create(data) {
+  return db.user.create({ data });
+}</code></pre>
+
+                <h2>4️⃣ Professional Project Structure</h2>
+
+                <pre><code>src/
+  routes/
+  controllers/
+  services/
+  repositories/
+  models/
+  dtos/
+  middleware/
+  errors/</code></pre>
+
+                <p><strong>This is what you'll find in real production.</strong></p>
+
+                <h2>5️⃣ DTOs and Validation (Key in Production)</h2>
+
+                <p><strong>Never pass req.body directly to your system.</strong></p>
+
+                <p>Use schemas:</p>
+
+                <pre><code>import { z } from "zod";
+
+export const createUserSchema = z.object({
+  email: z.string().email(),
+  age: z.number().min(0)
+});</code></pre>
+
+                <p><strong>This prevents:</strong></p>
+                <ul>
+                    <li>Unexpected inputs</li>
+                    <li>Vulnerabilities</li>
+                    <li>Coupling with database</li>
+                </ul>
+
+                <h2>6️⃣ Professional Error Handling</h2>
+
+                <p><strong>Never return loose errors.</strong></p>
+
+                <p>Centralize them:</p>
+
+                <pre><code>// middleware/errorHandler.ts
+export function errorHandler(err, req, res, next) {
+  if (err.code === "EMAIL_TAKEN") {
+    return res.status(409).json({ error: "Email already used" });
+  }
+
+  if (err.code === "UNDERAGE") {
+    return res.status(400).json({ error: "Must be 18+" });
+  }
+
+  return res.status(500).json({ error: "Internal server error" });
+}</code></pre>
+
+                <h2>7️⃣ Classic MVC vs Modern APIs</h2>
+
+                <table class="cheat-sheet-table">
+                    <thead>
+                        <tr>
+                            <th>Era</th>
+                            <th>Flow</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Before (2005)</strong></td>
+                            <td>Controller → View HTML → User</td>
+                            <td>Server generated HTML directly</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Now</strong></td>
+                            <td>SPA (React, Vue) → API → JSON</td>
+                            <td>The "View" is now frontend. Backend only exposes data.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>8️⃣ Is This Microservices?</h2>
+
+                <p><strong>Not necessarily.</strong></p>
+
+                <p><strong>MVC</strong> = internal organization</p>
+
+                <p><strong>Microservices</strong> = system organization</p>
+
+                <p>A microservice can use layered architecture internally.</p>
+
+                <h2>9️⃣ Real Benefits</h2>
+
+                <table class="cheat-sheet-table">
+                    <thead>
+                        <tr>
+                            <th>Problem</th>
+                            <th>With Layered Architecture</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Code hard to maintain</td>
+                            <td>Clear responsibilities</td>
+                        </tr>
+                        <tr>
+                            <td>Testing complex</td>
+                            <td>Tests per layer</td>
+                        </tr>
+                        <tr>
+                            <td>Changes dangerous</td>
+                            <td>Isolated impact</td>
+                        </tr>
+                        <tr>
+                            <td>Duplicated logic</td>
+                            <td>Reusable</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>🔟 Testing per Layer</h2>
+
+                <h3>Service Test (without HTTP)</h3>
+
+                <pre><code>it("should not allow duplicate email", async () => {
+  userRepository.findByEmail = jest.fn().mockResolvedValue(true);
+
+  await expect(
+    userService.createUser({ email: "test@test.com", age: 20 })
+  ).rejects.toThrow("EMAIL_TAKEN");
+});</code></pre>
+
+                <p><strong>Controller Test</strong></p>
+
+                <p>You only verify HTTP contract.</p>
+
+                <h2>1️⃣1️⃣ Common Anti-Patterns</h2>
+
+                <ul>
+                    <li>❌ Controller with 500 lines</li>
+                    <li>❌ SQL directly in controller</li>
+                    <li>❌ Repeated manual validation</li>
+                    <li>❌ Mixing business logic with HTTP</li>
+                    <li>❌ No global error handler</li>
+                </ul>
+
+                <h2>1️⃣2️⃣ Golden Rule (Senior Mindset)</h2>
+
+                <p><strong>Controller doesn't know complex rules</strong></p>
+
+                <p><strong>Service doesn't know HTTP</strong></p>
+
+                <p><strong>Repository doesn't know business logic</strong></p>
+
+                <p><strong>Middleware doesn't know domain</strong></p>
+
+                <p><strong>Each layer changes for different reasons.</strong></p>
+
+                <h2>1️⃣3️⃣ Final Summary</h2>
+
+                <p>If you want to approach how APIs are built in production:</p>
+
+                <ul>
+                    <li>✔️ Use layered architecture</li>
+                    <li>✔️ Separate concerns</li>
+                    <li>✔️ Introduce services</li>
+                    <li>✔️ Use DTOs and validation</li>
+                    <li>✔️ Centralize errors</li>
+                    <li>✔️ Test per layer</li>
+                </ul>
+
+                <p><strong>MVC is not a magic pattern.</strong></p>
+
+                <p><strong>It's simply applying separation of concerns at architectural level.</strong></p>
+
+                <h2>1️⃣4️⃣ Final Exercise</h2>
+
+                <p><strong>Refactor this handler:</strong></p>
+
+                <pre><code>app.post("/orders", async (req, res) => {
+  // everything mixed
+});</code></pre>
+
+                <p><strong>And separate it into:</strong></p>
+                <ul>
+                    <li>controller</li>
+                    <li>service</li>
+                    <li>repository</li>
+                    <li>dto</li>
+                    <li>error handler</li>
+                </ul>
+
+                <h2>1️⃣5️⃣ One Phrase to Remember</h2>
+
+                <p><strong>"If everything is mixed in the handler, nobody is happy. When everything is separated into layers, your code grows without pain."</strong></p>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='06-databases.html'">← Previous</button>
+                    <button class="btn btn-primary" onclick="window.location.href='08-orms.html'">Next: ORMs →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

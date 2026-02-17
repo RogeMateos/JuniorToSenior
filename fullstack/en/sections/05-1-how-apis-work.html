@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Modern APIs Really Work | FullStack</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-how-apis-work">
+                <h1>1.3.1 Fundamentals: How Modern APIs Really Work</h1>
+                <p><strong>A modern API is not magic. It's simply a machine that receives a request, executes logic, and returns a response.</strong></p>
+
+                <h2>0️⃣ The Correct Mental Model</h2>
+
+                <p><strong>A modern API basically does this:</strong></p>
+
+                <pre><code>Request → Middleware → Controller → Service → Database → Response</code></pre>
+
+                <p>In simple words:</p>
+                <ul>
+                    <li>Client sends an HTTP request</li>
+                    <li>Request passes through filters (middlewares)</li>
+                    <li>Arrives at a handler (controller)</li>
+                    <li>Business logic executes (service)</li>
+                    <li>Talks to database</li>
+                    <li>Returns a response</li>
+                </ul>
+
+                <p><strong>That's 90% of any backend in the world.</strong></p>
+
+                <h2>1️⃣ What is a Middleware? (Clear Explanation)</h2>
+
+                <p><strong>A middleware is simply a function that executes BEFORE your endpoint processes the request.</strong></p>
+
+                <p>It's like a filter or security guard.</p>
+
+                <h3>🏢 Simple Analogy</h3>
+
+                <p>Imagine a building:</p>
+                <ul>
+                    <li>Client = visitor</li>
+                    <li>API = building</li>
+                    <li>Middleware = security at the door</li>
+                </ul>
+
+                <p>Before entering:</p>
+                <ul>
+                    <li>Do you have ID? → auth middleware</li>
+                    <li>Are you bringing prohibited items? → validation middleware</li>
+                    <li>Are you coming too often? → rate limit middleware</li>
+                </ul>
+
+                <p>If everything is correct, you pass. If not, you're stopped there.</p>
+
+                <h3>📌 Middleware in Express</h3>
+
+                <p>In Express a middleware is a function with this form:</p>
+
+                <pre><code>(req, res, next) => {
+  // do something
+  next()
+}</code></pre>
+
+                <ul>
+                    <li><strong>req</strong> → request</li>
+                    <li><strong>res</strong> → response</li>
+                    <li><strong>next()</strong> → pass to next middleware or handler</li>
+                </ul>
+
+                <p><strong>If you don't call next(), the request gets stuck.</strong></p>
+
+                <h3>🧩 Real Example: JSON Parser Middleware</h3>
+
+                <pre><code>app.use(express.json())</code></pre>
+
+                <p>This is a global middleware. It automatically converts body to JSON.</p>
+
+                <h3>🔐 Real Example: Auth Middleware</h3>
+
+                <pre><code>function authenticate(req, res, next) {
+  const token = req.headers.authorization
+
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized" })
+  }
+
+  // validate token...
+  next()
+}</code></pre>
+
+                <p>No token → 401. Token valid → continue.</p>
+
+                <h2>2️⃣ Professional Architecture (Layers)</h2>
+
+                <p><strong>In small apps you can put everything in the handler.</strong></p>
+                <p><strong>In real apps you can't.</strong></p>
+
+                <p>Typical structure:</p>
+                <pre><code>routes/
+controllers/
+services/
+repositories/
+middleware/
+shared/</code></pre>
+
+                <h3>🔹 Routes (Connects Everything)</h3>
+
+                <p>Defines the endpoint.</p>
+
+                <pre><code>router.post("/payments", authenticate, createPaymentController)</code></pre>
+
+                <p>Only connects things. No logic.</p>
+
+                <h3>🔹 Controller (Translates HTTP)</h3>
+
+                <p>Handles HTTP: extracts request data, calls service, responds.</p>
+
+                <pre><code>export async function createPaymentController(req, res, next) {
+  try {
+    const result = await createPayment(req.body)
+    res.status(201).json(result)
+  } catch (err) {
+    next(err)
+  }
+}</code></pre>
+
+                <p><strong>Contains no complex business logic.</strong></p>
+
+                <h3>🔹 Service (Business Logic)</h3>
+
+                <p>Here live:</p>
+                <ul>
+                    <li>Business validations</li>
+                    <li>Algorithms</li>
+                    <li>Coordination of DB + external APIs</li>
+                    <li>Transactions</li>
+                </ul>
+
+                <pre><code>export async function createPayment(data) {
+  if (data.amount <= 0) {
+    throw new Error("Invalid amount")
+  }
+
+  const payment = await paymentRepo.insert(data)
+
+  return {
+    id: payment.id,
+    status: "CREATED"
+  }
+}</code></pre>
+
+                <h3>🔹 Repository (Only DB)</h3>
+
+                <p>Only talks to the database. Nothing else.</p>
+
+                <pre><code>class PaymentRepo {
+  async insert(data) {
+    return db.payments.insert(data)
+  }
+
+  async findById(id) {
+    return db.payments.findOne({ id })
+  }
+}</code></pre>
+
+                <h2>3️⃣ Complete Endpoint Flow (POST /payments)</h2>
+
+                <h3>Step 1: Client sends request</h3>
+
+                <pre><code>POST /api/payments
+Authorization: Bearer token123
+Content-Type: application/json
+
+{
+  "amount": 50,
+  "currency": "USD"
+}</code></pre>
+
+                <h3>Step 2: Global middlewares</h3>
+
+                <pre><code>1. Request ID (tracking)
+2. Logger (start)
+3. JSON parser
+4. CORS (if applies)</code></pre>
+
+                <h3>Step 3: Route-specific middlewares</h3>
+
+                <pre><code>1. Auth (valid token?)
+2. Validate (valid data?)
+3. Authorize (do you have permission?)</code></pre>
+
+                <h3>Step 4: Controller receives clean data</h3>
+
+                <pre><code>const { amount, currency } = req.body
+const userId = req.user.id</code></pre>
+
+                <h3>Step 5: Service executes logic</h3>
+
+                <pre><code>// Validation
+if (amount <= 0) throw error
+
+// Logic
+const fxRate = await currencyApi.getRate(currency)
+const totalInEur = amount * fxRate
+
+// DB
+const payment = await repo.insert({
+  userId,
+  amount,
+  currency,
+  fxRate
+})</code></pre>
+
+                <h3>Step 6: Response</h3>
+
+                <pre><code>201 Created
+{
+  "paymentId": "abc123",
+  "status": "CREATED",
+  "amount": 50,
+  "currency": "USD"
+}</code></pre>
+
+                <h2>4️⃣ Sequence Diagram (Senior Mindset)</h2>
+
+                <p><strong>A senior always draws the flow before coding.</strong></p>
+
+                <pre><code>Client
+  │
+  ├─ POST /payments
+  │
+  └──→ API
+       │
+       ├─ JSON Parser ✅
+       │
+       ├─ Auth Middleware
+       │  ├─ ✅ Token valid
+       │  └─ ❌ No token → 401
+       │
+       ├─ Validate Middleware
+       │  ├─ ✅ Data valid
+       │  └─ ❌ Data invalid → 422
+       │
+       ├─ Controller
+       │  │
+       │  └──→ Service
+       │       │
+       │       ├─ Check amount > 0
+       │       │
+       │       ├─ Get FX rate
+       │       │  ├─ ✅ API OK
+       │       │  └─ ❌ API down → 503
+       │       │
+       │       └─ Insert to DB
+       │          ├─ ✅ Inserted
+       │          └─ ❌ Error → 500
+       │
+       └──→ Response 201</code></pre>
+
+                <p><strong>A senior always thinks:</strong></p>
+                <ul>
+                    <li>What if DB fails?</li>
+                    <li>What if external API fails?</li>
+                    <li>What status code do we return?</li>
+                    <li>Are there race conditions?</li>
+                    <li>Do I need transactions?</li>
+                </ul>
+
+                <h2>5️⃣ HTTP Status Codes (Very Important)</h2>
+
+                <table class="cheat-sheet-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>When to use</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>200</td>
+                            <td>OK general</td>
+                            <td>GET /payments (read data)</td>
+                        </tr>
+                        <tr>
+                            <td>201</td>
+                            <td>Created</td>
+                            <td>POST /payments (create)</td>
+                        </tr>
+                        <tr>
+                            <td>204</td>
+                            <td>No Content</td>
+                            <td>DELETE /payments/123</td>
+                        </tr>
+                        <tr>
+                            <td>400</td>
+                            <td>Bad Request</td>
+                            <td>Invalid JSON, missing field</td>
+                        </tr>
+                        <tr>
+                            <td>401</td>
+                            <td>Unauthorized</td>
+                            <td>Token missing/invalid</td>
+                        </tr>
+                        <tr>
+                            <td>403</td>
+                            <td>Forbidden</td>
+                            <td>Authenticated but no permission</td>
+                        </tr>
+                        <tr>
+                            <td>404</td>
+                            <td>Not Found</td>
+                            <td>Resource doesn't exist</td>
+                        </tr>
+                        <tr>
+                            <td>409</td>
+                            <td>Conflict</td>
+                            <td>Duplicate email</td>
+                        </tr>
+                        <tr>
+                            <td>422</td>
+                            <td>Unprocessable</td>
+                            <td>Valid data but rejected by business logic</td>
+                        </tr>
+                        <tr>
+                            <td>500</td>
+                            <td>Server Error</td>
+                            <td>Unexpected bug</td>
+                        </tr>
+                        <tr>
+                            <td>503</td>
+                            <td>Service Unavailable</td>
+                            <td>DB down, external API not responding</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p><strong>Never use 200 for errors.</strong></p>
+
+                <h2>6️⃣ Global Error Handler (Pro Level)</h2>
+
+                <p><strong>Instead of scattering error handling everywhere...</strong></p>
+
+                <pre><code>// ❌ Bad: repeat in every endpoint
+app.post("/payments", (req, res) => {
+  try {
+    // logic
+    res.json(result)
+  } catch (err) {
+    res.status(500).json({ error: "Server error" })
+  }
+})</code></pre>
+
+                <p><strong>Create a global middleware:</strong></p>
+
+                <pre><code>// ✅ Clean: one place for all errors
+function errorHandler(err, req, res, next) {
+  const status = err.status || 500
+  const message = err.message || "Unexpected error"
+
+  logger.error("Error", { status, message, url: req.path })
+
+  res.status(status).json({
+    error: {
+      code: err.code || "UNKNOWN",
+      message: message
+    }
+  })
+}
+
+app.use(errorHandler)</code></pre>
+
+                <p><strong>Advantages:</strong></p>
+                <ul>
+                    <li>One place to handle errors</li>
+                    <li>Consistent format</li>
+                    <li>Centralized logging</li>
+                    <li>Easy to change later</li>
+                </ul>
+
+                <h2>7️⃣ Separation of Concerns (SOLID Principle)</h2>
+
+                <p><strong>Each layer has ONE job.</strong></p>
+
+                <table class="cheat-sheet-table">
+                    <thead>
+                        <tr>
+                            <th>Layer</th>
+                            <th>Responsibility</th>
+                            <th>Does NOT do</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Route</td>
+                            <td>Connect middlewares and controller</td>
+                            <td>Logic</td>
+                        </tr>
+                        <tr>
+                            <td>Middleware</td>
+                            <td>Filter/validate before arrival</td>
+                            <td>Business logic</td>
+                        </tr>
+                        <tr>
+                            <td>Controller</td>
+                            <td>HTTP: parse, respond</td>
+                            <td>Business logic</td>
+                        </tr>
+                        <tr>
+                            <td>Service</td>
+                            <td>Logic, rules, orchestration</td>
+                            <td>Talk to HTTP or DB directly</td>
+                        </tr>
+                        <tr>
+                            <td>Repository</td>
+                            <td>Data access</td>
+                            <td>Business logic</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p><strong>SOLID violation (BAD):</strong></p>
+
+                <pre><code>// ❌ Controller with everything
+app.post("/payments", async (req, res) => {
+  // parsing (OK)
+  // business validation (NO HERE)
+  // direct DB query (NO HERE)
+  // email to third party (NO HERE)
+  // response (OK)
+})</code></pre>
+
+                <p><strong>Respecting SOLID (GOOD):</strong></p>
+
+                <pre><code>// ✅ Each thing in its place
+app.post("/payments", authenticate, async (req, res, next) => {
+  try {
+    const result = await createPaymentService(req.body)
+    res.json(result)
+  } catch (err) {
+    next(err)
+  }
+})</code></pre>
+
+                <h2>8️⃣ Senior Best Practices</h2>
+
+                <ul>
+                    <li>✅ Separate concerns (Controller ≠ Service ≠ Repo)</li>
+                    <li>✅ Never mix business logic with HTTP</li>
+                    <li>✅ Always validate inputs in middleware</li>
+                    <li>✅ Handle errors centrally</li>
+                    <li>✅ Think about failures BEFORE happy path</li>
+                    <li>✅ Use sequence diagrams for complex endpoints</li>
+                    <li>✅ Logging with requestId for tracing</li>
+                    <li>✅ Correct status codes (not 200 for everything)</li>
+                    <li>✅ Transactions for critical operations</li>
+                    <li>✅ Rate limiting on sensitive endpoints</li>
+                </ul>
+
+                <h2>9️⃣ The Most Important Thing to Remember</h2>
+
+                <p><strong>"A backend is just a machine that receives a request, executes logic, and returns a response. Everything else are layers to make it maintainable, scalable, testable, and professional."</strong></p>
+
+                <h2>🔟 Next Steps</h2>
+
+                <p>Now that you understand the model, you can:</p>
+
+                <ul>
+                    <li>👉 Go to section 1.3 "API Business Logic" to see real code</li>
+                    <li>👉 Go to section 1.4 "Database Design" to understand persistence</li>
+                    <li>🧪 Learn testing with Jest in services</li>
+                    <li>🔐 Deep dive into security (JWT, password salting)</li>
+                    <li>🚀 Deploy and DevOps (Docker, CI/CD)</li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='04-rest-apis.html'">← Previous: REST APIs</button>
+                    <button class="btn btn-primary" onclick="window.location.href='05-api-business-logic.html'">Next: API Business Logic →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>
