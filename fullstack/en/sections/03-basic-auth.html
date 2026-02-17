@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP: Basic Auth | FullStack</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-basic-auth">
+                <h1>🔐 HTTP: Basic Auth</h1>
+                <p><strong>Fundamental mental model for understanding modern authentication</strong></p>
+
+                <h2>1️⃣ What Problem Are We Solving?</h2>
+
+                <p>When a client (browser, Postman, mobile app, React frontend, etc.) makes an HTTP request:</p>
+                <pre><code>GET /api/data</code></pre>
+
+                <p>The server needs to answer a question:</p>
+                <p>👉 <strong>Who are you and do you have permission to access?</strong></p>
+
+                <p>This is where Basic Authentication comes in.</p>
+
+                <h2>2️⃣ What Is HTTP Basic Auth</h2>
+
+                <p>Basic Auth is one of the oldest authentication mechanisms in HTTP.</p>
+
+                <p>It works like this:</p>
+                <ul>
+                    <li>The client sends a header called Authorization</li>
+                    <li>Inside it sends: username:password encoded in Base64</li>
+                    <li>The server decodes it</li>
+                    <li>Validates credentials</li>
+                    <li>Responds 200 (OK) or 401/403</li>
+                </ul>
+
+                <h2>3️⃣ Exact Header Format</h2>
+
+                <p>The format is:</p>
+                <pre><code>Authorization: Basic base64(username:password)</code></pre>
+
+                <p><strong>Example:</strong></p>
+                <p>Username: <code>admin</code></p>
+                <p>Password: <code>secret</code></p>
+
+                <p>Combined: <code>admin:secret</code></p>
+
+                <p>Encoded in Base64: <code>YWRtaW46c2VjcmV0</code></p>
+
+                <p>Final header:</p>
+                <pre><code>Authorization: Basic YWRtaW46c2VjcmV0</code></pre>
+
+                <p>⚠️ <strong>Important:</strong> Base64 is NOT encryption, it's just encoding. Anyone can decode it. That's why Basic Auth is only secure over HTTPS.</p>
+
+                <h2>4️⃣ Complete Flow Step by Step</h2>
+
+                <p><strong>Step 1 — Client makes request without credentials</strong></p>
+                <pre><code>GET /api</code></pre>
+
+                <p>Server responds:</p>
+                <pre><code>401 Unauthorized
+WWW-Authenticate: Basic realm="staging"</code></pre>
+
+                <p>This tells the client: "You need Basic authentication"</p>
+
+                <p><strong>Step 2 — Client sends Authorization header</strong></p>
+                <pre><code>GET /api
+Authorization: Basic YWRtaW46c2VjcmV0</code></pre>
+
+                <p><strong>Step 3 — Server validates</strong></p>
+                <p>The server:</p>
+                <ul>
+                    <li>Reads req.headers.authorization</li>
+                    <li>Splits by space</li>
+                    <li>Extracts Base64</li>
+                    <li>Decodes it</li>
+                    <li>Separates username/password</li>
+                    <li>Validates</li>
+                </ul>
+
+                <h2>5️⃣ Real Implementation in Node (without Express)</h2>
+
+                <p><strong>This example teaches you the real HTTP mechanism.</strong></p>
+
+                <pre><code>import http from "node:http";
+
+function unauthorized(res) {
+  res.statusCode = 401;
+  res.setHeader("WWW-Authenticate", 'Basic realm="staging"');
+  res.end("Unauthorized");
+}
+
+function forbidden(res) {
+  res.statusCode = 403;
+  res.end("Forbidden");
+}
+
+function parseBasicAuth(authHeader) {
+  const [scheme, encoded] = authHeader.split(" ");
+
+  if (scheme !== "Basic" || !encoded) return null;
+
+  const decoded = Buffer.from(encoded, "base64").toString("utf8");
+
+  const separatorIndex = decoded.indexOf(":");
+  if (separatorIndex === -1) return null;
+
+  const username = decoded.slice(0, separatorIndex);
+  const password = decoded.slice(separatorIndex + 1);
+
+  return { username, password };
+}
+
+const server = http.createServer((req, res) => {
+  const auth = req.headers.authorization;
+
+  if (!auth) return unauthorized(res);
+
+  const creds = parseBasicAuth(auth);
+  if (!creds) return unauthorized(res);
+
+  if (creds.username !== "admin") return unauthorized(res);
+
+  if (creds.password !== "secret") return forbidden(res);
+
+  res.statusCode = 200;
+  res.end("Authenticated successfully");
+});
+
+server.listen(3000, () => {
+  console.log("Server running on http://localhost:3000");
+});</code></pre>
+
+                <h2>6️⃣ Key Difference: 401 vs 403</h2>
+
+                <p><strong>This is a typical interview question.</strong></p>
+
+                <table class="cheat-sheet-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>401</td>
+                            <td>You're not authenticated</td>
+                        </tr>
+                        <tr>
+                            <td>403</td>
+                            <td>You're authenticated but not authorized</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>In real systems, 401 is often used for invalid credentials and 403 when the user exists but lacks permissions.</p>
+
+                <h2>7️⃣ How to Test It</h2>
+
+                <p><strong>In the browser</strong></p>
+                <p>If the server returns:</p>
+                <pre><code>WWW-Authenticate: Basic realm="staging"</code></pre>
+
+                <p>The browser automatically shows a popup.</p>
+
+                <p><strong>In Postman</strong></p>
+                <ul>
+                    <li>Authorization → Basic Auth</li>
+                    <li>Username / Password</li>
+                    <li>Postman generates the header automatically</li>
+                    <li>You can see the generated header in the "Headers" tab.</li>
+                </ul>
+
+                <h2>8️⃣ Why Basic Auth Is Insecure</h2>
+
+                <p><strong>A senior must explain the "why":</strong></p>
+
+                <ul>
+                    <li>❌ Base64 doesn't encrypt anything</li>
+                    <li>❌ Credentials are sent in every request</li>
+                    <li>❌ No expiration</li>
+                    <li>❌ No scopes</li>
+                    <li>❌ Hard to logout</li>
+                    <li>❌ Vulnerable without HTTPS</li>
+                </ul>
+
+                <h2>9️⃣ So Why Learn It?</h2>
+
+                <p>Because:</p>
+
+                <ul>
+                    <li>It's the base mental model</li>
+                    <li>It helps you understand OAuth</li>
+                    <li>It helps you understand JWT</li>
+                    <li>It helps you debug headers</li>
+                    <li>It makes you understand how HTTP really works</li>
+                </ul>
+
+                <p><strong>Basic Auth teaches you that authentication in HTTP is simply:</strong></p>
+                <p>Client sends proof → Server validates → Returns response</p>
+
+                <h2>🔟 Comparison with Modern Authentication</h2>
+
+                <p><strong>Basic Auth:</strong></p>
+                <pre><code>Authorization: Basic base64(user:pass)</code></pre>
+
+                <p><strong>JWT:</strong></p>
+                <pre><code>Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</code></pre>
+
+                <p><strong>The idea is the same:</strong></p>
+                <ul>
+                    <li>Client sends something in Authorization</li>
+                    <li>Server validates</li>
+                    <li>Allows or denies</li>
+                </ul>
+
+                <h2>🧠 Final Mental Model</h2>
+
+                <p><strong>HTTP =</strong></p>
+                <p>I receive request → I read headers → I decide → I make response</p>
+
+                <p><strong>That's it.</strong></p>
+
+                <h2>🎯 Typical Interview Questions (with clear answers)</h2>
+
+                <p><strong>❓ What is HTTP Basic Authentication?</strong></p>
+                <p>It's an authentication mechanism where the client sends username and password encoded in Base64 within the Authorization header.</p>
+
+                <p><strong>❓ Is Base64 encryption?</strong></p>
+                <p>No. It's encoding, not encryption. Anyone can decode it.</p>
+
+                <p><strong>❓ Why should Basic Auth only be used with HTTPS?</strong></p>
+                <p>Because credentials travel in every request and can be intercepted without TLS.</p>
+
+                <p><strong>❓ What's the difference between 401 and 403?</strong></p>
+                <p>401 → Not authenticated<br>403 → Authenticated but unauthorized</p>
+
+                <p><strong>❓ What does the WWW-Authenticate header do?</strong></p>
+                <p>It tells the client what authentication method to use. In Basic Auth it causes the browser to show a popup.</p>
+
+                <p><strong>❓ Where do credentials travel in Basic Auth?</strong></p>
+                <p>In the header:</p>
+                <pre><code>Authorization: Basic &lt;base64&gt;</code></pre>
+
+                <p><strong>❓ What's the biggest problem with Basic Auth?</strong></p>
+                <p>No expiration or scopes, credentials sent in every request, and it's completely dependent on HTTPS for security.</p>
+
+                <p><strong>❓ How would you implement it in Express?</strong></p>
+                <p>As middleware that inspects req.headers.authorization, decodes, validates and either calls next() or responds with 401/403.</p>
+
+                <h2>🚀 Senior Level – Short Interview Answer</h2>
+
+                <p>"Basic Auth works by sending username and password encoded in Base64 in the Authorization header. The server decodes and validates. It's insecure without HTTPS and lacks expiration and scope control. It's the conceptual foundation for understanding token-based authentication like JWT."</p>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='02-content-negotiation.html'">← Previous</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../../index.html'">Back to Home →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

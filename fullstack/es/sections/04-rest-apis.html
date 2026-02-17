@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REST APIs | FullStack</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-rest-apis">
+                <h1>🌐 REST APIs y HTTP – Fundamentos reales para Full-Stack Engineers</h1>
+
+                <h2>🎯 Objetivos de esta lección</h2>
+
+                <p>Al terminar esta página deberías:</p>
+                <ul>
+                    <li>Entender claramente dónde termina HTTP y dónde empieza REST</li>
+                    <li>Saber explicar REST en una entrevista en 30 segundos</li>
+                    <li>Diseñar endpoints correctamente (sin "getUsers")</li>
+                    <li>Entender stateless, idempotencia, versionado</li>
+                    <li>Usar correctamente status codes</li>
+                    <li>Documentar una API con OpenAPI/Swagger</li>
+                    <li>Pensar como un ingeniero senior, no solo como consumidor de APIs</li>
+                </ul>
+
+                <h2>1️⃣ Contexto: El caos antes de REST</h2>
+
+                <p>En los años 2000, durante el boom de internet:</p>
+                <ul>
+                    <li>Cada empresa diseñaba su API como quería</li>
+                    <li>URLs tipo: <code>/getUsers</code>, <code>/createUser</code>, <code>/deleteUserNow</code></li>
+                    <li>No había estándar real</li>
+                    <li>No había consistencia</li>
+                    <li>Escalar era complicado</li>
+                </ul>
+
+                <p>Era como conducir en una ciudad sin reglas claras.</p>
+
+                <p><strong>REST aparece para estandarizar cómo diseñamos APIs sobre HTTP.</strong></p>
+
+                <h2>2️⃣ HTTP vs REST – Diferencia crítica</h2>
+
+                <p><strong>HTTP es:</strong></p>
+                <ul>
+                    <li>Un protocolo de comunicación.</li>
+                    <li>Define: Métodos (GET, POST, PUT, PATCH, DELETE), Headers, Status codes, Caching, Transporte sobre TCP/IP</li>
+                </ul>
+
+                <p><strong>REST es:</strong></p>
+                <ul>
+                    <li>Un estilo arquitectónico que usa HTTP correctamente.</li>
+                </ul>
+
+                <p>👉 <strong>Puedes tener HTTP sin REST.</strong><br>
+                👉 <strong>REST normalmente usa HTTP.</strong></p>
+
+                <h2>3️⃣ Las 6 restricciones REST (nivel senior)</h2>
+
+                <p>REST no es solo "usar GET y POST".</p>
+
+                <p>Tiene 6 principios:</p>
+
+                <p><strong>1. Client–Server</strong><br>
+                Separación clara frontend/backend.</p>
+
+                <p><strong>2. Stateless</strong><br>
+                El servidor no guarda estado de sesión entre requests.</p>
+
+                <p><strong>3. Cacheable</strong><br>
+                Las respuestas pueden marcarse como cacheables.</p>
+
+                <p><strong>4. Uniform Interface</strong><br>
+                Recursos + verbs consistentes.</p>
+
+                <p><strong>5. Layered System</strong><br>
+                Puede haber CDN, gateway, load balancer.</p>
+
+                <p><strong>6. Code on demand (opcional)</strong><br>
+                Enviar código ejecutable (raro hoy en día).</p>
+
+                <p>En entrevistas normalmente bastan 3: Stateless, Uniform interface, Cacheable.</p>
+
+                <h2>4️⃣ Stateless – Qué significa realmente</h2>
+
+                <p>❌ No significa que el servidor no tenga variables.<br>
+                ❌ No significa que no haya base de datos.</p>
+
+                <p>✅ <strong>Significa que el servidor no guarda estado de sesión del cliente en memoria entre requests.</strong></p>
+
+                <p>Cada request debe traer todo lo necesario:</p>
+                <pre><code>GET /users/45
+Authorization: Bearer eyJhbGciOi...</code></pre>
+
+                <p>El servidor:</p>
+                <ul>
+                    <li>Verifica token</li>
+                    <li>Consulta base de datos</li>
+                    <li>Devuelve respuesta</li>
+                    <li>Olvida el request</li>
+                </ul>
+
+                <p>Esto permite:</p>
+                <ul>
+                    <li>Escalar horizontalmente</li>
+                    <li>Añadir más servidores</li>
+                    <li>No depender de RAM para sesiones</li>
+                </ul>
+
+                <h2>5️⃣ Uniform Interface – El corazón de REST</h2>
+
+                <p><strong>Todo gira alrededor de recursos</strong></p>
+
+                <p>No hacemos:</p>
+                <pre><code>POST /createUser
+GET /getUsers</code></pre>
+
+                <p>Hacemos:</p>
+                <pre><code>GET /users
+POST /users
+GET /users/{id}
+DELETE /users/{id}</code></pre>
+
+                <p><strong>Recursos = Sustantivos<br>
+                Métodos HTTP = Verbos</strong></p>
+
+                <h2>6️⃣ CRUD y HTTP Verbs</h2>
+
+                <table class="cheat-sheet-table">
+                    <thead>
+                        <tr>
+                            <th>Operación</th>
+                            <th>Método HTTP</th>
+                            <th>Idempotente</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Crear</td>
+                            <td>POST</td>
+                            <td>❌</td>
+                        </tr>
+                        <tr>
+                            <td>Leer</td>
+                            <td>GET</td>
+                            <td>✅</td>
+                        </tr>
+                        <tr>
+                            <td>Reemplazar</td>
+                            <td>PUT</td>
+                            <td>✅</td>
+                        </tr>
+                        <tr>
+                            <td>Actualizar parcial</td>
+                            <td>PATCH</td>
+                            <td>⚠️ depende</td>
+                        </tr>
+                        <tr>
+                            <td>Eliminar</td>
+                            <td>DELETE</td>
+                            <td>✅</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>7️⃣ Idempotencia – Explicación real</h2>
+
+                <p>Una operación es idempotente si: <strong>Repetirla 100 veces deja el sistema en el mismo estado final.</strong></p>
+
+                <p><strong>GET</strong></p>
+                <pre><code>GET /users/45</code></pre>
+                <p>No modifica nada. Es idempotente. ✅</p>
+
+                <p><strong>PUT</strong></p>
+                <pre><code>PUT /users/45
+{
+  "name": "Roge",
+  "age": 34
+}</code></pre>
+                <p>Reemplaza el recurso completo. Repetirlo → mismo resultado. Idempotente ✅</p>
+
+                <p><strong>PATCH</strong><br>
+                Depende de lo que haga.</p>
+
+                <p>Idempotente:</p>
+                <pre><code>PATCH /users/45
+{ "name": "Roge" }</code></pre>
+
+                <p>No idempotente:</p>
+                <pre><code>PATCH /likes/45
+{ "increment": 1 }</code></pre>
+                <p>Incrementar 1 varias veces cambia el estado.</p>
+
+                <p><strong>DELETE</strong><br>
+                Primera vez: elimina. Segunda vez: ya no existe. El estado final es el mismo. Idempotente ✅</p>
+
+                <p><strong>POST</strong></p>
+                <pre><code>POST /users
+{
+  "name": "Roge"
+}</code></pre>
+                <p>Cada request crea un nuevo usuario. No idempotente ❌</p>
+
+                <p>Pero puede hacerse idempotente usando: <code>Idempotency-Key: 1234-abc</code></p>
+
+                <p>Muy usado en pagos.</p>
+
+                <h2>8️⃣ Status Codes Correctos (nivel producción)</h2>
+
+                <p><strong>GET exitoso</strong><br>
+                200 OK</p>
+
+                <p><strong>POST exitoso</strong><br>
+                201 Created<br>
+                Location: /users/45</p>
+
+                <p><strong>PUT / PATCH exitoso</strong><br>
+                200 OK o 204 No Content</p>
+
+                <p><strong>DELETE exitoso</strong><br>
+                204 No Content</p>
+
+                <p><strong>Errores importantes</strong></p>
+                <table class="cheat-sheet-table">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Significado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>400</td>
+                            <td>Bad request</td>
+                        </tr>
+                        <tr>
+                            <td>401</td>
+                            <td>No autenticado</td>
+                        </tr>
+                        <tr>
+                            <td>403</td>
+                            <td>Sin permisos</td>
+                        </tr>
+                        <tr>
+                            <td>404</td>
+                            <td>No encontrado</td>
+                        </tr>
+                        <tr>
+                            <td>409</td>
+                            <td>Conflicto</td>
+                        </tr>
+                        <tr>
+                            <td>422</td>
+                            <td>Error de validación</td>
+                        </tr>
+                        <tr>
+                            <td>500</td>
+                            <td>Error servidor</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>9️⃣ Ejemplo Express Profesional</h2>
+
+                <pre><code>import express from "express";
+
+const app = express();
+app.use(express.json());
+
+app.get("/users", async (req, res) => {
+  const users = await db.users.findMany();
+  res.status(200).json(users);
+});
+
+app.post("/users", async (req, res) => {
+  const { name, email } = req.body;
+
+  if (!email) {
+    return res.status(422).json({
+      error: "VALIDATION_ERROR",
+      message: "Email is required"
+    });
+  }
+
+  const user = await db.users.create({ name, email });
+
+  res
+    .status(201)
+    .set("Location", `/users/${user.id}`)
+    .json(user);
+});
+
+app.delete("/users/:id", async (req, res) => {
+  await db.users.deleteIfExists(req.params.id);
+  res.status(204).send();
+});</code></pre>
+
+                <h2>🔟 Caching en REST</h2>
+
+                <p>REST permite cache.</p>
+
+                <p>Headers importantes:</p>
+                <pre><code>Cache-Control: public, max-age=60
+ETag: "abc123"</code></pre>
+
+                <p>Revalidación:</p>
+                <pre><code>If-None-Match: "abc123"</code></pre>
+
+                <p>Respuesta:</p>
+                <pre><code>304 Not Modified</code></pre>
+
+                <p><strong>Esto mejora rendimiento y escalabilidad.</strong></p>
+
+                <h2>1️⃣1️⃣ Versionado de APIs</h2>
+
+                <p>Tres formas:</p>
+
+                <p><strong>1. URI Versioning (más común)</strong></p>
+                <pre><code>/v1/users
+/v2/users</code></pre>
+                <p>✔️ Más claro<br>
+                ✔️ Mejor para caching</p>
+
+                <p><strong>2. Header Versioning</strong></p>
+                <pre><code>API-Version: 2</code></pre>
+
+                <p><strong>3. Query Parameter</strong></p>
+                <pre><code>/users?version=2</code></pre>
+                <p>Menos recomendado hoy.</p>
+
+                <h2>1️⃣2️⃣ OpenAPI / Swagger</h2>
+
+                <p>Permite documentar la API.</p>
+
+                <p>Debe incluir:</p>
+                <ul>
+                    <li>Paths</li>
+                    <li>Métodos</li>
+                    <li>Params</li>
+                    <li>Request body schema</li>
+                    <li>Response schema</li>
+                    <li>Errores</li>
+                    <li>Autenticación</li>
+                </ul>
+
+                <p>Ejemplo básico:</p>
+                <pre><code>paths:
+  /users:
+    get:
+      summary: Get users
+      responses:
+        200:
+          description: OK</code></pre>
+
+                <p>Swagger permite:</p>
+                <ul>
+                    <li>UI interactiva</li>
+                    <li>Generar SDKs</li>
+                    <li>Generar mocks</li>
+                    <li>Validación automática</li>
+                </ul>
+
+                <h2>1️⃣3️⃣ Mental Model Final</h2>
+
+                <p>Cuando un cliente hace un request:</p>
+
+                <ol>
+                    <li>DNS resuelve dominio</li>
+                    <li>TCP conecta</li>
+                    <li>HTTP request viaja</li>
+                    <li>API recibe: Method, Path, Headers, Body</li>
+                    <li>Backend aplica lógica</li>
+                    <li>DB guarda estado</li>
+                    <li>Respuesta HTTP vuelve</li>
+                </ol>
+
+                <p><strong>REST organiza esta capa API para que:</strong></p>
+                <ul>
+                    <li>Sea uniforme</li>
+                    <li>Sea escalable</li>
+                    <li>Sea cacheable</li>
+                    <li>Sea mantenible</li>
+                </ul>
+
+                <h2>🧠 Cómo responder en una entrevista</h2>
+
+                <p><strong>"REST es un estilo arquitectónico sobre HTTP que organiza APIs alrededor de recursos, usando una interfaz uniforme. Es stateless, cacheable y favorece escalabilidad. Los métodos HTTP se usan para representar operaciones CRUD y deben respetar principios como idempotencia y códigos de estado adecuados."</strong></p>
+
+                <h2>🏁 Conclusión</h2>
+
+                <p><strong>REST no es solo "usar GET y POST".</strong></p>
+
+                <p>Es:</p>
+                <ul>
+                    <li>Diseñar bien recursos</li>
+                    <li>Pensar en escalabilidad</li>
+                    <li>Entender idempotencia</li>
+                    <li>Usar status codes correctos</li>
+                    <li>Versionar con estrategia</li>
+                    <li>Documentar con OpenAPI</li>
+                </ul>
+
+                <p><strong>Cuando entiendes esto, dejas de ser consumidor de APIs y empiezas a diseñarlas correctamente.</strong></p>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='03-basic-auth.html'">← Anterior</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../../index.html'">Volver al Inicio →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

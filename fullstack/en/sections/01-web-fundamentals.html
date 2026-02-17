@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Web Fundamentals | FullStack</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-web-fundamentals">
+                <h1>🧠 Real Web Fundamentals: From IP to HTTP</h1>
+
+                <p>If you want to build complex backend services, you need to master what happens underneath.</p>
+                <p><strong>Everything starts with HTTP… but HTTP doesn't live alone.</strong></p>
+
+                <h2>1️⃣ Before vs Now: How the Web Has Evolved</h2>
+
+                <h3>🏛 Classic Web (Server-side MVC)</h3>
+                <p>15–20 years ago:</p>
+                <ul>
+                    <li>The server generated complete HTML.</li>
+                    <li>Database + logic + view lived together.</li>
+                    <li>Each navigation made a new HTML request.</li>
+                </ul>
+
+                <p><strong>Classic examples:</strong></p>
+                <ul>
+                    <li>Django</li>
+                    <li>Ruby on Rails</li>
+                    <li>ASP.NET MVC</li>
+                    <li>Traditional PHP</li>
+                </ul>
+
+                <p><strong>Flow:</strong></p>
+                <pre><code>Browser → Request HTML → Server generates HTML → Browser renders</code></pre>
+
+                <p>Each route = new HTML document.</p>
+
+                <h3>🚀 Modern Web (SPA + APIs)</h3>
+                <p>Today:</p>
+                <ul>
+                    <li>Frontend is a SPA (React, Vue, Angular).</li>
+                    <li>Backend exposes an API (REST, GraphQL).</li>
+                    <li>Navigation happens on the client.</li>
+                    <li>Only data (JSON) is requested.</li>
+                </ul>
+
+                <p><strong>Modern flow:</strong></p>
+                <pre><code>Browser loads JS → JS does fetch() → API responds JSON → UI renders</code></pre>
+
+                <p><strong>Typical architecture:</strong></p>
+                <pre><code>Frontend (SPA)
+        ↓
+     Internet
+        ↓
+Backend API (business logic)
+        ↓
+Database</code></pre>
+
+                <p><strong>👉 This "backend service" is the fundamental unit you'll learn to build.</strong></p>
+
+                <h2>2️⃣ What Is Internet Really (No BS)</h2>
+                <p>Internet is not magic. It's a network of machines communicating using IP.</p>
+
+                <h2>3️⃣ IP – The Lowest Level You Need to Understand</h2>
+                <p>Each machine has an IP. Example:</p>
+                <pre><code>192.168.1.10
+93.184.216.34</code></pre>
+
+                <p>But IP only identifies the machine. To identify the service we use ports:</p>
+                <pre><code>93.184.216.34:443</code></pre>
+
+                <ul>
+                    <li>80 → HTTP</li>
+                    <li>443 → HTTPS</li>
+                    <li>3000 → local development</li>
+                    <li>5432 → PostgreSQL</li>
+                </ul>
+
+                <h2>4️⃣ TCP – Making Communication Reliable</h2>
+                <p>IP sends small packets but they can get lost. TCP adds:</p>
+                <ul>
+                    <li>Receipt confirmation</li>
+                    <li>Resend if lost</li>
+                    <li>Correct ordering</li>
+                </ul>
+
+                <p><strong>The simplified stack:</strong></p>
+                <pre><code>HTTP
+   ↓
+TCP
+   ↓
+IP</code></pre>
+
+                <h2>5️⃣ HTTPS – Modern Security</h2>
+                <p>Today almost everything is HTTPS. Before sending HTTP:</p>
+                <ul>
+                    <li>TLS handshake happens.</li>
+                    <li>Certificate is validated.</li>
+                    <li>Encryption is established.</li>
+                    <li>Then HTTP travels within the secure channel.</li>
+                </ul>
+
+                <p>This impacts: Performance, Security, Debugging.</p>
+
+                <h2>6️⃣ DNS – Translating Names to IP</h2>
+                <p>We don't write IPs. We write domains:</p>
+                <pre><code>google.com
+api.mycompany.com</code></pre>
+
+                <p>The browser does:</p>
+                <pre><code>DNS lookup → get IP → connect</code></pre>
+
+                <p><strong>Important:</strong></p>
+                <ul>
+                    <li>DNS has TTL</li>
+                    <li>Cached in browser and operating system</li>
+                    <li>Can point to CDN or Load Balancer</li>
+                </ul>
+
+                <h2>7️⃣ Now, Really: HTTP</h2>
+                <p>HTTP lives on top of TCP. It's simply structured text that client and server exchange.</p>
+                <p>There's always: Request → Response</p>
+
+                <h2>8️⃣ Anatomy of an HTTP Request</h2>
+
+                <p><strong>Real example:</strong></p>
+                <pre><code>GET /users/123 HTTP/1.1
+Host: api.myapp.com
+Authorization: Bearer eyJhb...
+Accept: application/json</code></pre>
+
+                <p><strong>Structure:</strong></p>
+                <ul>
+                    <li><strong>Request line:</strong> Method, Path, Version</li>
+                    <li><strong>Headers:</strong> metadata</li>
+                    <li><strong>Body:</strong> optional</li>
+                </ul>
+
+                <h2>9️⃣ Well-Understood HTTP Methods (Senior Level)</h2>
+
+                <p><strong>GET</strong> - Read data. Doesn't change state. Idempotent.</p>
+                <p><strong>POST</strong> - Create or execute action. Not necessarily idempotent.</p>
+                <p><strong>PUT</strong> - Replace a resource completely. Idempotent.</p>
+                <p><strong>PATCH</strong> - Partially modify a resource.</p>
+                <p><strong>DELETE</strong> - Delete resource. Ideally idempotent.</p>
+
+                <h2>🔟 Real Practical Example</h2>
+
+                <p><strong>Create user:</strong></p>
+                <pre><code>POST /users</code></pre>
+
+                <p><strong>Update completely:</strong></p>
+                <pre><code>PUT /users/123</code></pre>
+
+                <p><strong>Update partially:</strong></p>
+                <pre><code>PATCH /users/123
+{
+  "email": "newemail@email.com"
+}</code></pre>
+
+                <h2>1️⃣1️⃣ HTTP Response</h2>
+
+                <p><strong>Example:</strong></p>
+                <pre><code>HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: no-cache
+
+{
+  "id": 123,
+  "name": "Roge"
+}</code></pre>
+
+                <p><strong>Structure:</strong> Status line, Headers, Body.</p>
+
+                <h2>1️⃣2️⃣ Status Codes You Must Master</h2>
+
+                <p><strong>2xx → success</strong></p>
+                <ul>
+                    <li>200 OK</li>
+                    <li>201 Created</li>
+                    <li>204 No Content</li>
+                </ul>
+
+                <p><strong>3xx → redirect</strong></p>
+                <ul>
+                    <li>301 Permanent</li>
+                    <li>302 Temporary</li>
+                    <li>307 / 308 (maintain method)</li>
+                </ul>
+
+                <p><strong>4xx → client error</strong></p>
+                <ul>
+                    <li>400 Bad Request</li>
+                    <li>401 Unauthorized</li>
+                    <li>403 Forbidden</li>
+                    <li>404 Not Found</li>
+                    <li>409 Conflict</li>
+                    <li>422 Validation error</li>
+                    <li>429 Too Many Requests</li>
+                </ul>
+
+                <p><strong>5xx → server error</strong></p>
+                <ul>
+                    <li>500 Internal Error</li>
+                    <li>502 Bad Gateway</li>
+                    <li>503 Service Unavailable</li>
+                    <li>504 Gateway Timeout</li>
+                </ul>
+
+                <p><strong>Mental rule:</strong></p>
+                <ul>
+                    <li>2 → good</li>
+                    <li>3 → do something else</li>
+                    <li>4 → you did something wrong</li>
+                    <li>5 → server failed</li>
+                </ul>
+
+                <h2>1️⃣3️⃣ Important Headers Grouped by Mechanism</h2>
+
+                <p><strong>Caching:</strong> Cache-Control, ETag, If-None-Match, Last-Modified</p>
+                <p>Flow: Server sends ETag → Client retries with If-None-Match → Server responds 304 if unchanged.</p>
+
+                <p><strong>Compression:</strong></p>
+                <pre><code>Client sends: Accept-Encoding: gzip, br
+Server responds: Content-Encoding: br</code></pre>
+
+                <p><strong>Authentication:</strong></p>
+                <pre><code>Authorization: Bearer token
+
+If it fails:
+401 Unauthorized
+WWW-Authenticate: Bearer</code></pre>
+
+                <p><strong>CORS:</strong></p>
+                <pre><code>Browser sends: Origin: https://myapp.com
+Server responds: Access-Control-Allow-Origin: https://myapp.com</code></pre>
+
+                <h2>1️⃣4️⃣ What Happens When You Type a URL (Complete Flow)</h2>
+                <ol>
+                    <li>Browser parses URL</li>
+                    <li>DNS lookup</li>
+                    <li>TCP connection</li>
+                    <li>TLS handshake (if HTTPS)</li>
+                    <li>Sends HTTP request</li>
+                    <li>Server responds</li>
+                    <li>Browser processes content</li>
+                </ol>
+
+                <h2>1️⃣5️⃣ How to Practice Like a Real Engineer</h2>
+
+                <p><strong>DevTools:</strong></p>
+                <ul>
+                    <li>Open Network tab.</li>
+                    <li>Filter by Fetch/XHR.</li>
+                    <li>Analyze: Method, Status, Content-Type, Cache-Control, Authorization, Timing (DNS, SSL, TTFB)</li>
+                </ul>
+
+                <p><strong>With curl:</strong></p>
+                <pre><code>curl -i https://api.github.com/users/octocat</code></pre>
+                <p>You'll see headers + body.</p>
+
+                <h2>1️⃣6️⃣ What You Must Know for Senior Interviews</h2>
+
+                <p><strong>If they ask: "The app is slow, what would you do?"</strong></p>
+
+                <p><strong>Your answer is NOT:</strong></p>
+                <pre><code>"I use memo."</code></pre>
+
+                <p><strong>Your answer is:</strong></p>
+                <ul>
+                    <li>Is it a DNS problem?</li>
+                    <li>Is it TLS handshake?</li>
+                    <li>Is it TTFB?</li>
+                    <li>Is it payload size?</li>
+                    <li>Is there caching?</li>
+                    <li>Is there compression?</li>
+                    <li>Is it a 4xx or 5xx problem?</li>
+                </ul>
+
+                <p><strong>That's thinking like a systems engineer, not just a frontend developer.</strong></p>
+
+                <h2>1️⃣7️⃣ Connection to Complex Backend Services</h2>
+
+                <p>Every complex backend is based on this:</p>
+                <ul>
+                    <li>Well-designed APIs</li>
+                    <li>Clear contracts</li>
+                    <li>Correct status codes</li>
+                    <li>Proper headers</li>
+                    <li>Efficient caching</li>
+                    <li>Security (TLS + Auth)</li>
+                    <li>Observability (logs + request id)</li>
+                    <li>Rate limiting</li>
+                </ul>
+
+                <p><strong>If you don't master HTTP, you can't:</strong></p>
+                <ul>
+                    <li>Design microservices</li>
+                    <li>Debug production</li>
+                    <li>Pass system design interviews</li>
+                </ul>
+
+                <h2>🎯 Conclusion</h2>
+
+                <p><strong>HTTP is not just "GET and POST".</strong></p>
+
+                <p>It's:</p>
+                <ul>
+                    <li>Protocol</li>
+                    <li>Contract</li>
+                    <li>Distributed system</li>
+                    <li>Foundation of all modern web architecture</li>
+                </ul>
+
+                <p><strong>And every backend you build will live and die by how you use HTTP.</strong></p>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='../../../index.html'">Back to Home →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

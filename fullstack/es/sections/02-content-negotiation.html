@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP Content Negotiation & Compression | FullStack</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-content-negotiation">
+                <h1>1.1.1 HTTP Content Negotiation & Compression</h1>
+                <p><strong>Entiende lo que hacen Express y los frameworks por debajo</strong></p>
+
+                <h2>1️⃣ El Problema que estamos resolviendo</h2>
+
+                <p>Cuando un cliente hace una petición HTTP:</p>
+                <pre><code>GET /hello</code></pre>
+
+                <p>No solo pide "dame algo". También dice:</p>
+                <ul>
+                    <li>📦 En qué formato lo quiere (Accept)</li>
+                    <li>📉 Si soporta compresión (Accept-Encoding)</li>
+                </ul>
+
+                <p>El servidor entonces decide:</p>
+                <ul>
+                    <li>🧾 Qué formato devolver (Content-Type)</li>
+                    <li>🗜️ Si lo envía comprimido (Content-Encoding)</li>
+                </ul>
+
+                <p><strong>Esto es Content Negotiation.</strong></p>
+
+                <h2>2️⃣ Mental Model (Muy importante)</h2>
+
+                <p>Imagina un restaurante:</p>
+
+                <p><strong>👤 Cliente:</strong></p>
+                <p>"Quiero el menú en español y en versión resumida."</p>
+
+                <p><strong>👨‍🍳 Servidor:</strong></p>
+                <p>"Vale, aquí tienes el menú en español (Content-Type) y comprimido porque pesa mucho (Content-Encoding)."</p>
+
+                <p><strong>Eso es exactamente lo que hace HTTP.</strong></p>
+
+                <h2>3️⃣ Headers Clave (La Base Real)</h2>
+
+                <p><strong>📌 Negotiation de formato</strong></p>
+
+                <p>Cliente envía:</p>
+                <pre><code>Accept: application/json</code></pre>
+
+                <p>Servidor responde:</p>
+                <pre><code>Content-Type: application/json</code></pre>
+
+                <p><strong>📌 Negotiation de compresión</strong></p>
+
+                <p>Cliente envía:</p>
+                <pre><code>Accept-Encoding: gzip, br</code></pre>
+
+                <p>Servidor responde:</p>
+                <pre><code>Content-Encoding: gzip</code></pre>
+
+                <p><strong>📌 Header CRÍTICO en producción</strong></p>
+                <pre><code>Vary: Accept, Accept-Encoding</code></pre>
+
+                <p>🔴 Esto le dice a CDNs y caches:</p>
+                <p>"La respuesta cambia según estos headers."</p>
+
+                <p><strong>Si no lo pones, puedes romper producción. Esto es detalle senior.</strong></p>
+
+                <h2>4️⃣ Flujo Real Paso a Paso</h2>
+
+                <ol>
+                    <li>Cliente → Envía Accept y Accept-Encoding</li>
+                    <li>Servidor → Decide representación</li>
+                    <li>Servidor → Decide compresión</li>
+                    <li>Servidor → Devuelve Content-Type + Content-Encoding</li>
+                    <li>Browser → Interpreta correctamente</li>
+                </ol>
+
+                <h2>5️⃣ Implementación Completa en Node (sin Express)</h2>
+
+                <p><strong>Esto es lo que realmente hace un middleware por dentro.</strong></p>
+
+                <pre><code>import http from "node:http";
+import zlib from "node:zlib";
+
+const server = http.createServer((req, res) => {
+
+  // ===============================
+  // 1️⃣ CONTENT NEGOTIATION
+  // ===============================
+
+  const accept = req.headers["accept"] || "*/*";
+
+  let contentType;
+  let body;
+
+  if (accept.includes("application/json")) {
+    contentType = "application/json; charset=utf-8";
+    body = JSON.stringify({ message: "Hello World" });
+
+  } else if (accept.includes("text/html")) {
+    contentType = "text/html; charset=utf-8";
+    body = "&lt;h1&gt;Hello World&lt;/h1&gt;";
+
+  } else if (accept.includes("text/plain") || accept.includes("*/*")) {
+    contentType = "text/plain; charset=utf-8";
+    body = "Hello World";
+
+  } else {
+    res.writeHead(406, {
+      "Content-Type": "text/plain",
+      "Vary": "Accept"
+    });
+    res.end("Not Acceptable");
+    return;
+  }
+
+  // ===============================
+  // 2️⃣ COMPRESSION NEGOTIATION
+  // ===============================
+
+  const acceptEncoding = req.headers["accept-encoding"] || "";
+  const supportsBrotli = acceptEncoding.includes("br");
+  const supportsGzip = acceptEncoding.includes("gzip");
+
+  res.setHeader("Content-Type", contentType);
+  res.setHeader("Vary", "Accept, Accept-Encoding");
+
+  const shouldCompress = body.length > 200;
+
+  if (shouldCompress && supportsBrotli) {
+    const compressed = zlib.brotliCompressSync(Buffer.from(body));
+    res.setHeader("Content-Encoding", "br");
+    res.writeHead(200);
+    res.end(compressed);
+    return;
+  }
+
+  if (shouldCompress && supportsGzip) {
+    const compressed = zlib.gzipSync(Buffer.from(body));
+    res.setHeader("Content-Encoding", "gzip");
+    res.writeHead(200);
+    res.end(compressed);
+    return;
+  }
+
+  // Sin compresión
+  res.writeHead(200);
+  res.end(body);
+});
+
+server.listen(3000, () =>
+  console.log("Server running at http://localhost:3000")
+);</code></pre>
+
+                <h2>6️⃣ Cosas que un Junior suele hacer mal</h2>
+
+                <ul>
+                    <li>❌ Comprimir sin comprobar Accept-Encoding</li>
+                    <li>❌ No poner Content-Type</li>
+                    <li>❌ No usar Vary</li>
+                    <li>❌ No devolver 406 cuando no hay match</li>
+                    <li>❌ No entender diferencia entre Accept y Content-Type</li>
+                </ul>
+
+                <h2>7️⃣ Diferencias CRÍTICAS (Pregunta típica)</h2>
+
+                <table class="cheat-sheet-table">
+                    <thead>
+                        <tr>
+                            <th>Header</th>
+                            <th>Quién lo envía</th>
+                            <th>Qué significa</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Accept</td>
+                            <td>Cliente</td>
+                            <td>Qué quiero recibir</td>
+                        </tr>
+                        <tr>
+                            <td>Content-Type</td>
+                            <td>Servidor (o cliente en POST)</td>
+                            <td>Qué estoy enviando</td>
+                        </tr>
+                        <tr>
+                            <td>Accept-Encoding</td>
+                            <td>Cliente</td>
+                            <td>Qué compresión soporto</td>
+                        </tr>
+                        <tr>
+                            <td>Content-Encoding</td>
+                            <td>Servidor</td>
+                            <td>Cómo lo comprimí</td>
+                        </tr>
+                        <tr>
+                            <td>Vary</td>
+                            <td>Servidor</td>
+                            <td>Qué headers afectan la respuesta</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>8️⃣ DevTools: Cómo verlo en la vida real</h2>
+
+                <ol>
+                    <li>Abre cualquier web</li>
+                    <li>Ve a Network</li>
+                    <li>Selecciona un .js</li>
+                    <li>Mira:
+                        <pre><code>Content-Type: application/javascript
+Content-Encoding: br
+Vary: Accept-Encoding</code></pre>
+                    </li>
+                </ol>
+
+                <p>🔥 Ya sabes leerlo.</p>
+
+                <h2>9️⃣ Checklist Profesional (Antes de subir a producción)</h2>
+
+                <ul>
+                    <li>✅ Devuelvo siempre Content-Type correcto</li>
+                    <li>✅ Negocio correctamente con Accept</li>
+                    <li>✅ Negocio compresión con Accept-Encoding</li>
+                    <li>✅ Pongo Vary</li>
+                    <li>✅ No comprimo imágenes o binarios innecesarios</li>
+                    <li>✅ Uso Brotli si está disponible</li>
+                    <li>✅ Devuelvo 406 si no hay representación compatible</li>
+                </ul>
+
+                <h2>🔟 Preguntas Típicas de Entrevista (Con Respuesta Senior)</h2>
+
+                <p><strong>❓ ¿Qué es Content Negotiation?</strong></p>
+                <p>Es el mecanismo mediante el cual el servidor devuelve distintas representaciones del mismo recurso según los headers del cliente (Accept, Accept-Encoding, etc.).</p>
+
+                <p><strong>❓ Diferencia entre Accept y Content-Type</strong></p>
+                <p>Accept → Lo que el cliente quiere recibir<br>Content-Type → Lo que el servidor realmente devuelve</p>
+
+                <p><strong>❓ Qué pasa si comprimo pero no pongo Content-Encoding</strong></p>
+                <p>El cliente no sabrá que debe descomprimirlo y fallará al interpretarlo.</p>
+
+                <p><strong>❓ Para qué sirve el header Vary</strong></p>
+                <p>Indica a caches/CDNs que la respuesta cambia según ciertos headers. Sin Vary puedes romper cacheo.</p>
+
+                <p><strong>❓ Qué status code devuelves si no puedes producir el formato solicitado</strong></p>
+                <p>406 Not Acceptable</p>
+
+                <p><strong>❓ Qué status code devuelves si el cliente envía un body en formato no soportado</strong></p>
+                <p>415 Unsupported Media Type</p>
+
+                <h2>1️⃣1️⃣ Por qué esto es importante como Frontend Developer</h2>
+
+                <p>Aunque uses Express, Next.js o un CDN:</p>
+
+                <ul>
+                    <li>Te ayuda a debuggear APIs</li>
+                    <li>Te ayuda a entender performance</li>
+                    <li>Te ayuda en entrevistas senior</li>
+                    <li>Te permite optimizar Core Web Vitals</li>
+                    <li>Te permite leer DevTools como un profesional</li>
+                </ul>
+
+                <h2>🎯 Resumen Final</h2>
+
+                <ul>
+                    <li><strong>Content Negotiation</strong> = elegir formato</li>
+                    <li><strong>Compression</strong> = reducir tamaño</li>
+                    <li><strong>Vary</strong> = hacerlo compatible con cache</li>
+                    <li><strong>Content-Type</strong> = declarar qué es</li>
+                    <li><strong>Content-Encoding</strong> = declarar cómo está comprimido</li>
+                </ul>
+
+                <p><strong>Los frameworks solo automatizan esto. Pero ahora tú entiendes el mecanismo real.</strong></p>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='01-fundamentos-web.html'">← Anterior</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../../index.html'">Volver al Inicio →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

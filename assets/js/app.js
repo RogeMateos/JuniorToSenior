@@ -30,6 +30,7 @@ const SECTION_ROUTES = {
   "section-static-assets": "19-static-assets.html",
   "section-optimising-javascript-bundle": "20-optimising-javascript-bundle.html",
   "section-framework-optimizations": "21-framework-optimizations.html",
+  "section-web-fundamentals": "01-web-fundamentals.html",
 };
 
 // ============================================================
@@ -237,6 +238,7 @@ function injectSidebarAndNav() {
   const currentUrl = window.location.pathname;
   const isSpanish = currentUrl.includes("/es/");
   const isSection = currentUrl.includes("/sections/");
+  const isFullStack = currentUrl.includes("/fullstack/");
 
   if (!isSection) {
     return; // No estamos en una sección
@@ -252,63 +254,99 @@ function injectSidebarAndNav() {
     document.body.insertAdjacentElement("afterbegin", menuToggleBtn);
   }
 
-  // Crear el sidebar
+  // Crear el sidebar con acordeón
   const sidebarHTML = `
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">Frontend Mastery</div>
         <nav>
             <ul>
-                ${
-                  isSpanish
-                    ? `
-                <li><a href="../../../index.html" class="nav-link">← Volver al inicio</a></li>
-                <li><a href="01-core-skill.html" class="nav-link">La Habilidad Clave</a></li>
-                <li><a href="02-frameworks.html" class="nav-link">1. ¿Por qué Frameworks?</a></li>
-                <li><a href="03-mental-models.html" class="nav-link">2. Modelos Mentales</a></li>
-                <li><a href="04-state-machine.html" class="nav-link">2.3 State Machine</a></li>
-                <li><a href="05-essential-derived.html" class="nav-link">2.4 Estado Esencial vs Derivado</a></li>
-                <li><a href="06-state-patterns.html" class="nav-link">2.5 Patrones de Estado</a></li>
-                <li><a href="07-state-architecture.html" class="nav-link">2.6 Arquitectura del Estado</a></li>
-                <li><a href="08-state-antipatterns.html" class="nav-link">2.7 Anti-patrones</a></li>
-                <li><a href="09-barebone-method.html" class="nav-link">2.8 Barebone Method</a></li>
-                <li><a href="10-web-accessibility.html" class="nav-link">2.9 Accesibilidad Web</a></li>
-                <li><a href="11-component-testing.html" class="nav-link">2.10 Testing</a></li>
-                <li><a href="12-summary.html" class="nav-link">3. Resumen</a></li>
-                <li><a href="13-web-performance-scalability.html" class="nav-link">3. Web Performance & Scalability</a></li>
-                <li><a href="14-core-web-vitals.html" class="nav-link">3.1 The Core Web Vitals</a></li>
-                <li><a href="15-critical-rendering-path.html" class="nav-link">3.2 The Critical Rendering Path</a></li>
-                <li><a href="16-five-steps-web-performance.html" class="nav-link">3.3 Los 5 Pasos Web Performance</a></li>
-                <li><a href="17-diagnosis.html" class="nav-link">3.3.1 Diagnóstico Profesional</a></li>
-                <li><a href="18-optimising-the-server.html" class="nav-link">3.3.2 Optimización del Servidor</a></li>
-                <li><a href="19-static-assets.html" class="nav-link">3.3.3 Static Assets: Imágenes, Fuentes & CSS</a></li>
-                <li><a href="20-optimising-javascript-bundle.html" class="nav-link">3.3.4 Optimising the JavaScript Bundle</a></li>
-                <li><a href="21-framework-optimizations.html" class="nav-link">3.3.5 Framework Optimizations</a></li>
-                `
-                    : `
-                <li><a href="../../../index.html" class="nav-link">← Back to home</a></li>
-                <li><a href="01-core-skill.html" class="nav-link">The Core Skill</a></li>
-                <li><a href="02-frameworks.html" class="nav-link">1. Why Frameworks?</a></li>
-                <li><a href="03-mental-models.html" class="nav-link">2. Mental Models</a></li>
-                <li><a href="04-state-machine.html" class="nav-link">2.3 State Machine</a></li>
-                <li><a href="05-essential-derived.html" class="nav-link">2.4 Essential vs Derived State</a></li>
-                <li><a href="06-state-patterns.html" class="nav-link">2.5 State Patterns</a></li>
-                <li><a href="07-state-architecture.html" class="nav-link">2.6 State Architecture</a></li>
-                <li><a href="08-state-antipatterns.html" class="nav-link">2.7 Anti-patterns</a></li>
-                <li><a href="09-barebone-method.html" class="nav-link">2.8 Barebone Method</a></li>
-                <li><a href="10-web-accessibility.html" class="nav-link">2.9 Web Accessibility</a></li>
-                <li><a href="11-component-testing.html" class="nav-link">2.10 Testing</a></li>
-                <li><a href="12-summary.html" class="nav-link">3. Summary</a></li>
-                <li><a href="13-web-performance-scalability.html" class="nav-link">3. Web Performance & Scalability</a></li>
-                <li><a href="14-core-web-vitals.html" class="nav-link">3.1 The Core Web Vitals</a></li>
-                <li><a href="15-critical-rendering-path.html" class="nav-link">3.2 The Critical Rendering Path</a></li>
-                <li><a href="16-five-steps-web-performance.html" class="nav-link">3.3 The 5 Steps Web Performance</a></li>
-                <li><a href="17-diagnosis.html" class="nav-link">3.3.1 Professional Diagnosis</a></li>
-                <li><a href="18-optimising-the-server.html" class="nav-link">3.3.2 Optimising The Server</a></li>
-                <li><a href="19-static-assets.html" class="nav-link">3.3.3 Static Assets: Images, Fonts & CSS</a></li>
-                <li><a href="20-optimising-javascript-bundle.html" class="nav-link">3.3.4 Optimising the JavaScript Bundle</a></li>
-                <li><a href="21-framework-optimizations.html" class="nav-link">3.3.5 Framework Optimizations</a></li>
-                `
-                }
+                <li><a href="../../../index.html" class="nav-link">← ${isSpanish ? 'Volver al inicio' : 'Back to home'}</a></li>
+
+                <!-- SECCIÓN 1: LA HABILIDAD CLAVE -->
+                <li class="nav-accordion">
+                    <div class="nav-accordion-header" data-accordion="section1">
+                        <span>${isSpanish ? 'La Habilidad Clave' : 'The Core Skill'}</span>
+                        <span class="nav-accordion-icon">▶</span>
+                    </div>
+                    <ul class="nav-accordion-content" id="section1-content">
+                        <li><a href="01-core-skill.html" class="nav-link">${isSpanish ? 'La Habilidad Clave' : 'The Core Skill'}</a></li>
+                    </ul>
+                </li>
+
+                <!-- SECCIÓN 2: ¿POR QUÉ FRAMEWORKS? -->
+                <li class="nav-accordion">
+                    <div class="nav-accordion-header" data-accordion="section2">
+                        <span>${isSpanish ? '1. ¿Por qué Frameworks?' : '1. Why Frameworks?'}</span>
+                        <span class="nav-accordion-icon">▶</span>
+                    </div>
+                    <ul class="nav-accordion-content" id="section2-content">
+                        <li><a href="02-frameworks.html" class="nav-link">${isSpanish ? '¿Por qué Frameworks?' : 'Why Frameworks?'}</a></li>
+                    </ul>
+                </li>
+
+                <!-- SECCIÓN 3: MODELOS MENTALES Y STATE MANAGEMENT -->
+                <li class="nav-accordion">
+                    <div class="nav-accordion-header" data-accordion="section3">
+                        <span>${isSpanish ? '2. Modelos Mentales & State' : '2. Mental Models & State'}</span>
+                        <span class="nav-accordion-icon">▶</span>
+                    </div>
+                    <ul class="nav-accordion-content" id="section3-content">
+                        <li><a href="03-mental-models.html" class="nav-link">${isSpanish ? 'Modelos Mentales' : 'Mental Models'}</a></li>
+                        <li><a href="04-state-machine.html" class="nav-link">2.3 State Machine</a></li>
+                        <li><a href="05-essential-derived.html" class="nav-link">2.4 ${isSpanish ? 'Estado Esencial vs Derivado' : 'Essential vs Derived State'}</a></li>
+                        <li><a href="06-state-patterns.html" class="nav-link">2.5 ${isSpanish ? 'Patrones de Estado' : 'State Patterns'}</a></li>
+                        <li><a href="07-state-architecture.html" class="nav-link">2.6 ${isSpanish ? 'Arquitectura del Estado' : 'State Architecture'}</a></li>
+                        <li><a href="08-state-antipatterns.html" class="nav-link">2.7 ${isSpanish ? 'Anti-patrones' : 'Anti-patterns'}</a></li>
+                        <li><a href="09-barebone-method.html" class="nav-link">2.8 Barebone Method</a></li>
+                        <li><a href="10-web-accessibility.html" class="nav-link">2.9 ${isSpanish ? 'Accesibilidad Web' : 'Web Accessibility'}</a></li>
+                        <li><a href="11-component-testing.html" class="nav-link">2.10 Testing</a></li>
+                    </ul>
+                </li>
+
+                <!-- SECCIÓN 4: RESUMEN -->
+                <li class="nav-accordion">
+                    <div class="nav-accordion-header" data-accordion="section4">
+                        <span>${isSpanish ? '3. Resumen' : '3. Summary'}</span>
+                        <span class="nav-accordion-icon">▶</span>
+                    </div>
+                    <ul class="nav-accordion-content" id="section4-content">
+                        <li><a href="12-summary.html" class="nav-link">${isSpanish ? 'Resumen' : 'Summary'}</a></li>
+                    </ul>
+                </li>
+
+                <!-- SECCIÓN 5: WEB PERFORMANCE -->
+                <li class="nav-accordion">
+                    <div class="nav-accordion-header" data-accordion="section5">
+                        <span>${isSpanish ? '3. Web Performance & Scalability' : '3. Web Performance & Scalability'}</span>
+                        <span class="nav-accordion-icon">▶</span>
+                    </div>
+                    <ul class="nav-accordion-content" id="section5-content">
+                        <li><a href="13-web-performance-scalability.html" class="nav-link">3. Web Performance & Scalability</a></li>
+                        <li><a href="14-core-web-vitals.html" class="nav-link">3.1 The Core Web Vitals</a></li>
+                        <li><a href="15-critical-rendering-path.html" class="nav-link">3.2 The Critical Rendering Path</a></li>
+                        <li><a href="16-five-steps-web-performance.html" class="nav-link">3.3 ${isSpanish ? 'Los 5 Pasos Web Performance' : 'The 5 Steps Web Performance'}</a></li>
+                        <li><a href="17-diagnosis.html" class="nav-link">3.3.1 ${isSpanish ? 'Diagnóstico Profesional' : 'Professional Diagnosis'}</a></li>
+                        <li><a href="18-optimising-the-server.html" class="nav-link">3.3.2 ${isSpanish ? 'Optimización del Servidor' : 'Optimising The Server'}</a></li>
+                        <li><a href="19-static-assets.html" class="nav-link">3.3.3 Static Assets: ${isSpanish ? 'Imágenes, Fuentes & CSS' : 'Images, Fonts & CSS'}</a></li>
+                        <li><a href="20-optimising-javascript-bundle.html" class="nav-link">3.3.4 Optimising the JavaScript Bundle</a></li>
+                        <li><a href="21-framework-optimizations.html" class="nav-link">3.3.5 Framework Optimizations</a></li>
+                    </ul>
+                </li>
+
+                <!-- SECCIÓN 6: FULLSTACK -->
+                <li class="nav-accordion">
+                    <div class="nav-accordion-header" data-accordion="section6">
+                        <span>${isSpanish ? '4. FullStack' : '4. FullStack'}</span>
+                        <span class="nav-accordion-icon">▶</span>
+                    </div>
+                    <ul class="nav-accordion-content" id="section6-content">
+                        <li><a href="${isFullStack ? (isSpanish ? '01-fundamentos-web.html' : '01-web-fundamentals.html') : (isSpanish ? '../../../fullstack/es/sections/01-fundamentos-web.html' : '../../../fullstack/en/sections/01-web-fundamentals.html')}" class="nav-link">${isSpanish ? '1.1.0 HTTP: Fundamentals' : '1.1.0 HTTP: Fundamentals'}</a></li>
+                        <li><a href="${isFullStack ? (isSpanish ? '02-content-negotiation.html' : '02-content-negotiation.html') : (isSpanish ? '../../../fullstack/es/sections/02-content-negotiation.html' : '../../../fullstack/en/sections/02-content-negotiation.html')}" class="nav-link">${isSpanish ? '1.1.1 HTTP Content Negotiation & Compression' : '1.1.1 HTTP Content Negotiation & Compression'}</a></li>
+                        <li><a href="${isFullStack ? (isSpanish ? '03-basic-auth.html' : '03-basic-auth.html') : (isSpanish ? '../../../fullstack/es/sections/03-basic-auth.html' : '../../../fullstack/en/sections/03-basic-auth.html')}" class="nav-link">${isSpanish ? '1.1.2 HTTP: Basic Auth' : '1.1.2 HTTP: Basic Auth'}</a></li>
+                        <li><a href="${isFullStack ? (isSpanish ? '04-rest-apis.html' : '04-rest-apis.html') : (isSpanish ? '../../../fullstack/es/sections/04-rest-apis.html' : '../../../fullstack/en/sections/04-rest-apis.html')}" class="nav-link">${isSpanish ? '1.2 Fundamentals: REST APIs' : '1.2 Fundamentals: REST APIs'}</a></li>
+                        <li><a href="${isFullStack ? (isSpanish ? '05-api-business-logic.html' : '05-api-business-logic.html') : (isSpanish ? '../../../fullstack/es/sections/05-api-business-logic.html' : '../../../fullstack/en/sections/05-api-business-logic.html')}" class="nav-link">${isSpanish ? '1.3 Fundamentals: The API Business Logic' : '1.3 Fundamentals: The API Business Logic'}</a></li>
+                    </ul>
+                </li>
             </ul>
         </nav>
     </aside>
@@ -316,6 +354,25 @@ function injectSidebarAndNav() {
 
   // Inyectar sidebar al inicio del body
   document.body.insertAdjacentHTML("afterbegin", sidebarHTML);
+
+  // Configurar evento para accordion headers
+  setTimeout(() => {
+    const accordionHeaders = document.querySelectorAll(".nav-accordion-header");
+    accordionHeaders.forEach((header) => {
+      header.addEventListener("click", function () {
+        const accordionId = this.getAttribute("data-accordion");
+        const content = document.getElementById(accordionId + "-content");
+
+        if (content) {
+          // Toggle clase active en el header
+          this.classList.toggle("active");
+
+          // Toggle clase active en el content
+          content.classList.toggle("active");
+        }
+      });
+    });
+  }, 0);
 
   // Agregar event listener a nav links
   document.querySelectorAll(".nav-link").forEach((link) => {

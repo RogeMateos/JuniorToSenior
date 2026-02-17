@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The API Business Logic | FullStack</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-api-business-logic">
+                <h1>1.3 Fundamentals: The API Business Logic</h1>
+                <p><strong>Express is a conveyor belt: middlewares prepare and filter; the controller translates HTTP; the service decides; the repo saves; and the error handler prevents chaos.</strong></p>
+
+                <h2>0️⃣ What is a Middleware? (Real Explanation)</h2>
+
+                <p><strong>A middleware is a function that intercepts the request before it reaches the handler.</strong></p>
+
+                <p>Think of a car factory:</p>
+                <ul>
+                    <li>Station 1: Clean part → Logging middleware</li>
+                    <li>Station 2: Paint → Authentication middleware</li>
+                    <li>Station 3: Check quality → Validation middleware</li>
+                    <li>Station 4: Package → Handler (your logic)</li>
+                </ul>
+
+                <p>In Express:</p>
+                <pre><code>app.use((req, res, next) => {
+  // Your code here
+  next(); // Pass to next middleware
+});</code></pre>
+
+                <p><strong>The `next` parameter is the door to the next station.</strong></p>
+
+                <p>Without `next()` → the flow stops.</p>
+
+                <h2>1️⃣ AuthN vs AuthZ (Critical Difference)</h2>
+
+                <p><strong>Authentication (AuthN): "Who are you?"</strong><br>
+                Validates identity. Valid token? Active session?</p>
+
+                <p><strong>Authorization (AuthZ): "Do you have permission?"</strong><br>
+                Validates permissions. Are you admin? Is it your resource?</p>
+
+                <p><strong>Real example:</strong></p>
+                <pre><code>User: { id: 45, role: "user", permissions: ["posts:read", "posts:create"] }
+
+GET /posts → ✅ AuthN ok, AuthZ ok (posts:read)
+POST /users → ❌ AuthN ok, but AuthZ fail (needs admin)
+POST /payments → ❌ AuthN fail (no token)</code></pre>
+
+                <p>Many apps pass AuthN and fail at AuthZ.</p>
+
+                <h2>2️⃣ Correct HTTP Status Codes</h2>
+
+                <table class="cheat-sheet-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Meaning</th>
+                            <th>When to use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>400</td>
+                            <td>Bad Request</td>
+                            <td>Invalid JSON, missing field</td>
+                        </tr>
+                        <tr>
+                            <td>401</td>
+                            <td>Unauthorized</td>
+                            <td>Missing/invalid token (AuthN fail)</td>
+                        </tr>
+                        <tr>
+                            <td>403</td>
+                            <td>Forbidden</td>
+                            <td>Authenticated but no permission (AuthZ fail)</td>
+                        </tr>
+                        <tr>
+                            <td>404</td>
+                            <td>Not Found</td>
+                            <td>Route or resource doesn't exist</td>
+                        </tr>
+                        <tr>
+                            <td>409</td>
+                            <td>Conflict</td>
+                            <td>Duplicate email, invalid state</td>
+                        </tr>
+                        <tr>
+                            <td>422</td>
+                            <td>Unprocessable Entity</td>
+                            <td>Semantic validation (valid data but rejected by business logic)</td>
+                        </tr>
+                        <tr>
+                            <td>429</td>
+                            <td>Too Many Requests</td>
+                            <td>Rate limit exceeded</td>
+                        </tr>
+                        <tr>
+                            <td>500</td>
+                            <td>Internal Server Error</td>
+                            <td>Bug in server</td>
+                        </tr>
+                        <tr>
+                            <td>503</td>
+                            <td>Service Unavailable</td>
+                            <td>DB down, external API not responding</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>3️⃣ Architecture: Layers and Responsibilities</h2>
+
+                <p><strong>The conveyor belt has clear stations:</strong></p>
+
+                <pre><code>HTTP Request
+     ↓
+Route (define path/method)
+     ↓
+Global middleware (logging, JSON parser)
+     ↓
+Specific middleware (auth, validation)
+     ↓
+Controller/Handler (HTTP concerns)
+     ↓
+Service (business rules)
+     ↓
+Repository (data access)
+     ↓
+Database
+     ↓
+HTTP Response</code></pre>
+
+                <p><strong>Responsibilities:</strong></p>
+                <ul>
+                    <li><strong>Route:</strong> Define GET /payments</li>
+                    <li><strong>Middleware:</strong> Parse JSON, validate token, log requests</li>
+                    <li><strong>Controller:</strong> "What came in the request? Call the service."</li>
+                    <li><strong>Service:</strong> "Does business logic allow this? Call the repo."</li>
+                    <li><strong>Repository:</strong> "OK, save to DB."</li>
+                    <li><strong>Error Handler:</strong> "Something failed? Return consistent JSON."</li>
+                </ul>
+
+                <h2>4️⃣ Middleware Order (Critical)</h2>
+
+                <p><strong>Order matters. A junior often breaks things by wrong order.</strong></p>
+
+                <p>Recommended order:</p>
+
+                <pre><code>1️⃣ requestId / tracing (first)
+2️⃣ logger (start)
+3️⃣ express.json() (parse body)
+4️⃣ CORS (if applicable)
+5️⃣ authenticate (validate token)
+6️⃣ authorize (validate permissions)
+7️⃣ validateBody (schema validation)
+8️⃣ handler (your logic)
+9️⃣ errorHandler global (last)</code></pre>
+
+                <p>Why this order?</p>
+                <ul>
+                    <li>requestId first → all logs include it</li>
+                    <li>express.json() before auth → you need to parse the token</li>
+                    <li>auth before handler → don't call handler without verifying identity</li>
+                    <li>errorHandler last → catch any error</li>
+                </ul>
+
+                <h2>5️⃣ Real Example: POST /payments</h2>
+
+                <h3>Step 1: Contract (Request/Response)</h3>
+
+                <pre><code>Request:
+{
+  "amount": 100.50,
+  "currency": "USD",
+  "description": "Online purchase"
+}
+
+Response 201:
+{
+  "paymentId": "pay_123abc",
+  "status": "CREATED",
+  "amount": 100.50,
+  "currency": "USD",
+  "createdAt": "2024-01-15T10:30:00Z"
+}</code></pre>
+
+                <h3>Step 2: Routes and Middlewares</h3>
+
+                <pre><code>// routes/payments.routes.ts
+import { Router } from "express";
+import { z } from "zod";
+import { authenticate } from "../middleware/authenticate";
+import { authorize } from "../middleware/authorize";
+import { validateBody } from "../middleware/validateBody";
+import { createPaymentController } from "../controllers/payments.controller";
+
+const router = Router();
+
+const CreatePaymentSchema = z.object({
+  amount: z.number().positive("Amount must be > 0"),
+  currency: z.string().length(3), // "USD", "EUR"
+  description: z.string().optional(),
+});
+
+router.post(
+  "/payments",
+  authenticate,                          // ✅ Who are you?
+  authorize("payments:create"),           // ✅ Do you have permission?
+  validateBody(CreatePaymentSchema),      // ✅ Is data valid?
+  createPaymentController                 // ✅ Execute logic
+);
+
+export default router;</code></pre>
+
+                <h3>Step 3: Middlewares</h3>
+
+                <pre><code>// middleware/authenticate.ts
+import type { Request, Response, NextFunction } from "express";
+import { verifyToken } from "../shared/jwt";
+import { AppError } from "../shared/errors";
+
+export async function authenticate(req: Request, _res: Response, next: NextFunction) {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader?.startsWith("Bearer ")) {
+    throw new AppError("NO_AUTH", "Missing or invalid Authorization header", 401);
+  }
+
+  const token = authHeader.substring(7); // Remove "Bearer "
+
+  try {
+    const decoded = verifyToken(token);
+    (req as any).user = decoded; // Attach user to request
+    next();
+  } catch (err) {
+    throw new AppError("INVALID_TOKEN", "Token invalid or expired", 401);
+  }
+}
+
+// middleware/authorize.ts
+import type { Request, Response, NextFunction } from "express";
+import { AppError } from "../shared/errors";
+
+export function authorize(requiredPermission: string) {
+  return (req: Request, _res: Response, next: NextFunction) => {
+    const user = (req as any).user;
+
+    if (!user || !user.permissions?.includes(requiredPermission)) {
+      throw new AppError(
+        "NO_PERMISSION",
+        `Missing permission: ${requiredPermission}`,
+        403
+      );
+    }
+
+    next();
+  };
+}
+
+// middleware/validateBody.ts
+import { z } from "zod";
+import type { Request, Response, NextFunction } from "express";
+import { AppError } from "../shared/errors";
+
+export function validateBody(schema: z.ZodSchema) {
+  return (req: Request, _res: Response, next: NextFunction) => {
+    try {
+      const validated = schema.parse(req.body);
+      req.body = validated; // Replace with normalized data
+      next();
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const message = err.errors[0].message;
+        throw new AppError("VALIDATION_ERROR", message, 422);
+      }
+      throw err;
+    }
+  };
+}</code></pre>
+
+                <h3>Step 4: Controller (HTTP Translation)</h3>
+
+                <pre><code>// controllers/payments.controller.ts
+import type { Request, Response, NextFunction } from "express";
+import { createPayment } from "../services/payments.service";
+import { logger } from "../shared/logger";
+
+export async function createPaymentController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    // Body already validated
+    const { amount, currency, description } = req.body;
+
+    // UserId comes from authenticated token
+    const userId = (req as any).user.id;
+
+    logger.info("Creating payment", {
+      userId,
+      amount,
+      currency,
+      requestId: (req as any).requestId,
+    });
+
+    const result = await createPayment({
+      userId,
+      amount,
+      currency,
+      description,
+    });
+
+    res.status(201).json(result);
+  } catch (err) {
+    next(err); // Delegate to global error handler
+  }
+}</code></pre>
+
+                <h3>Step 5: Service (Business Logic)</h3>
+
+                <pre><code>// services/payments.service.ts
+import { PaymentsRepo } from "../repositories/payments.repo";
+import { CurrencyClient } from "../clients/currency.client";
+import { AppError } from "../shared/errors";
+import { logger } from "../shared/logger";
+
+const repo = new PaymentsRepo();
+const currencyClient = new CurrencyClient();
+
+export async function createPayment(input: {
+  userId: string;
+  amount: number;
+  currency: string;
+  description?: string;
+}) {
+  // Rule 1: Amount limit
+  if (input.amount > 10_000) {
+    throw new AppError(
+      "LIMIT_EXCEEDED",
+      "Amount exceeds allowed limit of $10,000",
+      409
+    );
+  }
+
+  // Rule 2: Get exchange rate
+  let fxRate = 1;
+  try {
+    if (input.currency !== "EUR") {
+      fxRate = await currencyClient.getRate(input.currency, "EUR");
+    }
+  } catch (err) {
+    // If currency API fails, inform client
+    logger.error("Currency API failed", { currency: input.currency });
+    throw new AppError(
+      "SERVICE_UNAVAILABLE",
+      "Cannot process payment right now",
+      503
+    );
+  }
+
+  // Rule 3: Idempotency (if Idempotency-Key comes, check if already exists)
+  // (simplified here, in production more careful)
+
+  // Persistence
+  const payment = await repo.insertPayment({
+    userId: input.userId,
+    amount: input.amount,
+    currency: input.currency,
+    fxRate,
+    description: input.description,
+  });
+
+  return {
+    paymentId: payment.id,
+    status: "CREATED",
+    amount: payment.amount,
+    currency: payment.currency,
+    createdAt: payment.createdAt.toISOString(),
+  };
+}</code></pre>
+
+                <h3>Step 6: Repository (Data Access)</h3>
+
+                <pre><code>// repositories/payments.repo.ts
+import { db } from "../shared/db";
+
+export class PaymentsRepo {
+  async insertPayment(data: {
+    userId: string;
+    amount: number;
+    currency: string;
+    fxRate: number;
+    description?: string;
+  }) {
+    return await db.payments.create({
+      data: {
+        userId: data.userId,
+        amount: data.amount,
+        currency: data.currency,
+        fxRate: data.fxRate,
+        description: data.description || null,
+        status: "CREATED",
+      },
+    });
+  }
+
+  async getPaymentById(id: string) {
+    return await db.payments.findUnique({ where: { id } });
+  }
+}</code></pre>
+
+                <h3>Step 7: Global Error Handler</h3>
+
+                <pre><code>// middleware/errorHandler.ts
+import type { Request, Response, NextFunction } from "express";
+import { AppError } from "../shared/errors";
+import { logger } from "../shared/logger";
+
+export function errorHandler(
+  err: any,
+  req: Request,
+  res: Response,
+  _next: NextFunction
+) {
+  const requestId = (req as any).requestId;
+
+  if (err instanceof AppError) {
+    logger.warn("AppError", {
+      code: err.code,
+      message: err.message,
+      status: err.status,
+      requestId,
+    });
+
+    return res.status(err.status).json({
+      error: {
+        code: err.code,
+        message: err.message,
+      },
+    });
+  }
+
+  // Unexpected error (bug)
+  logger.error("Unexpected error", {
+    message: err.message,
+    stack: err.stack,
+    requestId,
+  });
+
+  return res.status(500).json({
+    error: {
+      code: "INTERNAL_ERROR",
+      message: "Unexpected error occurred",
+    },
+  });
+}</code></pre>
+
+                <h3>Step 8: Entry Point (app.ts)</h3>
+
+                <pre><code>// app.ts
+import express from "express";
+import { v4 as uuidv4 } from "uuid";
+import { errorHandler } from "./middleware/errorHandler";
+import { logger } from "./shared/logger";
+import paymentsRoutes from "./routes/payments.routes";
+
+const app = express();
+
+// Global middlewares (order matters)
+app.use((req, _res, next) => {
+  (req as any).requestId = uuidv4();
+  logger.info("Request started", {
+    method: req.method,
+    path: req.path,
+    requestId: (req as any).requestId,
+  });
+  next();
+});
+
+app.use(express.json());
+
+// Routes
+app.use("/api", paymentsRoutes);
+
+// Error handler (must be last)
+app.use(errorHandler);
+
+export default app;</code></pre>
+
+                <h2>6️⃣ Sequence Diagram (Happy Path + Error)</h2>
+
+                <pre><code>Client → API: POST /payments {amount, currency}
+  ↓
+API → Auth Middleware: Validate token
+  ├─ ✅ Token ok → continue
+  └─ ❌ Token invalid → return 401
+
+API → Authorize Middleware: Check permission
+  ├─ ✅ Has permission → continue
+  └─ ❌ No permission → return 403
+
+API → Validate Middleware: Schema validation
+  ├─ ✅ Valid → continue
+  └─ ❌ Invalid → return 422
+
+API → Controller: Extract data from request
+  ↓
+Controller → Service: createPayment(userId, amount, currency)
+  ↓
+Service → Currency API: getRate(currency)
+  ├─ ✅ Rate ok → continue
+  └─ ❌ API down → return 503
+
+Service → Repository: insertPayment(...)
+  ├─ ✅ Inserted → return paymentId
+  └─ ❌ DB error → return 500
+
+Service → Controller: Return {paymentId, status, ...}
+  ↓
+Controller → Client: 201 Created {paymentId, ...}</code></pre>
+
+                <h2>7️⃣ Senior Checklist</h2>
+
+                <ul>
+                    <li>✅ AuthN and AuthZ separated</li>
+                    <li>✅ Correct HTTP status codes (400 vs 401 vs 403)</li>
+                    <li>✅ Middlewares in order</li>
+                    <li>✅ Controller → Service → Repo separated</li>
+                    <li>✅ Validation with schema (Zod, Joi, Yup)</li>
+                    <li>✅ Global error handler with consistent format</li>
+                    <li>✅ Logging with requestId</li>
+                    <li>✅ Handling external dependencies (currency API, DB)</li>
+                    <li>✅ Idempotency for sensitive operations (payments)</li>
+                    <li>✅ Rate limiting on critical endpoints</li>
+                </ul>
+
+                <h2>8️⃣ One Phrase to Remember</h2>
+
+                <p><strong>"Express is a conveyor belt: middlewares prepare and filter; the controller translates HTTP; the service decides; the repo saves; and the error handler prevents chaos."</strong></p>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='04-rest-apis.html'">← Previous</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../../index.html'">Back to Home →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>
