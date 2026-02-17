@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autenticación con OAuth 2.0 | FullStack</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-oauth">
+                <h1>🔐 4.0 Authentication: Modern OAuth 2.0 + OpenID Connect (OIDC)</h1>
+                <p><strong>Modelo Mental Correcto para SPA (React) + Microservicios</strong></p>
+
+                <h2>0️⃣ Contexto: ¿Por Qué Necesitamos Más Que Basic Auth?</h2>
+
+                <p><strong>Antes:</strong></p>
+
+                <pre><code>Usuario → manda email/password en cada request
+Servidor valida
+Fin.</code></pre>
+
+                <p><strong>Problemas cuando el sistema crece:</strong></p>
+
+                <ul>
+                    <li>❌ No quieres loguearte 10 veces (login federado)</li>
+                    <li>❌ Microservicios → muchos servicios necesitan saber quién eres</li>
+                    <li>❌ Seguridad (no quieres mandar credenciales constantemente)</li>
+                    <li>❌ Necesitas permisos granulares (roles, scopes)</li>
+                    <li>❌ Integraciones externas (Google, Facebook, etc.)</li>
+                </ul>
+
+                <p><strong>Solución moderna:</strong></p>
+
+                <ul>
+                    <li>👉 Delegar autenticación y autorización a un Identity Provider (IdP)</li>
+                    <li>👉 Usar OAuth 2.0 + OpenID Connect</li>
+                </ul>
+
+                <h2>1️⃣ Conceptos Fundamentales (Claves Para No Confundirse)</h2>
+
+                <h3>🔹 OAuth 2.0 ≠ Autenticación</h3>
+
+                <p>OAuth 2.0 es un estándar de autorización delegada.</p>
+
+                <p>Sirve para decir:</p>
+
+                <p><strong>"Permito que esta aplicación acceda a mis recursos".</strong></p>
+
+                <p>Para login (identidad), usamos:</p>
+
+                <h3>🔹 OpenID Connect (OIDC)</h3>
+
+                <p>Es una capa encima de OAuth2 que añade:</p>
+
+                <ul>
+                    <li>ID Token</li>
+                    <li>Claims de usuario</li>
+                    <li>Estándar para login</li>
+                </ul>
+
+                <p><strong>En la práctica:</strong></p>
+
+                <p>Cuando haces "Login with Google" → estás usando OIDC.</p>
+
+                <h2>2️⃣ Actores En Arquitectura Moderna</h2>
+
+                <p><strong>En una arquitectura SPA + microservicios tenemos:</strong></p>
+
+                <ul>
+                    <li>👤 User (Resource Owner)</li>
+                    <li>🖥 SPA (React App)</li>
+                    <li>🔐 Identity Server (Auth0, Okta, Azure AD...)</li>
+                    <li>🔧 Resource Servers (APIs / Microservicios)</li>
+                </ul>
+
+                <p><strong>Flujo general:</strong></p>
+
+                <pre><code>User → SPA → Identity Server → SPA → APIs</code></pre>
+
+                <h2>3️⃣ Autenticación vs Autorización (Muy Importante)</h2>
+
+                <h3>🔐 Autenticación</h3>
+
+                <p><strong>¿Quién eres?</strong></p>
+
+                <p><strong>Ejemplo:</strong></p>
+
+                <ul>
+                    <li>Email + Password</li>
+                    <li>MFA</li>
+                    <li>Login con Google</li>
+                </ul>
+
+                <p><strong>Resultado: ✔ Usuario verificado</strong></p>
+
+                <h3>🛂 Autorización</h3>
+
+                <p><strong>¿Qué puedes hacer?</strong></p>
+
+                <p><strong>Ejemplo:</strong></p>
+
+                <ul>
+                    <li>Puede leer pólizas</li>
+                    <li>No puede borrarlas</li>
+                </ul>
+
+                <p><strong>Resultado: ✔ Tiene permiso o ❌ No tiene permiso</strong></p>
+
+                <h2>4️⃣ Tokens: Qué Son y Para Qué Sirven</h2>
+
+                <p><strong>Cuando el usuario se autentica, recibe tokens.</strong></p>
+
+                <h3>🔹 Access Token</h3>
+
+                <ul>
+                    <li>Se envía a APIs</li>
+                    <li>Representa permisos</li>
+                    <li>Normalmente es JWT</li>
+                </ul>
+
+                <h3>🔹 ID Token (OIDC)</h3>
+
+                <ul>
+                    <li>Contiene identidad del usuario</li>
+                    <li>Se usa en el cliente</li>
+                    <li>No debe usarse en APIs</li>
+                </ul>
+
+                <h3>🔹 Refresh Token</h3>
+
+                <ul>
+                    <li>Sirve para obtener nuevos access tokens</li>
+                    <li>No se envía a APIs</li>
+                </ul>
+
+                <h2>5️⃣ El Flujo Correcto Para SPA (Authorization Code + PKCE)</h2>
+
+                <p><strong>Este es el flujo moderno y seguro para React.</strong></p>
+
+                <h3>Paso 1 – Usuario pulsa "Login"</h3>
+
+                <p>La SPA genera:</p>
+
+                <ul>
+                    <li><code>code_verifier</code> (secreto)</li>
+                    <li><code>code_challenge</code> (hash del verifier)</li>
+                </ul>
+
+                <p>Redirige al Identity Server:</p>
+
+                <pre><code>/authorize
+?client_id=...
+&code_challenge=...
+&scope=openid profile read:policies</code></pre>
+
+                <h3>Paso 2 – Login en Identity Server</h3>
+
+                <p>El usuario:</p>
+
+                <ul>
+                    <li>Introduce credenciales</li>
+                    <li>Hace MFA si es necesario</li>
+                </ul>
+
+                <p><strong>Muy importante:</strong></p>
+
+                <ul>
+                    <li>👉 El login ocurre en el dominio del IdP.</li>
+                    <li>👉 No en tu aplicación.</li>
+                </ul>
+
+                <p>Esto reduce riesgo de phishing.</p>
+
+                <h3>Paso 3 – El IdP Devuelve Authorization Code</h3>
+
+                <p>El usuario es redirigido:</p>
+
+                <pre><code>https://tuapp.com/callback?code=abc123</code></pre>
+
+                <h3>Paso 4 – Intercambio Code → Tokens</h3>
+
+                <p>La SPA llama:</p>
+
+                <pre><code>POST /token
+code=abc123
+code_verifier=original_secret</code></pre>
+
+                <p>El servidor valida que el verifier coincida.</p>
+
+                <p>Si todo es correcto:</p>
+
+                <p><strong>✔ Devuelve:</strong></p>
+
+                <ul>
+                    <li>Access Token</li>
+                    <li>ID Token</li>
+                    <li>(Refresh Token opcional)</li>
+                </ul>
+
+                <h3>¿Por Qué Existe PKCE?</h3>
+
+                <p>Porque una SPA no puede guardar un client secret.</p>
+
+                <p>PKCE protege el authorization code.</p>
+
+                <p><strong>Analogía senior:</strong></p>
+
+                <p>El code es el ticket.<br>
+                El verifier es la contraseña del ticket.<br>
+                Sin la contraseña, no puedes canjearlo.</p>
+
+                <h2>6️⃣ Cómo La SPA Llama a la API</h2>
+
+                <p><strong>Ejemplo de request:</strong></p>
+
+                <pre><code>GET /policies
+Authorization: Bearer eyJhbGciOi...</code></pre>
+
+                <p>La API recibe el token.</p>
+
+                <h2>7️⃣ Qué Hace El Backend (Muy Importante)</h2>
+
+                <p>El backend NO solo comprueba que exista token.</p>
+
+                <p>Debe validar:</p>
+
+                <ul>
+                    <li>✔ Firma (JWKS)</li>
+                    <li>✔ iss (issuer)</li>
+                    <li>✔ aud (audience)</li>
+                    <li>✔ exp (no expirado)</li>
+                    <li>✔ scopes/roles</li>
+                </ul>
+
+                <p><strong>Ejemplo middleware (Node):</strong></p>
+
+                <pre><code>app.use((req, res, next) => {
+  const token = getBearerToken(req);
+  if (!token) return res.sendStatus(401);
+
+  const payload = verifyJwt(token);
+
+  if (!payload.scopes.includes("read:policies")) {
+    return res.sendStatus(403);
+  }
+
+  req.user = payload;
+  next();
+});</code></pre>
+
+                <h2>8️⃣ 401 vs 403 (Clásica Pregunta De Entrevista)</h2>
+
+                <table class="cheat-sheet-table">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Significado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>401</strong></td>
+                            <td>No autenticado (token inválido o ausente)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>403</strong></td>
+                            <td>Autenticado pero sin permisos</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>9️⃣ Dónde Guardar El Token (Decisión Arquitectónica)</h2>
+
+                <h3>❌ localStorage</h3>
+
+                <p>Riesgo: XSS puede robar tokens.</p>
+
+                <h3>⚠ Cookies</h3>
+
+                <p>Necesitas:</p>
+
+                <ul>
+                    <li>HttpOnly</li>
+                    <li>SameSite</li>
+                    <li>CSRF protection</li>
+                </ul>
+
+                <h3>✅ Mejor Práctica Moderna: BFF Pattern</h3>
+
+                <ul>
+                    <li>Browser solo tiene cookie de sesión</li>
+                    <li>Backend gestiona tokens</li>
+                </ul>
+
+                <h2>🔟 Microservicios: Comunicación Entre APIs</h2>
+
+                <p><strong>Para comunicación service-to-service:</strong></p>
+
+                <ul>
+                    <li>👉 Se usa normalmente Client Credentials Flow</li>
+                    <li>No hay usuario</li>
+                    <li>Es máquina a máquina</li>
+                </ul>
+
+                <h2>1️⃣1️⃣ Cómo Debuggear (Muy Práctico)</h2>
+
+                <p><strong>En DevTools → Network:</strong></p>
+
+                <p>Busca:</p>
+
+                <ul>
+                    <li>/authorize</li>
+                    <li>/token</li>
+                    <li>Header Authorization</li>
+                    <li>Redirecciones 302</li>
+                    <li>Cookies</li>
+                </ul>
+
+                <p><strong>Decodifica el JWT en:</strong></p>
+
+                <p><code>https://jwt.io</code></p>
+
+                <p>Verifica:</p>
+
+                <ul>
+                    <li>sub</li>
+                    <li>scope</li>
+                    <li>aud</li>
+                    <li>exp</li>
+                </ul>
+
+                <h2>1️⃣2️⃣ Seguridad Real (Lo Que Un Senior Siempre Piensa)</h2>
+
+                <p>OAuth no te salva si:</p>
+
+                <ul>
+                    <li>Tienes XSS</li>
+                    <li>Tienes CSP mal configurado</li>
+                    <li>No validas tokens correctamente</li>
+                    <li>Confías en el ID token para APIs</li>
+                </ul>
+
+                <h2>1️⃣3️⃣ Checklist Final</h2>
+
+                <ul>
+                    <li>✅ Uso Authorization Code + PKCE</li>
+                    <li>✅ Diferencio OAuth2 vs OIDC</li>
+                    <li>✅ Entiendo ID vs Access Token</li>
+                    <li>✅ Backend valida firma y claims</li>
+                    <li>✅ Uso 401 vs 403 correctamente</li>
+                    <li>✅ Sé explicar PKCE</li>
+                    <li>✅ Sé debuggear el flujo</li>
+                </ul>
+
+                <h2>1️⃣4️⃣ Preguntas Típicas De Entrevista</h2>
+
+                <h3>1) ¿OAuth2 es autenticación?</h3>
+
+                <p>No. Es autorización. Para login usamos OIDC.</p>
+
+                <h3>2) ¿Por qué PKCE?</h3>
+
+                <p>Porque las SPA no pueden guardar secretos. PKCE protege el code.</p>
+
+                <h3>3) ¿Cómo valida una API un JWT?</h3>
+
+                <p>Verifica firma con JWKS y claims (iss, aud, exp).</p>
+
+                <h3>4) ¿Diferencia entre ID Token y Access Token?</h3>
+
+                <p>ID Token = identidad del usuario.<br>
+                Access Token = permisos para APIs.</p>
+
+                <h3>5) ¿Dónde guardar tokens?</h3>
+
+                <p>Depende del threat model. Mejor práctica: BFF o memoria + protección XSS.</p>
+
+                <h2>1️⃣5️⃣ Mental Model Final</h2>
+
+                <ul>
+                    <li>El usuario nunca da su password a tu app.</li>
+                    <li>Tu app nunca valida credenciales.</li>
+                    <li>El Identity Server es el único que autentica.</li>
+                    <li>Las APIs solo confían en tokens firmados.</li>
+                    <li>Autenticación y autorización son cosas distintas.</li>
+                </ul>
+
+                <h2>1️⃣6️⃣ Una Frase Para Recordar</h2>
+
+                <p><strong>\"OAuth no es autenticación, es autorización. Para login, usa OIDC. Las SPA nunca deben guardar credenciales, solo tokens. El Identity Server es el único juez de identidad.\"</strong></p>
+
+                <h2>1️⃣7️⃣ Referencias y Recursos</h2>
+
+                <p><strong>Para profundizar más:</strong></p>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/6994eae7-3040-8393-85bb-3d3e5f4a9d1d" target="_blank">Dragos - Advanced OAuth 2.0 & Security Patterns</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='09-1-n-plus-one.html'">← Anterior</button>
+                    <button class="btn btn-primary" onclick="window.location.href='11-sql-injection.html'">Siguiente: SQL Injection →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

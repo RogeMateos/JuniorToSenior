@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphQL: El Problema N+1 | FullStack</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-n-plus-one">
+                <h1>🔁 3.1 GraphQL: El Problema N+1 (Pregunta de Entrevista)</h1>
+                <p><strong>De Junior a Senior – Cómo Identificar y Resolver el Patrón N+1 en GraphQL</strong></p>
+
+                <h2>0️⃣ ¿Por Qué Esta Pregunta Es Importante?</h2>
+
+                <p>Si alguna vez respondiste "¿N+1? No sé qué es eso" en una entrevista de backend:</p>
+
+                <p><strong>🚨 Eso fue un momento de riesgo.</strong></p>
+
+                <p>El N+1 problem es una pregunta clásica que separa juniors de seniors en GraphQL.</p>
+
+                <p><strong>Si conoces este problema, demuestras que piensas en rendimiento desde el diseño.</strong></p>
+
+                <h2>1️⃣ La Historia Real</h2>
+
+                <p>Un desarrollador junior construye su primera mutación GraphQL:</p>
+
+                <pre><code>type Movie {
+  id: ID!
+  title: String!
+  reviews: [Review!]!
+}
+
+type Review {
+  id: ID!
+  rating: Int!
+  comment: String!
+}</code></pre>
+
+                <p>El resolver de Movie.reviews es simple:</p>
+
+                <pre><code>const resolveMovieReviews = async (movie) => {
+  return db.query(`SELECT * FROM reviews WHERE movie_id = ?`, [movie.id])
+}</code></pre>
+
+                <p>El frontend hace una query así:</p>
+
+                <pre><code>query {
+  movies {
+    id
+    title
+    reviews {
+      id
+      rating
+    }
+  }
+}</code></pre>
+
+                <p><strong>¿Cuántas queries SQL se ejecutan?</strong></p>
+
+                <h2>2️⃣ El Problema Explicado</h2>
+
+                <p><strong>Si hay 10 películas:</strong></p>
+
+                <pre><code>1 query: SELECT * FROM movies
+→ 10 resultados
+
+Para cada película ejecutas el resolver:
+10 queries: SELECT * FROM reviews WHERE movie_id = 1
+10 queries: SELECT * FROM reviews WHERE movie_id = 2
+...
+10 queries: SELECT * FROM reviews WHERE movie_id = 10
+
+Total: 1 + 10 = 11 queries</code></pre>
+
+                <p><strong>Con 1000 películas:</strong></p>
+
+                <pre><code>1 + 1000 = 1001 queries ❌</code></pre>
+
+                <p><strong>Eso es el N+1 problem.</strong></p>
+
+                <p>1 query inicial + N queries por cada resultado.</p>
+
+                <h2>3️⃣ ¿Por Qué Sucede?</h2>
+
+                <p>GraphQL ejecuta resolvers de forma:</p>
+
+                <ul>
+                    <li>Secuencial: Un campo a la vez</li>
+                    <li>Sin contexto: El resolver no sabe que se ejecutará 1000 veces</li>
+                    <li>Ingenuo: Cada resolver hace su propia query</li>
+                </ul>
+
+                <p><strong>El resolver no tiene visibilidad de:</strong></p>
+
+                <pre><code>"Voy a ser llamado 1000 veces. Mejor batch mis queries."</code></pre>
+
+                <h2>4️⃣ Demostración Práctica</h2>
+
+                <p><strong>Código que genera N+1:</strong></p>
+
+                <pre><code>// 🔴 MALO - N+1 Problem
+const resolvers = {
+  Query: {
+    movies: async () => {
+      return db.query(`SELECT * FROM movies`)
+    }
+  },
+  Movie: {
+    reviews: async (movie) => {
+      // Esta función se llama por CADA película
+      // Si hay 100 películas = 100 queries individuales
+      return db.query(`SELECT * FROM reviews WHERE movie_id = ?`, [movie.id])
+    }
+  }
+}</code></pre>
+
+                <p><strong>Resultado en logs:</strong></p>
+
+                <pre><code>Query: SELECT * FROM movies
+Query: SELECT * FROM reviews WHERE movie_id = 1
+Query: SELECT * FROM reviews WHERE movie_id = 2
+Query: SELECT * FROM reviews WHERE movie_id = 3
+...
+Query: SELECT * FROM reviews WHERE movie_id = 100
+
+Total: 101 queries en una sola request GraphQL 💥</code></pre>
+
+                <h2>5️⃣ Solución 1: DataLoader (La Más Profesional)</h2>
+
+                <p><strong>DataLoader es una librería que batches queries automáticamente.</strong></p>
+
+                <p><strong>¿Cómo funciona?</strong></p>
+
+                <pre><code>1. Recolecta todas las IDs que necesitan ser resueltas
+2. Espera a que termine la ejecución actual
+3. Las agrupa en una sola query
+4. Devuelve los resultados en el orden correcto</code></pre>
+
+                <p><strong>Código profesional:</strong></p>
+
+                <pre><code>import DataLoader from 'dataloader'
+
+// Loader que batches reviews por película
+const reviewLoader = new DataLoader(async (movieIds) => {
+  // movieIds = [1, 2, 3, 4, 5]
+  const reviews = await db.query(
+    `SELECT * FROM reviews WHERE movie_id IN (?)`,
+    [movieIds]
+  )
+
+  // Organiza en grupos por película
+  const grouped = {}
+  reviews.forEach(review => {
+    if (!grouped[review.movie_id]) {
+      grouped[review.movie_id] = []
+    }
+    grouped[review.movie_id].push(review)
+  })
+
+  // Retorna en el mismo orden que recibió
+  return movieIds.map(id => grouped[id] || [])
+})
+
+const resolvers = {
+  Query: {
+    movies: async () => {
+      return db.query(`SELECT * FROM movies`)
+    }
+  },
+  Movie: {
+    reviews: async (movie, _, context) => {
+      // En vez de hacer query, usas el loader
+      return context.reviewLoader.load(movie.id)
+    }
+  }
+}</code></pre>
+
+                <p><strong>Resultado:</strong></p>
+
+                <pre><code>Query: SELECT * FROM movies
+Query: SELECT * FROM reviews WHERE movie_id IN (1, 2, 3, 4, 5)
+
+Total: 2 queries en una sola request GraphQL ✅</code></pre>
+
+                <p><strong>Métrica:</strong></p>
+
+                <ul>
+                    <li>❌ Sin DataLoader: 101 queries</li>
+                    <li>✅ Con DataLoader: 2 queries</li>
+                </ul>
+
+                <h2>6️⃣ Solución 2: Query por Batch (Si No Tienes DataLoader)</h2>
+
+                <p><strong>Cargar todos los datos de una vez en el resolver padre.</strong></p>
+
+                <pre><code>const resolvers = {
+  Query: {
+    movies: async () => {
+      const movies = await db.query(`SELECT * FROM movies`)
+
+      // En el MISMO resolver, traes todos los reviews
+      const allReviews = await db.query(
+        `SELECT * FROM reviews WHERE movie_id IN (?)`,
+        [movies.map(m => m.id)]
+      )
+
+      // Mapeas los reviews a cada película
+      movies.forEach(movie => {
+        movie.reviews = allReviews.filter(r => r.movie_id === movie.id)
+      })
+
+      return movies
+    }
+  }
+}</code></pre>
+
+                <p><strong>Resulta en:</strong></p>
+
+                <pre><code>Query: SELECT * FROM movies
+Query: SELECT * FROM reviews WHERE movie_id IN (1, 2, 3, 4, 5)
+
+Total: 2 queries ✅</code></pre>
+
+                <p><strong>Ventaja:</strong> Es simple.</p>
+
+                <p><strong>Desventaja:</strong> No es escalable si tienes múltiples niveles de anidación.</p>
+
+                <h2>7️⃣ Solución 3: GraphQL Field Selection (Junior Solution)</h2>
+
+                <p><strong>Evitar que el cliente pida campos anidados caros.</strong></p>
+
+                <pre><code>const resolvers = {
+  Query: {
+    movies: async (_, __, ___, info) => {
+      // info.fieldNodes te da acceso a la query original
+      const requestedFields = info.fieldNodes[0].selectionSet.selections
+        .map(s => s.name.value)
+
+      if (requestedFields.includes('reviews')) {
+        // El cliente pidió reviews
+        // Usa DataLoader o batch
+      } else {
+        // El cliente no pidió reviews
+        // Solo devuelve movies sin reviews
+      }
+    }
+  }
+}</code></pre>
+
+                <p><strong>Ventaja:</strong> Optimiza basado en lo que pidió el cliente.</p>
+
+                <p><strong>Desventaja:</strong> Es más complejo y no es universal.</p>
+
+                <h2>8️⃣ Comparación De Soluciones</h2>
+
+                <table class="cheat-sheet-table">
+                    <thead>
+                        <tr>
+                            <th>Solución</th>
+                            <th>Queries</th>
+                            <th>Complejidad</th>
+                            <th>Escalabilidad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Sin Optimizar</strong></td>
+                            <td>1 + N</td>
+                            <td>Muy simple</td>
+                            <td>❌ Mala</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Batch Query</strong></td>
+                            <td>2</td>
+                            <td>Simple</td>
+                            <td>✅ Buena</td>
+                        </tr>
+                        <tr>
+                            <td><strong>DataLoader</strong></td>
+                            <td>2</td>
+                            <td>Media</td>
+                            <td>✅ Excelente</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Field Selection</strong></td>
+                            <td>Depende</td>
+                            <td>Muy compleja</td>
+                            <td>✅ Muy buena</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>9️⃣ El Problema N+1 En Múltiples Niveles</h2>
+
+                <p><strong>¿Y si tienes 3 niveles de anidación?</strong></p>
+
+                <pre><code>query {
+  movies {           // 1 query
+    reviews {        // N queries
+      author {       // N * M queries
+        posts {      // N * M * K queries
+          comments   // N * M * K * L queries
+        }
+      }
+    }
+  }
+}</code></pre>
+
+                <p><strong>Esto explota exponencialmente sin DataLoader.</strong></p>
+
+                <p><strong>Con DataLoader:</strong></p>
+
+                <pre><code>query {
+  movies {           // 1 query
+    reviews {        // 2 queries (batched)
+      author {       // 3 queries (batched)
+        posts {      // 4 queries (batched)
+          comments   // 5 queries (batched)
+        }
+      }
+    }
+  }
+}</code></pre>
+
+                <p><strong>Resultado: 5 queries en lugar de millones. 🎯</strong></p>
+
+                <h2>🔟 La Pregunta De Entrevista Esperada</h2>
+
+                <p><strong>Entrevistador:</strong></p>
+
+                <p>"Tengo este resolver que devuelve películas con reviews. ¿Hay algún problema?"</p>
+
+                <p><strong>Respuesta Junior (❌):</strong></p>
+
+                <p>"No, se ve bien. Devuelve los datos que pide el cliente."</p>
+
+                <p><strong>Respuesta Senior (✅):</strong></p>
+
+                <p>"Sí, hay un N+1 problem. Si hay 100 películas, haremos 1 query inicial + 100 queries para reviews = 101 queries total. La solución es usar DataLoader para agrupar las queries en lotes."</p>
+
+                <h2>1️⃣1️⃣ Código de Producción Profesional</h2>
+
+                <pre><code>import DataLoader from 'dataloader'
+import { getRepository } from 'typeorm'
+
+// Contexto GraphQL que se crea en cada request
+export const createGraphQLContext = () => {
+  return {
+    reviewLoader: new DataLoader(async (movieIds) => {
+      const reviews = await getRepository(Review).find({
+        where: { movieId: In(movieIds) }
+      })
+
+      const grouped = new Map()
+      reviews.forEach(review => {
+        if (!grouped.has(review.movieId)) {
+          grouped.set(review.movieId, [])
+        }
+        grouped.get(review.movieId).push(review)
+      })
+
+      return movieIds.map(id => grouped.get(id) || [])
+    }),
+
+    authorLoader: new DataLoader(async (reviewIds) => {
+      const authors = await getRepository(Author).find({
+        where: { reviewId: In(reviewIds) }
+      })
+
+      const grouped = new Map()
+      authors.forEach(author => {
+        grouped.set(author.reviewId, author)
+      })
+
+      return reviewIds.map(id => grouped.get(id) || null)
+    })
+  }
+}
+
+// Resolvers
+export const resolvers = {
+  Query: {
+    movies: async () => {
+      return getRepository(Movie).find()
+    }
+  },
+  Movie: {
+    reviews: async (movie, _, context) => {
+      return context.reviewLoader.load(movie.id)
+    }
+  },
+  Review: {
+    author: async (review, _, context) => {
+      return context.authorLoader.load(review.id)
+    }
+  }
+}</code></pre>
+
+                <h2>1️⃣2️⃣ Red Flags Que Un Senior Ve</h2>
+
+                <p><strong>Si ves un resolver que:</strong></p>
+
+                <ul>
+                    <li>❌ Hace una query por cada item iterado</li>
+                    <li>❌ No usa DataLoader en anidaciones</li>
+                    <li>❌ Tiene múltiples niveles sin batching</li>
+                    <li>❌ No cachea resultados</li>
+                </ul>
+
+                <p><strong>Eso es código junior que va a quemar la base de datos en producción.</strong></p>
+
+                <h2>1️⃣3️⃣ Checklist Para Entrevista</h2>
+
+                <ul>
+                    <li>✅ Puedo explicar qué es N+1</li>
+                    <li>✅ Puedo dar un ejemplo práctico</li>
+                    <li>✅ Conozco DataLoader como solución</li>
+                    <li>✅ Entiendo batching</li>
+                    <li>✅ Sé cuándo aplica (en GraphQL y también en ORMs)</li>
+                    <li>✅ Puedo escribir código que lo prevenga</li>
+                    <li>✅ Sé por qué es importante para rendimiento</li>
+                </ul>
+
+                <h2>1️⃣4️⃣ Una Frase Para Recordar</h2>
+
+                <p><strong>\"El N+1 problem es cuando haces 1 query inicial + 1 query por cada resultado. DataLoader agrupa esas N queries en lotes. Sin esto, GraphQL puede ser más lento que REST.\"</strong></p>
+
+                <h2>📚 Referencias y Recursos</h2>
+
+                <p><strong>Para profundizar más:</strong></p>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/6994e976-9860-8387-95fd-32c96440489b" target="_blank">Dragos - The N+1 Problem: DataLoader & Batching Solutions</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='09-rest-to-graphql.html'">← Anterior</button>
+                    <button class="btn btn-primary" onclick="window.location.href='10-authentication-oauth.html'">Siguiente: OAuth 2.0 + OIDC →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

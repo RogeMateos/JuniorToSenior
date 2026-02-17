@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>From REST to GraphQL | FullStack</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-graphql">
+                <h1>3.0 From REST to GraphQL</h1>
+                <p><strong>Understanding the why, not just the what – How and when to evolve your APIs</strong></p>
+
+                <h2>0️⃣ Context: How We Got Here</h2>
+
+                <p>For years, REST has been (and still is) the standard way to expose APIs:</p>
+
+                <pre><code>GET /movies
+GET /movies/:id
+GET /movies/:id/reviews
+POST /movies</code></pre>
+
+                <p><strong>REST mental model:</strong></p>
+                <ul>
+                    <li>Each URL represents a resource</li>
+                    <li>Server decides the shape of data</li>
+                    <li>Client only chooses which endpoint to call</li>
+                </ul>
+
+                <p><strong>This works great when:</strong></p>
+                <ul>
+                    <li>Domain is simple</li>
+                    <li>Data isn't deeply nested</li>
+                    <li>Few types of clients</li>
+                </ul>
+
+                <p><strong>But when clients start growing (web + mobile + tablet + smartwatch…) real problems appear.</strong></p>
+
+                <h2>1️⃣ The Two Classic REST Problems</h2>
+
+                <h3>🔴 1. Overfetching</h3>
+
+                <p><strong>You receive more data than you need.</strong></p>
+
+                <p><strong>Example:</strong></p>
+
+                <pre><code>GET /movies</code></pre>
+
+                <p><strong>Response:</strong></p>
+
+                <pre><code>{
+  "id": 1,
+  "title": "Inception",
+  "overview": "...",
+  "revenue": 800000000,
+  "spokenLanguages": [...],
+  "productionCompanies": [...]
+}</code></pre>
+
+                <p><strong>But in your Home view you only wanted:</strong></p>
+
+                <pre><code>{
+  "id": 1,
+  "title": "Inception"
+}</code></pre>
+
+                <p><strong>⚠️ Problems:</strong></p>
+                <ul>
+                    <li>More bytes</li>
+                    <li>More network consumption</li>
+                    <li>Worse performance on mobile</li>
+                    <li>Unnecessary work on client</li>
+                </ul>
+
+                <h3>🔴 2. Underfetching</h3>
+
+                <p><strong>You need multiple requests to paint a single view.</strong></p>
+
+                <p><strong>Example detail view:</strong></p>
+
+                <pre><code>GET /movies/1
+GET /movies/1/reviews
+GET /reviews/10
+GET /reviews/11
+...</code></pre>
+
+                <p><strong>Now you have:</strong></p>
+                <ul>
+                    <li>5–10 requests</li>
+                    <li>More latency</li>
+                    <li>More points of failure</li>
+                    <li>More complexity in frontend</li>
+                </ul>
+
+                <h2>2️⃣ Could REST Solve It?</h2>
+
+                <p><strong>Yes, but with costs.</strong></p>
+
+                <p>You can:</p>
+                <ul>
+                    <li>Add query params (<code>?fields=id,title</code>)</li>
+                    <li>Add <code>?include=reviews</code></li>
+                    <li>Create view-specific endpoints</li>
+                    <li>Create a BFF (Backend for Frontend)</li>
+                </ul>
+
+                <p><strong>But this starts to generate:</strong></p>
+                <ul>
+                    <li>Endpoints coupled to views</li>
+                    <li>Logic duplication</li>
+                    <li>Hard-to-maintain APIs</li>
+                </ul>
+
+                <p><strong>This is where GraphQL is born.</strong></p>
+
+                <h2>3️⃣ What Changes With GraphQL?</h2>
+
+                <p><strong>GraphQL changes the question from:</strong></p>
+
+                <p>"What resource do you want?"</p>
+
+                <p><strong>to</strong></p>
+
+                <p>"What shape of data do you need?"</p>
+
+                <p><strong>Instead of multiple endpoints:</strong></p>
+
+                <pre><code>/movies
+/movies/:id
+/movies/:id/reviews</code></pre>
+
+                <p><strong>You have just one:</strong></p>
+
+                <pre><code>POST /graphql</code></pre>
+
+                <p><strong>And the client defines the exact shape of the response.</strong></p>
+
+                <h2>4️⃣ Practical Comparison</h2>
+
+                <h3>🎬 Home View (title only)</h3>
+
+                <p><strong>REST:</strong></p>
+
+                <pre><code>GET /movies</code></pre>
+
+                <p>You get everything.</p>
+
+                <p><strong>GraphQL:</strong></p>
+
+                <pre><code>query {
+  movies {
+    id
+    title
+  }
+}</code></pre>
+
+                <p>You get exactly that:</p>
+
+                <pre><code>{
+  "data": {
+    "movies": [
+      { "id": 1, "title": "Inception" }
+    ]
+  }
+}</code></pre>
+
+                <h3>🎬 Detail View (nested data)</h3>
+
+                <pre><code>query MovieDetail($id: ID!) {
+  movie(id: $id) {
+    id
+    title
+    releaseDate
+    spokenLanguages {
+      id
+      iso
+    }
+    reviews {
+      id
+      rating
+      comment
+    }
+  }
+}</code></pre>
+
+                <p><strong>All in a single request.</strong></p>
+
+                <h2>5️⃣ Internal Mental Model of GraphQL</h2>
+
+                <p><strong>A junior must understand this:</strong></p>
+
+                <p>GraphQL has:</p>
+                <ul>
+                    <li>🧱 Schema (strongly typed)</li>
+                    <li>🌳 Execution tree</li>
+                    <li>🔧 Resolvers</li>
+                </ul>
+
+                <p><strong>Simplified flow:</strong></p>
+
+                <pre><code>Client sends Query
+        ↓
+GraphQL converts it to a tree
+        ↓
+Each field is resolved with a resolver
+        ↓
+Single JSON is built</code></pre>
+
+                <p><strong>Each field can have its own function to resolve data.</strong></p>
+
+                <h2>6️⃣ Real Advantages of GraphQL</h2>
+
+                <ul>
+                    <li>✅ Client controls data shape</li>
+                    <li>✅ Reduces roundtrips</li>
+                    <li>✅ Strongly typed (like TypeScript for APIs)</li>
+                    <li>✅ Excellent tooling (introspection, playground)</li>
+                    <li>✅ Perfect for complex UIs</li>
+                </ul>
+
+                <h2>7️⃣ But Now Comes the Senior Part ⚠️</h2>
+
+                <p><strong>GraphQL is NOT magic. It has trade-offs.</strong></p>
+
+                <h3>⚠️ 1. More Backend Complexity</h3>
+
+                <p><strong>In REST:</strong></p>
+
+                <pre><code>One endpoint → one SQL query</code></pre>
+
+                <p><strong>In GraphQL:</strong></p>
+
+                <pre><code>One query → multiple resolvers
+Possible N+1 problem</code></pre>
+
+                <p><strong>Example of N+1 problem:</strong></p>
+
+                <pre><code>movies {
+  id
+  reviews {
+    id
+  }
+}</code></pre>
+
+                <p>If you have 10 movies:</p>
+                <ul>
+                    <li>1 query for movies</li>
+                    <li>10 queries for reviews</li>
+                </ul>
+
+                <p><strong>Solution:</strong></p>
+                <ul>
+                    <li>DataLoader</li>
+                    <li>Batching</li>
+                    <li>Resolver optimization</li>
+                </ul>
+
+                <h3>⚠️ 2. Caching is More Complex</h3>
+
+                <p><strong>REST:</strong></p>
+
+                <pre><code>GET /movies/1
+→ Cacheable by URL</code></pre>
+
+                <p><strong>GraphQL:</strong></p>
+
+                <pre><code>POST /graphql
+→ Not directly cacheable by CDN</code></pre>
+
+                <p><strong>You need:</strong></p>
+                <ul>
+                    <li>Persisted queries</li>
+                    <li>Client-side caching (Apollo)</li>
+                    <li>Custom strategies</li>
+                </ul>
+
+                <h3>⚠️ 3. Security</h3>
+
+                <p><strong>Client can request:</strong></p>
+
+                <pre><code>movie {
+  reviews {
+    author {
+      posts {
+        comments {
+          ...
+}</code></pre>
+
+                <p><strong>Deep query → expensive</strong></p>
+
+                <p><strong>You need:</strong></p>
+                <ul>
+                    <li>Depth limits</li>
+                    <li>Complexity limits</li>
+                    <li>Rate limiting</li>
+                </ul>
+
+                <h3>⚠️ 4. Larger Learning Curve</h3>
+
+                <ul>
+                    <li>Schema design</li>
+                    <li>Resolver strategy</li>
+                    <li>Performance tuning</li>
+                    <li>Different testing</li>
+                </ul>
+
+                <h2>8️⃣ When to Use REST vs GraphQL</h2>
+
+                <h3>✅ REST is Good For:</h3>
+
+                <ul>
+                    <li>Simple APIs</li>
+                    <li>Flat domain</li>
+                    <li>Internal microservice</li>
+                    <li>Good HTTP caching use</li>
+                    <li>External integrations</li>
+                </ul>
+
+                <h3>✅ GraphQL is Good For:</h3>
+
+                <ul>
+                    <li>Complex UI</li>
+                    <li>Many client types</li>
+                    <li>Highly related data</li>
+                    <li>Multiple views reusing data differently</li>
+                    <li>Mobile-first</li>
+                </ul>
+
+                <h2>9️⃣ Key Concepts You Must Remember</h2>
+
+                <table class="cheat-sheet-table">
+                    <thead>
+                        <tr>
+                            <th>Concept</th>
+                            <th>What It Is</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Overfetching</strong></td>
+                            <td>Receiving more data than needed</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Underfetching</strong></td>
+                            <td>Need multiple requests</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Schema</strong></td>
+                            <td>Type definition in GraphQL</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Resolver</strong></td>
+                            <td>Function that resolves a field</td>
+                        </tr>
+                        <tr>
+                            <td><strong>N+1 Problem</strong></td>
+                            <td>1 query + N queries per result</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Query vs Mutation</strong></td>
+                            <td>Query = read, Mutation = write</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Caching Strategy</strong></td>
+                            <td>How to cache GraphQL responses</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Query Complexity</strong></td>
+                            <td>Limit complexity to prevent abuse</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>🔟 Conclusion (Mature Vision)</h2>
+
+                <p><strong>GraphQL does not replace REST.</strong></p>
+
+                <p><strong>GraphQL changes who controls the data shape.</strong></p>
+
+                <p><strong>REST:</strong></p>
+
+                <p>Server designs the response.</p>
+
+                <p><strong>GraphQL:</strong></p>
+
+                <p>Client designs the response.</p>
+
+                <p><strong>Both are tools. The key is choosing based on context, not on trend.</strong></p>
+
+                <h2>1️⃣1️⃣ Senior Checklist</h2>
+
+                <ul>
+                    <li>✅ I understand why both paradigms exist</li>
+                    <li>✅ I recognize overfetching and underfetching in REST</li>
+                    <li>✅ I know when to use each based on context</li>
+                    <li>✅ I know the N+1 problem in GraphQL</li>
+                    <li>✅ I understand caching implications</li>
+                    <li>✅ I consider security in both</li>
+                    <li>✅ I can explain resolvers correctly</li>
+                    <li>✅ I know it's not a competition but a choice</li>
+                </ul>
+
+                <h2>1️⃣2️⃣ One Phrase to Remember</h2>
+
+                <p><strong>"REST and GraphQL are not enemies. REST serves simple architectures. GraphQL serves complex architectures. Choose based on your problem, not on trend."</strong></p>
+
+                <h2>📚 References and Resources</h2>
+
+                <p><strong>To learn more:</strong></p>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/6994e74c-6864-8392-ac17-33b064066cd7" target="_blank">Dragos - From REST to GraphQL: Architecture Decisions</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='08-1-migrations.html'">← Previous</button>
+                    <button class="btn btn-primary" onclick="window.location.href='09-1-n-plus-one.html'">Next: The n+1 Problem →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

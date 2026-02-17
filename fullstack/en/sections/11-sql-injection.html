@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Injection | FullStack</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-sql-injection">
+                <h1>🔓 5.1 Security: SQL Injection (From Zero to Interview Level)</h1>
+                <p><strong>How to Identify, Prevent, and Defend Against the Most Classic Attack</strong></p>
+
+                <h2>0️⃣ Context: Why Do You Need to Understand This?</h2>
+
+                <p>As a fullstack developer, you don't need to be a cybersecurity expert, but you must know the most common vulnerabilities.</p>
+
+                <p>SQL Injection is one of the most classic and still appears when:</p>
+
+                <ul>
+                    <li>Queries are built with string interpolation</li>
+                    <li>Dynamic SQL is used carelessly</li>
+                    <li>Raw queries are written in ORMs</li>
+                    <li>There is legacy code</li>
+                </ul>
+
+                <p><strong>It's in the OWASP Top 10 – Injection.</strong></p>
+
+                <h2>1️⃣ What Is SQL Injection (Mental Model)</h2>
+
+                <p>SQL Injection occurs when:</p>
+
+                <p><strong>User input becomes part of the executed SQL code.</strong></p>
+
+                <p>This happens when we do something like this:</p>
+
+                <pre><code>const sql = `SELECT * FROM users WHERE username = '${username}'`;</code></pre>
+
+                <p>Here we're mixing SQL code + user input.</p>
+
+                <p>If the user enters something unexpected… the SQL engine interprets it as code.</p>
+
+                <h2>2️⃣ Vulnerable Example Step by Step</h2>
+
+                <p><strong>Suppose this endpoint:</strong></p>
+
+                <pre><code>app.get("/user", async (req, res) => {
+  const username = req.query.username;
+
+  const sql = `SELECT id, username FROM users WHERE username = '${username}'`;
+
+  const result = await client.query(sql);
+  res.json(result.rows);
+});</code></pre>
+
+                <h3>🔎 Normal Case</h3>
+
+                <p>If we call:</p>
+
+                <pre><code>/user?username=bob</code></pre>
+
+                <p>Executes:</p>
+
+                <pre><code>SELECT id, username FROM users WHERE username = 'bob';</code></pre>
+
+                <p><strong>All good.</strong></p>
+
+                <h2>3️⃣ Attack 1: Simple Bypass (OR 1=1)</h2>
+
+                <p>Now the attacker sends:</p>
+
+                <pre><code>/user?username=bob' OR '1'='1</code></pre>
+
+                <p>The generated query would be:</p>
+
+                <pre><code>SELECT id, username FROM users
+WHERE username = 'bob' OR '1'='1';</code></pre>
+
+                <p><strong>👉 '1'='1' is always true.</strong></p>
+
+                <p><strong>Result: returns all users.</strong></p>
+
+                <h3>⚠️ Impact:</h3>
+
+                <ul>
+                    <li>Data exposure</li>
+                    <li>User enumeration</li>
+                </ul>
+
+                <h2>4️⃣ Attack 2: Destruction (DROP TABLE)</h2>
+
+                <p>If configuration allows multiple statements:</p>
+
+                <p><strong>Attacker input:</strong></p>
+
+                <pre><code>bob'; DROP TABLE users; --</code></pre>
+
+                <p><strong>Resulting query:</strong></p>
+
+                <pre><code>SELECT id FROM users WHERE username = 'bob';
+DROP TABLE users; --';</code></pre>
+
+                <p>If the DB user has permissions… 💥 table deleted.</p>
+
+                <h3>⚠️ Impact:</h3>
+
+                <ul>
+                    <li>Data loss</li>
+                    <li>Service down</li>
+                    <li>Legal problems</li>
+                </ul>
+
+                <h2>5️⃣ Why Does This Happen?</h2>
+
+                <p>Because SQL doesn't know what part is "data" and what part is "code".</p>
+
+                <p>When you concatenate strings:</p>
+
+                <pre><code>`... '${username}'`</code></pre>
+
+                <p>Everything becomes a single string that the SQL parser interprets.</p>
+
+                <h2>6️⃣ The Correct Solution: Parameterized Queries</h2>
+
+                <p><strong>Never concatenate user input.</strong></p>
+
+                <p><strong>Do this:</strong></p>
+
+                <pre><code>app.get("/user", async (req, res) => {
+  const username = req.query.username;
+
+  const sql = `SELECT id, username FROM users WHERE username = $1`;
+
+  const result = await client.query(sql, [username]);
+
+  res.json(result.rows);
+});</code></pre>
+
+                <h3>🔎 What Changes?</h3>
+
+                <ul>
+                    <li><code>$1</code> is a placeholder</li>
+                    <li><code>[username]</code> is sent as a separate value</li>
+                    <li>PostgreSQL treats input as literal data, not code</li>
+                </ul>
+
+                <p>Even if the attacker sends:</p>
+
+                <pre><code>bob'; DROP TABLE users; --</code></pre>
+
+                <p>It's interpreted as text, not as executable SQL.</p>
+
+                <h2>7️⃣ What Happens Internally (Important for Interview)</h2>
+
+                <p>The engine:</p>
+
+                <ul>
+                    <li>Compiles the statement</li>
+                    <li>Then inserts parameters as values</li>
+                    <li>Doesn't re-parse as SQL</li>
+                </ul>
+
+                <p><strong>👉 Strict separation between code and data.</strong></p>
+
+                <h2>8️⃣ Dangerous Special Case: Dynamic ORDER BY</h2>
+
+                <p>This is a very common error even in serious projects.</p>
+
+                <pre><code>const sort = req.query.sort;
+const sql = `SELECT * FROM users ORDER BY ${sort}`;</code></pre>
+
+                <p>Here you can't use $1 for columns.</p>
+
+                <p>If user sends:</p>
+
+                <pre><code>username; DROP TABLE users;</code></pre>
+
+                <p>💥 Problem.</p>
+
+                <h3>✅ Solution: Whitelist</h3>
+
+                <pre><code>const allowedColumns = ["username", "created_at"];
+
+const sort = allowedColumns.includes(req.query.sort)
+  ? req.query.sort
+  : "created_at";
+
+const sql = `SELECT * FROM users ORDER BY ${sort}`;</code></pre>
+
+                <p><strong>Never interpolate columns without whitelist.</strong></p>
+
+                <h2>9️⃣ ORM: Does It Protect Me?</h2>
+
+                <p><strong>Yes… but with caveats.</strong></p>
+
+                <p>TypeORM, Prisma, Sequelize parameterize by default.</p>
+
+                <p><strong>⚠️ But if you do raw queries like this:</strong></p>
+
+                <pre><code>await prisma.$queryRawUnsafe(
+  `SELECT * FROM users WHERE username = '${username}'`
+);</code></pre>
+
+                <p>You're vulnerable again.</p>
+
+                <p><strong>👉 ORM helps, but it's not magic.</strong></p>
+
+                <h2>🔟 Defense in Depth (Senior Level)</h2>
+
+                <p>Besides parameterizing:</p>
+
+                <h3>✔ Principle of Least Privilege</h3>
+
+                <p>The database user:</p>
+
+                <ul>
+                    <li>❌ Should not be able to DROP</li>
+                    <li>❌ Should not be superuser</li>
+                    <li>✔ Only SELECT/INSERT/UPDATE needed</li>
+                </ul>
+
+                <h3>✔ Input Validation</h3>
+
+                <p>Not as primary defense, but as reinforcement:</p>
+
+                <pre><code>if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+  return res.status(400).send("Invalid username");
+}</code></pre>
+
+                <h3>✔ Don't Expose SQL Errors to Client</h3>
+
+                <p><strong>❌ Never return:</strong></p>
+
+                <pre><code>{
+  "error": "syntax error near DROP"
+}</code></pre>
+
+                <p>That helps the attacker.</p>
+
+                <h3>✔ Logging and Monitoring</h3>
+
+                <p>Log suspicious patterns:</p>
+
+                <ul>
+                    <li>' OR</li>
+                    <li>--</li>
+                    <li>;</li>
+                    <li>UNION</li>
+                </ul>
+
+                <p>Doesn't block by itself, but helps detect attacks.</p>
+
+                <h2>1️⃣1️⃣ Final Anti-SQL Injection Checklist</h2>
+
+                <ul>
+                    <li>✅ Never use string concatenation with input</li>
+                    <li>✅ Use parameters ($1, ?, etc.)</li>
+                    <li>✅ Whitelist in dynamic SQL</li>
+                    <li>✅ DB with minimum permissions</li>
+                    <li>✅ Don't expose SQL errors</li>
+                    <li>✅ Validate input by business rules</li>
+                    <li>✅ Review raw queries in ORMs</li>
+                </ul>
+
+                <h2>1️⃣2️⃣ Typical Interview Questions (Short Answers)</h2>
+
+                <h3>❓ What is SQL Injection?</h3>
+
+                <p>It's a vulnerability where user input is interpreted as part of the executed SQL code.</p>
+
+                <h3>❓ How is it prevented?</h3>
+
+                <p>With parameterized queries/prepared statements.</p>
+
+                <h3>❓ Why does parameterization work?</h3>
+
+                <p>Because it separates SQL code from data, preventing input from being reinterpreted as SQL.</p>
+
+                <h3>❓ Does an ORM eliminate the risk?</h3>
+
+                <p>It reduces risk because it parameterizes, but unsafe raw queries can reintroduce it.</p>
+
+                <h3>❓ What would you do besides parameterizing?</h3>
+
+                <p>Least privilege in the DB, don't expose errors, and apply validation.</p>
+
+                <h2>1️⃣3️⃣ Final Mental Model (Senior)</h2>
+
+                <ul>
+                    <li>SQL Injection is not just "don't concatenate strings".</li>
+                    <li>It's understanding that security is not a function, it's an architecture.</li>
+                    <li>Parameterization + minimum permissions + validation + best practices = robust application.</li>
+                    <li>The attacker always looks for the boundary between code and data.</li>
+                    <li>Your job is to make that boundary impenetrable.</li>
+                </ul>
+
+                <h2>1️⃣4️⃣ One Phrase to Remember</h2>
+
+                <p><strong>"SQL Injection happens when you confuse data with code. Parameterization separates both. Without this separation, an attacker can inject destructive commands."</strong></p>
+
+                <h2>📚 References and Resources</h2>
+
+                <p><strong>To learn more:</strong></p>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/6994ecb0-705c-8395-999d-7fb6a2acdf0e" target="_blank">Dragos - SQL Injection: Defense in Depth Strategies</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='10-authentication-oauth.html'">← Previous</button>
+                    <button class="btn btn-primary" onclick="window.location.href='12-xss-attacks.html'">Next: XSS Attacks →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>

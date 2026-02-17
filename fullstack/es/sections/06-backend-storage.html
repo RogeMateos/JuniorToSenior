@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend Storage | FullStack</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-backend-storage">
+                <h1>🧠 2.0 Databases: Backend Storage - La Visión Completa que Todo Developer Debe Entender</h1>
+                <p><strong>Cuando construimos un backend moderno, siempre estamos haciendo lo mismo: Request → Lógica → Storage → Response</strong></p>
+
+                <h2>0️⃣ ¿Qué Es Storage en un Backend?</h2>
+
+                <p>Cuando tu API recibe una request:</p>
+
+                <ul>
+                    <li>Lee estado (¿existe el usuario?)</li>
+                    <li>Aplica reglas de negocio</li>
+                    <li>Modifica estado</li>
+                    <li>Devuelve una respuesta</li>
+                </ul>
+
+                <p><strong>El estado vive en storage.</strong></p>
+
+                <p>Sin storage no hay backend real.</p>
+
+                <h2>1️⃣ RAM vs Disco (Persistencia)</h2>
+
+                <h3>🔹 RAM</h3>
+
+                <ul>
+                    <li>Muy rápida</li>
+                    <li>Volátil</li>
+                    <li>Se borra al apagar el servidor</li>
+                </ul>
+
+                <p><strong>Ideal para:</strong></p>
+
+                <ul>
+                    <li>Cache</li>
+                    <li>Sesiones temporales</li>
+                    <li>Buffers</li>
+                </ul>
+
+                <h3>🔹 Disco (SSD / HDD)</h3>
+
+                <ul>
+                    <li>Más lento que RAM</li>
+                    <li>Persistente</li>
+                    <li>No se borra al reiniciar</li>
+                </ul>
+
+                <p><strong>Ideal para:</strong></p>
+
+                <ul>
+                    <li>Bases de datos</li>
+                    <li>Archivos</li>
+                    <li>Logs</li>
+                </ul>
+
+                <p><strong>Mental model senior:</strong></p>
+
+                <p>RAM es velocidad.<br>
+                Disco es verdad persistente.</p>
+
+                <p><strong>Las bases de datos usan ambos:</strong></p>
+
+                <ul>
+                    <li>Guardan en disco</li>
+                    <li>Cachean en RAM para acelerar lecturas</li>
+                </ul>
+
+                <h2>2️⃣ ¿Por Qué No Guardarlo Todo en un Archivo JSON?</h2>
+
+                <p>Podrías hacer esto:</p>
+
+                <pre><code>[
+  { "id": 1, "name": "Roge" },
+  { "id": 2, "name": "Ana" }
+]</code></pre>
+
+                <p>Pero en producción esto falla porque:</p>
+
+                <ul>
+                    <li>Buscar datos es lento (O(n))</li>
+                    <li>Escrituras concurrentes rompen el archivo</li>
+                    <li>No hay índices</li>
+                    <li>No hay validaciones</li>
+                    <li>No hay transacciones</li>
+                    <li>No escala</li>
+                </ul>
+
+                <p><strong>Por eso existen las bases de datos.</strong></p>
+
+                <h2>3️⃣ Tipos de Storage Moderno</h2>
+
+                <p>Tenemos 3 grandes categorías:</p>
+
+                <ul>
+                    <li>SQL (Relacional)</li>
+                    <li>NoSQL</li>
+                    <li>Object Storage (archivos tipo S3)</li>
+                </ul>
+
+                <h2>4️⃣ SQL (Bases de Datos Relacionales)</h2>
+
+                <h3>Ejemplos</h3>
+
+                <ul>
+                    <li>PostgreSQL</li>
+                    <li>MySQL</li>
+                </ul>
+
+                <h3>Modelo Mental</h3>
+
+                <p>Piensa en Excel, pero serio.</p>
+
+                <p><strong>Tablas:</strong></p>
+
+                <ul>
+                    <li>users</li>
+                    <li>orders</li>
+                    <li>products</li>
+                </ul>
+
+                <p>Con columnas, tipos y reglas estrictas.</p>
+
+                <h3>Características Clave</h3>
+
+                <ul>
+                    <li>Tiene esquema (schema)</li>
+                    <li>Relaciones entre tablas</li>
+                    <li>Soporta JOIN</li>
+                    <li>Soporta transacciones</li>
+                    <li>ACID (consistencia fuerte)</li>
+                </ul>
+
+                <h3>Ejemplo Real</h3>
+
+                <p><strong>Tabla users:</strong></p>
+
+                <pre><code>CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  created_at TIMESTAMP DEFAULT NOW()
+);</code></pre>
+
+                <p><strong>Tabla orders:</strong></p>
+
+                <pre><code>CREATE TABLE orders (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id),
+  total NUMERIC NOT NULL
+);</code></pre>
+
+                <p><strong>Consulta típica:</strong></p>
+
+                <pre><code>SELECT u.email, o.total
+FROM users u
+JOIN orders o ON o.user_id = u.id
+WHERE u.email = 'roge@email.com';</code></pre>
+
+                <h3>Conceptos Clave para Entrevistas</h3>
+
+                <h4>ACID</h4>
+
+                <ul>
+                    <li>Atomic</li>
+                    <li>Consistent</li>
+                    <li>Isolated</li>
+                    <li>Durable</li>
+                </ul>
+
+                <p><strong>Ideal para:</strong></p>
+
+                <ul>
+                    <li>Pagos</li>
+                    <li>Facturación</li>
+                    <li>Inventario</li>
+                    <li>Sistemas financieros</li>
+                </ul>
+
+                <h4>Índices (Muy Importante)</h4>
+
+                <p>Si haces esto:</p>
+
+                <pre><code>SELECT * FROM users WHERE email = 'test@email.com';</code></pre>
+
+                <p>Sin índice → escanea toda la tabla.</p>
+
+                <p>Con índice:</p>
+
+                <pre><code>CREATE INDEX idx_users_email ON users(email);</code></pre>
+
+                <p>La consulta se vuelve extremadamente rápida.</p>
+
+                <p><strong>Un senior siempre piensa en índices.</strong></p>
+
+                <h2>5️⃣ NoSQL</h2>
+
+                <p><strong>NoSQL no es una base de datos.</strong></p>
+
+                <p><strong>Es una familia de modelos.</strong></p>
+
+                <h3>5.1 Document Database (MongoDB)</h3>
+
+                <p><strong>Modelo: JSON</strong></p>
+
+                <pre><code>{
+  "_id": "123",
+  "name": "Roge",
+  "orders": [
+    { "id": 1, "total": 100 }
+  ]
+}</code></pre>
+
+                <p><strong>Consulta:</strong></p>
+
+                <pre><code>db.users.find({ name: "Roge" })</code></pre>
+
+                <p><strong>Ventajas</strong></p>
+
+                <ul>
+                    <li>Flexible</li>
+                    <li>Iteración rápida</li>
+                </ul>
+
+                <p><strong>Ideal para:</strong></p>
+
+                <ul>
+                    <li>Logs</li>
+                    <li>CMS</li>
+                    <li>Eventos</li>
+                    <li>Datos poco relacionales</li>
+                </ul>
+
+                <p><strong>Desventajas</strong></p>
+
+                <ul>
+                    <li>Relaciones complejas son más difíciles</li>
+                    <li>Puedes perder consistencia si no diseñas bien</li>
+                </ul>
+
+                <h3>5.2 Key-Value Store (Redis)</h3>
+
+                <p><strong>Modelo:</strong></p>
+
+                <pre><code>KEY → VALUE</code></pre>
+
+                <p><strong>Ejemplo:</strong></p>
+
+                <pre><code>SET session:123 "token_value"
+GET session:123</code></pre>
+
+                <p><strong>Ideal para:</strong></p>
+
+                <ul>
+                    <li>Cache</li>
+                    <li>Rate limiting</li>
+                    <li>Sesiones</li>
+                    <li>Respuestas precalculadas</li>
+                </ul>
+
+                <p><strong>No suele ser la fuente de verdad.</strong></p>
+
+                <h3>5.3 Graph Databases</h3>
+
+                <p><strong>Ejemplo:</strong></p>
+
+                <ul>
+                    <li>Neo4j</li>
+                </ul>
+
+                <p><strong>Ideal para:</strong></p>
+
+                <ul>
+                    <li>Redes sociales</li>
+                    <li>Sistemas de recomendación</li>
+                    <li>Relaciones complejas tipo grafo</li>
+                </ul>
+
+                <h2>6️⃣ Object Storage (S3)</h2>
+
+                <p><strong>Para archivos grandes:</strong></p>
+
+                <ul>
+                    <li>Imágenes</li>
+                    <li>Vídeos</li>
+                    <li>PDFs</li>
+                </ul>
+
+                <p><strong>No guardas binarios en SQL.</strong></p>
+
+                <p><strong>Guardas:</strong></p>
+
+                <ul>
+                    <li>El archivo en S3</li>
+                    <li>La metadata en SQL</li>
+                </ul>
+
+                <p><strong>Ejemplo:</strong></p>
+
+                <p>Tabla documents:</p>
+
+                <pre><code>id
+user_id
+s3_key
+created_at</code></pre>
+
+                <h2>7️⃣ ¿Cuándo Uso Cada Uno?</h2>
+
+                <p><strong>Guía práctica real:</strong></p>
+
+                <h3>Usa SQL cuando:</h3>
+
+                <ul>
+                    <li>Necesitas transacciones</li>
+                    <li>Hay muchas relaciones</li>
+                    <li>Es software de negocio</li>
+                    <li>Necesitas consistencia fuerte</li>
+                </ul>
+
+                <h3>Usa Mongo cuando:</h3>
+
+                <ul>
+                    <li>Datos semi-estructurados</li>
+                    <li>Evolución rápida del esquema</li>
+                    <li>Eventos/logs</li>
+                </ul>
+
+                <h3>Usa Redis cuando:</h3>
+
+                <ul>
+                    <li>Necesitas ultra velocidad</li>
+                    <li>Cache</li>
+                    <li>Sesiones</li>
+                    <li>Respuestas repetidas</li>
+                </ul>
+
+                <h3>Usa S3 cuando:</h3>
+
+                <ul>
+                    <li>Archivos grandes</li>
+                </ul>
+
+                <h2>8️⃣ Diferencias Reales SQL vs NoSQL</h2>
+
+                <p><strong>No es:</strong></p>
+
+                <ul>
+                    <li>❌ SQL lento</li>
+                    <li>❌ NoSQL rápido</li>
+                </ul>
+
+                <p><strong>Es:</strong></p>
+
+                <table class="cheat-sheet-table">
+                    <thead>
+                        <tr>
+                            <th>SQL</th>
+                            <th>NoSQL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Estructura estricta</td>
+                            <td>Flexible</td>
+                        </tr>
+                        <tr>
+                            <td>Relaciones fuertes</td>
+                            <td>Datos independientes</td>
+                        </tr>
+                        <tr>
+                            <td>ACID</td>
+                            <td>Eventual consistency</td>
+                        </tr>
+                        <tr>
+                            <td>Ideal para negocio</td>
+                            <td>Ideal para eventos/logs</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>9️⃣ Ejemplo Completo End-to-End</h2>
+
+                <p><strong>POST /orders</strong></p>
+
+                <ul>
+                    <li>Validar usuario</li>
+                    <li>Calcular total</li>
+                    <li>Crear order</li>
+                    <li>Crear items</li>
+                    <li>Confirmar transacción</li>
+                    <li>Devolver 201</li>
+                </ul>
+
+                <p><strong>Ejemplo:</strong></p>
+
+                <pre><code>BEGIN;
+
+INSERT INTO orders(user_id, total)
+VALUES (1, 100)
+RETURNING id;
+
+INSERT INTO order_items(order_id, product_id, qty)
+VALUES (10, 5, 2);
+
+COMMIT;</code></pre>
+
+                <p><strong>Si algo falla:</strong></p>
+
+                <pre><code>ROLLBACK;</code></pre>
+
+                <p><strong>Eso es ACID.</strong></p>
+
+                <h2>🔟 Lo Que Diferencia a un Senior</h2>
+
+                <p><strong>Un junior:</strong></p>
+
+                <p>"Uso Mongo porque es más rápido"</p>
+
+                <p><strong>Un senior:</strong></p>
+
+                <ul>
+                    <li>¿Necesitamos transacciones?</li>
+                    <li>¿Cuántas relaciones hay?</li>
+                    <li>¿Cuál es el patrón de lectura/escritura?</li>
+                    <li>¿Cómo vamos a indexar?</li>
+                    <li>¿Cuál es el volumen esperado?</li>
+                </ul>
+
+                <p><strong>Un senior entiende que:</strong></p>
+
+                <ul>
+                    <li>Todo es request → lógica → storage → response</li>
+                    <li>El framework es secundario</li>
+                    <li>El modelo de datos es lo crítico</li>
+                </ul>
+
+                <h2>1️⃣1️⃣ Plan de Práctica Recomendado</h2>
+
+                <h3>SQL</h3>
+
+                <p><strong>Practica:</strong></p>
+
+                <ul>
+                    <li>SELECT</li>
+                    <li>WHERE</li>
+                    <li>JOIN</li>
+                    <li>GROUP BY</li>
+                    <li>INDEX</li>
+                    <li>LEFT JOIN vs INNER JOIN</li>
+                </ul>
+
+                <h3>Mongo</h3>
+
+                <p><strong>Practica:</strong></p>
+
+                <ul>
+                    <li>find()</li>
+                    <li>insertOne()</li>
+                    <li>updateOne()</li>
+                    <li>filtros</li>
+                    <li>queries con arrays</li>
+                </ul>
+
+                <h2>1️⃣2️⃣ Checklist Senior</h2>
+
+                <ul>
+                    <li>✅ Entiendo RAM vs Disco</li>
+                    <li>✅ Entiendo Persistencia</li>
+                    <li>✅ Puedo elegir SQL vs NoSQL</li>
+                    <li>✅ Pienso en Índices</li>
+                    <li>✅ Entiendo Transacciones</li>
+                    <li>✅ Sé cuándo usar cada modelo</li>
+                    <li>✅ Pienso en volumen y escalabilidad</li>
+                    <li>✅ Diseño schemas reflexivamente</li>
+                </ul>
+
+                <h2>1️⃣3️⃣ Una Frase para Recordar</h2>
+
+                <p><strong>"Si entiendes RAM vs Disco, persistencia, SQL vs NoSQL, índices, transacciones y cuándo usar cada modelo, entonces puedes diseñar APIs sólidas, pasar entrevistas backend y entender bugs profundos. El modelo de datos es lo crítico."</strong></p>
+
+                <h2>📚 Referencias y Recursos</h2>
+
+                <p><strong>Para profundizar más:</strong></p>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/6994d21b-6744-838e-b412-d996e1e01672" target="_blank">Dragos - Database Design & Architecture Patterns</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='05-api-business-logic.html'">← Anterior</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../../index.html'">Volver al Inicio →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>
