@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Design | FullStack</title>
+    <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-database-design">
+                <h1>1.4 Fundamentals: Database Design</h1>
+                <p><strong>A well-designed DB prevents bugs, performance issues, and headaches 2 years later. A poorly designed one creates technical debt you never pay back.</strong></p>
+
+                <h2>0️⃣ What is a Database?</h2>
+
+                <p><strong>It's where your application stores permanent state.</strong></p>
+
+                <p>Without a DB:</p>
+                <ul>
+                    <li>Each request creates new data</li>
+                    <li>You die when restarting the server</li>
+                    <li>No history</li>
+                </ul>
+
+                <p>With a DB (SQL):</p>
+                <ul>
+                    <li>Data persists in tables</li>
+                    <li>Relationships between entities</li>
+                    <li>Complex queries</li>
+                    <li>ACID transactions</li>
+                </ul>
+
+                <h2>1️⃣ SQL vs NoSQL (Basic Concepts)</h2>
+
+                <table class="cheat-sheet-table">
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>SQL (PostgreSQL, MySQL)</th>
+                            <th>NoSQL (MongoDB, DynamoDB)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Structure</strong></td>
+                            <td>Tables with fixed schema</td>
+                            <td>Documents, no rigid schema</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Relationships</strong></td>
+                            <td>Explicit foreign keys</td>
+                            <td>Nested (embedding) or references</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scalability</strong></td>
+                            <td>Vertical (more power in 1 server)</td>
+                            <td>Horizontal (many servers)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ACID</strong></td>
+                            <td>Yes, guaranteed</td>
+                            <td>Depends (NoSQL = weaker)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Queries</strong></td>
+                            <td>Powerful SQL</td>
+                            <td>Specific APIs (e.g., find() in Mongo)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use case</strong></td>
+                            <td>Traditional apps, finance</td>
+                            <td>High-volume APIs, real-time</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p><strong>In 2024, SQL is still the standard for serious applications.</strong> NoSQL shines in very specific cases.</p>
+
+                <h2>2️⃣ Table Design (Normalization)</h2>
+
+                <p><strong>A poorly designed table costs dearly later.</strong></p>
+
+                <p>Bad example:</p>
+                <pre><code>CREATE TABLE users (
+  id INT PRIMARY KEY,
+  name VARCHAR(255),
+  email VARCHAR(255),
+  phone VARCHAR(255),
+  addresses TEXT, -- ❌ Multiple addresses in one string
+  orders TEXT,    -- ❌ Multiple orders in one string
+  tags VARCHAR(255) -- ❌ Multiple tags comma-separated
+);</code></pre>
+
+                <p><strong>Problems:</strong></p>
+                <ul>
+                    <li>How do you find "users in NY"? (addresses is string)</li>
+                    <li>How do you count orders? (orders is string)</li>
+                    <li>How do you update an address? (have to parse, update, save)</li>
+                    <li>Duplicated, non-normalized data</li>
+                </ul>
+
+                <p>Good example:</p>
+                <pre><code>CREATE TABLE users (
+  id INT PRIMARY KEY,
+  name VARCHAR(255),
+  email VARCHAR(255) UNIQUE,
+  phone VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE addresses (
+  id INT PRIMARY KEY,
+  user_id INT NOT NULL,
+  street VARCHAR(255),
+  city VARCHAR(255),
+  country VARCHAR(255),
+  is_primary BOOLEAN DEFAULT FALSE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE orders (
+  id INT PRIMARY KEY,
+  user_id INT NOT NULL,
+  status VARCHAR(50), -- "pending", "shipped", "delivered"
+  total_amount DECIMAL(10, 2),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE user_tags (
+  user_id INT NOT NULL,
+  tag_id INT NOT NULL,
+  PRIMARY KEY (user_id, tag_id),
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (tag_id) REFERENCES tags(id)
+);</code></pre>
+
+                <p><strong>Advantages:</strong></p>
+                <ul>
+                    <li>Each data in its place</li>
+                    <li>Clear queries: SELECT * FROM addresses WHERE city = "New York"</li>
+                    <li>Simple updates</li>
+                    <li>No duplication</li>
+                </ul>
+
+                <h2>3️⃣ Keys and Relationships</h2>
+
+                <p><strong>Types of keys:</strong></p>
+
+                <p><strong>Primary Key (PK):</strong> Uniquely identifies a row</p>
+                <pre><code>id INT PRIMARY KEY -- or UUID for scale</code></pre>
+
+                <p><strong>Foreign Key (FK):</strong> References another table</p>
+                <pre><code>user_id INT NOT NULL,
+FOREIGN KEY (user_id) REFERENCES users(id)</code></pre>
+
+                <p><strong>Unique Key:</strong> Guarantees uniqueness</p>
+                <pre><code>email VARCHAR(255) UNIQUE -- no duplicates</code></pre>
+
+                <h3>Types of Relationships</h3>
+
+                <p><strong>One-to-Many (1:N):</strong> 1 user, many addresses</p>
+                <pre><code>users (1) ----< addresses (N)</code></pre>
+
+                <p><strong>Many-to-Many (N:N):</strong> Many users, many tags</p>
+                <pre><code>users (N) ----< user_tags >---- tags (N)
+(junction/pivot table)</code></pre>
+
+                <p><strong>One-to-One (1:1):</strong> 1 user, 1 profile</p>
+                <pre><code>users (1) ---- profiles (1)</code></pre>
+
+                <h2>4️⃣ Indexes (Speed Up Queries)</h2>
+
+                <p><strong>Without indexes, every query scans the entire table (table scan).</strong></p>
+                <p><strong>With indexes, the DB jumps directly to the data (index lookup).</strong></p>
+
+                <p>Example:</p>
+                <pre><code>-- Without index: SELECT * FROM users WHERE email = 'roge@example.com'
+-- Scans 1M users → slow
+
+-- With index:
+CREATE INDEX idx_users_email ON users(email);
+-- Now: searches in B-tree → very fast</code></pre>
+
+                <p><strong>When to create indexes:</strong></p>
+                <ul>
+                    <li>Columns in WHERE (frequent searches)</li>
+                    <li>Columns in JOIN (relationships)</li>
+                    <li>Columns in ORDER BY (if frequent)</li>
+                    <li><strong>NOT</strong> everywhere (slows down writes)</li>
+                </ul>
+
+                <p>Common indexes:</p>
+                <pre><code>-- PK automatically indexed
+CREATE INDEX idx_orders_user_id ON orders(user_id);
+CREATE INDEX idx_orders_status ON orders(status);
+CREATE UNIQUE INDEX idx_users_email ON users(email);</code></pre>
+
+                <h2>5️⃣ Constraints (Guarantees)</h2>
+
+                <p><strong>Prevents bugs before they happen.</strong></p>
+
+                <pre><code>CREATE TABLE users (
+  id INT PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL, -- ❌ No nulls, no duplicates
+  age INT CHECK (age >= 18), -- ❌ Only 18+
+  status VARCHAR(50) DEFAULT 'active', -- default value
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE orders (
+  id INT PRIMARY KEY,
+  user_id INT NOT NULL,
+  amount DECIMAL(10, 2) CHECK (amount > 0), -- ❌ Always positive
+  status VARCHAR(50) IN ('pending', 'shipped', 'delivered'),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+    ON DELETE CASCADE -- ❌ If user deleted, delete orders
+    ON UPDATE CASCADE -- ❌ If user_id changed, update orders
+);</code></pre>
+
+                <p><strong>Types of constraints:</strong></p>
+                <ul>
+                    <li>NOT NULL: Required</li>
+                    <li>UNIQUE: No duplicates</li>
+                    <li>PRIMARY KEY: Identifies row</li>
+                    <li>FOREIGN KEY: References another table</li>
+                    <li>CHECK: Validation (age > 0)</li>
+                    <li>DEFAULT: Default value</li>
+                </ul>
+
+                <h2>6️⃣ ACID Transactions</h2>
+
+                <p><strong>ACID = Atomicity, Consistency, Isolation, Durability</strong></p>
+
+                <p>Real case: Bank transfer of $100</p>
+                <pre><code>BEGIN TRANSACTION;
+  UPDATE accounts SET balance = balance - 100 WHERE id = 1; -- Roge loses $100
+  UPDATE accounts SET balance = balance + 100 WHERE id = 2; -- Paco gains $100
+COMMIT;</code></pre>
+
+                <p><strong>Atomicity (All or Nothing):</strong> Both queries happen or none</p>
+                <p><strong>Consistency (Valid):</strong> DB never left in invalid state</p>
+                <p><strong>Isolation (No interference):</strong> Transactions don't interrupt each other</p>
+                <p><strong>Durability (Permanent):</strong> Once COMMIT, it's saved (even if power failure)</p>
+
+                <p>If something fails between UPDATE 1 and UPDATE 2 (server crash), SQL reverts EVERYTHING.</p>
+
+                <h2>7️⃣ Migrations (Schema Versioning)</h2>
+
+                <p><strong>Never alter a table by hand in production.</strong></p>
+
+                <p>Use migrations (e.g., Prisma, Alembic):</p>
+
+                <pre><code>// migration: 001_create_users.sql
+CREATE TABLE users (
+  id INT PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+// migration: 002_add_phone_to_users.sql
+ALTER TABLE users ADD COLUMN phone VARCHAR(255);
+
+// migration: 003_add_address_table.sql
+CREATE TABLE addresses (
+  id INT PRIMARY KEY,
+  user_id INT NOT NULL,
+  street VARCHAR(255),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);</code></pre>
+
+                <p><strong>Advantages:</strong></p>
+                <ul>
+                    <li>Complete history of changes</li>
+                    <li>Reproducible (dev = staging = prod)</li>
+                    <li>Easy rollback if something broke</li>
+                    <li>Version control (git)</li>
+                </ul>
+
+                <h2>8️⃣ ORM: Prisma, TypeORM, Sequelize</h2>
+
+                <p><strong>ORMs abstract SQL and make queries safer.</strong></p>
+
+                <p>Without ORM (raw SQL):</p>
+                <pre><code>// ❌ SQL injection risk
+const userId = req.body.id;
+db.query(`SELECT * FROM users WHERE id = ${userId}`);
+// If userId = "1 OR 1=1", entire table leaks</code></pre>
+
+                <p>With ORM (Prisma):</p>
+                <pre><code>// ✅ Parameterized (safe)
+const user = await prisma.user.findUnique({
+  where: { id: parseInt(req.body.id) },
+});
+// Prisma automatically escapes values</code></pre>
+
+                <p><strong>Other ORM benefits:</strong></p>
+                <ul>
+                    <li>Type-safe (TypeScript)</li>
+                    <li>Automatic migrations</li>
+                    <li>Easy relationships</li>
+                    <li>Intuitive queries (no raw SQL)</li>
+                </ul>
+
+                <h2>9️⃣ Query Performance</h2>
+
+                <p><strong>Slow queries break UX.</strong></p>
+
+                <p>Antipattern: N+1 Queries</p>
+                <pre><code>// ❌ Slow: 1 query per user
+const users = await db.query("SELECT * FROM users");
+for (const user of users) {
+  const orders = await db.query(`SELECT * FROM orders WHERE user_id = ${user.id}`);
+  // If 1000 users, 1000 queries!!!
+}</code></pre>
+
+                <p>Solution: JOIN or eager loading</p>
+                <pre><code>// ✅ Fast: 1 single query
+const users = await prisma.user.findMany({
+  include: { orders: true }, // Loads orders at once
+});</code></pre>
+
+                <p><strong>Analyze queries:</strong></p>
+                <pre><code>EXPLAIN ANALYZE SELECT * FROM orders WHERE user_id = 45;</code></pre>
+                <p>Shows if it uses indexes, how many rows scanned, estimated time.</p>
+
+                <h2>🔟 Schema Design: Real Example (Blog)</h2>
+
+                <pre><code>CREATE TABLE users (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  username VARCHAR(255) UNIQUE NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  bio TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE posts (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  content TEXT NOT NULL,
+  published_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE comments (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  post_id INT NOT NULL,
+  user_id INT NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE tags (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(255) UNIQUE NOT NULL
+);
+
+CREATE TABLE post_tags (
+  post_id INT NOT NULL,
+  tag_id INT NOT NULL,
+  PRIMARY KEY (post_id, tag_id),
+  FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+  FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+);
+
+-- Indexes for fast queries
+CREATE INDEX idx_posts_user_id ON posts(user_id);
+CREATE INDEX idx_posts_published_at ON posts(published_at);
+CREATE INDEX idx_comments_post_id ON comments(post_id);
+CREATE INDEX idx_comments_user_id ON comments(user_id);</code></pre>
+
+                <h2>1️⃣1️⃣ Senior Checklist</h2>
+
+                <ul>
+                    <li>✅ Normalized schema (no premature denormalization)</li>
+                    <li>✅ Primary keys everywhere</li>
+                    <li>✅ Foreign keys with ON DELETE CASCADE/SET NULL</li>
+                    <li>✅ Indexes on WHERE, JOIN, ORDER BY</li>
+                    <li>✅ Constraints (NOT NULL, UNIQUE, CHECK)</li>
+                    <li>✅ Migrations in git, versioned</li>
+                    <li>✅ ORM for safety and type-safety</li>
+                    <li>✅ Transactions for critical operations</li>
+                    <li>✅ EXPLAIN ANALYZE before shipping</li>
+                    <li>✅ Backup strategy (daily, with restore tests)</li>
+                </ul>
+
+                <h2>1️⃣2️⃣ One Phrase to Remember</h2>
+
+                <p><strong>"A well-designed DB is invisible; a poorly designed one is hellish. Invest time now or pay technical debt forever."</strong></p>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='05-api-business-logic.html'">← Previous</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../../index.html'">Back to Home →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../../assets/js/app.js"></script>
+</body>
+</html>
