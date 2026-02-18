@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ciclo de Software | FullStack</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-software-cycle">
+                <h1>🚀 6.0 Mentalidad DevOps: De Developer a Operador de Producción</h1>
+                <p><strong>"You build it, you run it." — Filosofía de Amazon</strong></p>
+
+                <h2>0️⃣ El Cambio: De Developer a Senior</h2>
+
+                <p>Antes:</p>
+                <pre><code>Plan → Code → Test → Push</code></pre>
+
+                <p>Ahora:</p>
+                <pre><code>Plan → Code → Build → Test → Release → Deploy → Operate → Monitor → Learn → Repeat</code></pre>
+
+                <p>Un developer senior piensa en todo el ciclo de vida.</p>
+
+                <p><strong>Preguntas clave que todo senior se hace:</strong></p>
+
+                <ul>
+                    <li>¿Cómo se desplegará esto?</li>
+                    <li>¿Cómo se ejecuta en producción?</li>
+                    <li>¿Cómo sé si falla?</li>
+                    <li>¿Cómo vuelvo atrás?</li>
+                    <li>¿Cómo libero nuevas versiones de forma segura?</li>
+                </ul>
+
+                <h2>1️⃣ El Ciclo Completo de Vida del Software</h2>
+
+                <h3>🔵 Fase 1: Plan & Diseño</h3>
+
+                <p>Requisitos, arquitectura, estimación de recursos.</p>
+
+                <h3>🔵 Fase 2: Desarrollar</h3>
+
+                <p>Escribir código siguiendo la arquitectura acordada.</p>
+
+                <h3>🔵 Fase 3: Build</h3>
+
+                <p>Compilar, empaquetar, crear artefactos reproducibles.</p>
+
+                <h3>🔵 Fase 4: Test</h3>
+
+                <p>Unit tests, integration tests, validación automatizada.</p>
+
+                <h3>🔵 Fase 5: Release</h3>
+
+                <p>Bump de versión, changelog, artefactos listos.</p>
+
+                <h3>🔵 Fase 6: Deploy</h3>
+
+                <p>Mover a producción de forma segura con rollback.</p>
+
+                <h3>🔵 Fase 7: Operar</h3>
+
+                <p>Mantener sistemas funcionando, gestionar incidentes.</p>
+
+                <h3>🔵 Fase 8: Monitorear</h3>
+
+                <p>Observar métricas, logs, salud del sistema.</p>
+
+                <h3>🔵 Fase 9: Aprender y Mejorar</h3>
+
+                <p>Post-mortems, análisis de métricas, iterar.</p>
+
+                <h2>2️⃣ CI/CD: La Fábrica de Tu Producto</h2>
+
+                <h3>La Fábrica Es El Producto</h3>
+
+                <p>Como dijo Elon Musk: "La fábrica es el producto."</p>
+
+                <p>En software, la fábrica es tu pipeline de CI/CD.</p>
+
+                <p><strong>Pipeline malo:</strong></p>
+
+                <ul>
+                    <li>Lento</li>
+                    <li>Manual</li>
+                    <li>No confiable</li>
+                    <li>Difícil de hacer rollback</li>
+                </ul>
+
+                <p><strong>Resultado:</strong> Producto lento, frágil, difícil de mejorar.</p>
+
+                <p><strong>Pipeline bueno:</strong></p>
+
+                <ul>
+                    <li>Automatizado</li>
+                    <li>Rápido</li>
+                    <li>Reproducible</li>
+                    <li>Rollback fácil</li>
+                </ul>
+
+                <p><strong>Resultado:</strong> El producto mejora automáticamente.</p>
+
+                <h3>CI — Continuous Integration</h3>
+
+                <p>Cada cambio que haces:</p>
+
+                <ol>
+                    <li>Se testea automáticamente</li>
+                    <li>Se construye automáticamente</li>
+                    <li>Se valida automáticamente</li>
+                </ol>
+
+                <p><strong>Objetivo:</strong> Detectar errores temprano.</p>
+
+                <h3>CD — Continuous Delivery / Deployment</h3>
+
+                <p>Después de que CI pase:</p>
+
+                <ol>
+                    <li>Se deploya automáticamente a staging, O</li>
+                    <li>Listo para deployar a producción con un clic</li>
+                </ol>
+
+                <p><strong>Objetivo:</strong> Entregar valor continuamente.</p>
+
+                <h2>3️⃣ Paso 1: Build Reproducible</h2>
+
+                <p><strong>Principio fundamental:</strong> Si no puedes construirlo desde cero, no puedes desplegarlo.</p>
+
+                <p><strong>Checklist:</strong></p>
+
+                <ul>
+                    <li>✅ Usa <code>npm ci</code> en lugar de <code>npm install</code></li>
+                    <li>✅ Fija todas las versiones de dependencias</li>
+                    <li>✅ Sin dependencias locales ocultas</li>
+                    <li>✅ Build genera artefactos claros (dist/, imagen Docker, etc.)</li>
+                    <li>✅ El mismo build funciona en local, CI y producción</li>
+                </ul>
+
+                <p><strong>Regla senior:</strong></p>
+
+                <p>Si no funciona igual en otra máquina, no está listo.</p>
+
+                <h2>4️⃣ Paso 2: Separar Configuración del Código</h2>
+
+                <p><strong>Nunca hardcodees:</strong></p>
+
+                <ul>
+                    <li>URLs</li>
+                    <li>Secretos</li>
+                    <li>Passwords</li>
+                    <li>API keys</li>
+                </ul>
+
+                <p><strong>Usa variables de entorno:</strong></p>
+
+                <pre><code>API_URL=https://api.example.com
+DATABASE_URL=postgresql://user:pass@host/db
+JWT_SECRET=tu-clave-secreta-aqui
+LOG_LEVEL=info</code></pre>
+
+                <p><strong>Cada entorno tiene valores distintos:</strong></p>
+
+                <ul>
+                    <li>local</li>
+                    <li>staging</li>
+                    <li>production</li>
+                </ul>
+
+                <p>Esto sigue el principio de <strong>12-Factor App</strong>.</p>
+
+                <h2>5️⃣ Paso 3: Containerización (Docker)</h2>
+
+                <h3>¿Por Qué Docker?</h3>
+
+                <p>Porque:</p>
+
+                <ul>
+                    <li>Garantiza mismo entorno en local, CI y producción</li>
+                    <li>Elimina "en mi máquina funciona"</li>
+                    <li>Convierte tu app en una unidad portable</li>
+                    <li>Hace el deployment determinístico</li>
+                </ul>
+
+                <h3>Dockerfile Básico</h3>
+
+                <pre><code>FROM node:18-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+
+RUN npm run build
+
+EXPOSE 3000
+
+CMD ["npm", "start"]</code></pre>
+
+                <p><strong>Principios clave:</strong></p>
+
+                <ul>
+                    <li>Comienza con versión específica de imagen base (no `latest`)</li>
+                    <li>Usa <code>npm ci</code> no <code>npm install</code></li>
+                    <li>Ejecuta build dentro del container</li>
+                    <li>El tamaño del container importa (usa Alpine Linux)</li>
+                </ul>
+
+                <h2>6️⃣ Paso 4: Pipeline de CI Básico</h2>
+
+                <p><strong>Pipeline de CI mínimo profesional:</strong></p>
+
+                <pre><code>Pull Request →
+  Lint (Calidad de Código) →
+  Unit Tests →
+  Build Docker Image →
+  Integration Tests →
+  Create Artifact →
+  Store Artifact</code></pre>
+
+                <h3>Ejemplo GitHub Actions</h3>
+
+                <pre><code>name: CI
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Build Docker image
+        run: docker build -t myapp:${{ github.sha }} .</code></pre>
+
+                <h3>Mejores Prácticas</h3>
+
+                <ul>
+                    <li>✅ Fallar si tests fallan</li>
+                    <li>✅ No permitir merge si CI falla</li>
+                    <li>✅ Cachear dependencias</li>
+                    <li>✅ Ejecutar en paralelo cuando sea posible</li>
+                    <li>✅ Mantener tiempo total bajo 10 minutos</li>
+                </ul>
+
+                <h2>7️⃣ Paso 5: CD — Deploy Automático</h2>
+
+                <h3>Estrategia Simple Profesional</h3>
+
+                <pre><code>Merge a main → Deploy a staging automático
+Tag versión → Deploy a producción con validación</code></pre>
+
+                <p><strong>Regla crítica:</strong></p>
+
+                <p><strong>No reconstruyas para producción.</strong></p>
+
+                <p>Promociona el mismo artefacto testeado.</p>
+
+                <h3>Ejemplo Flujo de Deployment</h3>
+
+                <pre><code>main branch merged
+↓
+Run full test suite
+↓
+Build & push Docker image
+↓
+Deploy to staging
+↓
+Run smoke tests on staging
+↓
+Wait for approval OR auto-promote
+↓
+Deploy same image to production</code></pre>
+
+                <h2>8️⃣ Paso 6: Observabilidad (Logs, Métricas, Alertas)</h2>
+
+                <p><strong>Aquí es donde muchos developers fallan.</strong></p>
+
+                <p>En producción, no debuggeas.</p>
+                <p>Observas.</p>
+
+                <h3>🔍 1. Logs Estructurados</h3>
+
+                <pre><code>{
+  "level": "error",
+  "timestamp": "2025-02-18T10:30:45.123Z",
+  "requestId": "req-123-456",
+  "endpoint": "/api/users",
+  "method": "POST",
+  "statusCode": 500,
+  "message": "Database connection timeout",
+  "stack": "..."
+}</code></pre>
+
+                <p><strong>Nunca loguees así:</strong></p>
+
+                <pre><code>console.log("Error:" + error)</code></pre>
+
+                <p><strong>Siempre usa logging estructurado:</strong></p>
+
+                <pre><code>logger.error({
+  message: "Database connection timeout",
+  error: error,
+  requestId: req.id,
+  endpoint: req.path
+})</code></pre>
+
+                <h3>📊 2. Métricas</h3>
+
+                <p>Rastrear lo que importa:</p>
+
+                <ul>
+                    <li>Tiempo de respuesta (latency)</li>
+                    <li>Tasa de error</li>
+                    <li>Requests por segundo</li>
+                    <li>Uso de CPU</li>
+                    <li>Uso de memoria</li>
+                    <li>Conexiones a base de datos</li>
+                </ul>
+
+                <h3>🚨 3. Alertas</h3>
+
+                <p>Notificar automáticamente cuando algo falla:</p>
+
+                <ul>
+                    <li>Tasa de error > 5%</li>
+                    <li>Tiempo de respuesta > 2s (p95)</li>
+                    <li>CPU > 80%</li>
+                    <li>Servicio caído</li>
+                    <li>Espacio en disco < 10%</li>
+                </ul>
+
+                <p><strong>Regla senior:</strong></p>
+
+                <p>Si no puedes medirlo, no puedes operarlo.</p>
+
+                <h2>9️⃣ Paso 7: Health Checks</h2>
+
+                <p><strong>Endpoints mínimos de health check:</strong></p>
+
+                <pre><code>GET /health
+Response: 200 OK
+{
+  "status": "healthy",
+  "timestamp": "2025-02-18T10:30:45Z"
+}</code></pre>
+
+                <pre><code>GET /ready
+Response: 200 OK
+{
+  "ready": true,
+  "database": "connected",
+  "cache": "connected"
+}</code></pre>
+
+                <p><strong>/health</strong> → ¿Está viva?</p>
+                <p><strong>/ready</strong> → ¿Puedo enviarle tráfico?</p>
+
+                <p>Habilita reinicios automáticos y auto-healing.</p>
+
+                <h2>🔟 Paso 8: Estrategias de Deployment</h2>
+
+                <h3>🔵 Blue/Green Deployment</h3>
+
+                <p>Dos entornos idénticos.</p>
+
+                <ul>
+                    <li>Blue = Producción actual</li>
+                    <li>Green = Nueva versión</li>
+                </ul>
+
+                <p>Testea en Green, luego cambia tráfico.</p>
+
+                <p>Si hay problemas, rollback instantáneo a Blue.</p>
+
+                <h3>🟡 Canary Release</h3>
+
+                <p>Envía 5% del tráfico a nueva versión.</p>
+
+                <p>Monitorea métricas.</p>
+
+                <p>Si es saludable, aumenta gradualmente a 100%.</p>
+
+                <p>Si hay problemas, rollback instantáneo.</p>
+
+                <h3>🟢 Rolling Deployment</h3>
+
+                <p>Actualiza 1 instancia a la vez.</p>
+
+                <p>Mantén el servicio arriba todo el tiempo.</p>
+
+                <p>Más lento pero sin downtime.</p>
+
+                <h2>1️⃣1️⃣ Paso 9: Estrategia de Rollback</h2>
+
+                <p><strong>Excelencia operativa = Velocidad de recuperación.</strong></p>
+
+                <p><strong>Capacidad mínima:</strong></p>
+
+                <p>Re-deploy versión anterior en < 5 minutos.</p>
+
+                <p><strong>Cómo:</strong></p>
+
+                <ul>
+                    <li>Mantén imágenes Docker etiquetadas por versión</li>
+                    <li>Guarda config de deployment anterior</li>
+                    <li>Botón de rollback de un clic</li>
+                    <li>Health checks automáticos post-rollback</li>
+                </ul>
+
+                <h2>1️⃣2️⃣ Paso 10: Seguridad Básica</h2>
+
+                <p>No necesitas ser un experto en seguridad, pero sí debes:</p>
+
+                <ul>
+                    <li>✅ Usar HTTPS en todos lados</li>
+                    <li>✅ Gestionar secretos correctamente (usa vaults, nunca en código)</li>
+                    <li>✅ No exponer bases de datos directamente</li>
+                    <li>✅ Aplicar principio de menor privilegio</li>
+                </ul>
+
+                <h3>🔐 Principio de Menor Privilegio</h3>
+
+                <p>Tu aplicación solo debe tener acceso a:</p>
+
+                <p><strong>Exactamente lo que necesita.</strong></p>
+
+                <p>Nada más.</p>
+
+                <p><strong>Malo:</strong></p>
+
+                <p>App tiene acceso root a toda la infraestructura.</p>
+
+                <p><strong>Bueno:</strong></p>
+
+                <p>App solo puede:</p>
+
+                <ul>
+                    <li>Leer tabla específica de base de datos</li>
+                    <li>Escribir en bucket S3 específico</li>
+                    <li>Leer desde vault de secretos específico</li>
+                    <li>Nada más</li>
+                </ul>
+
+                <p>Si es comprometida, el daño es limitado.</p>
+
+                <h2>1️⃣3️⃣ El Ciclo Infinito</h2>
+
+                <p><strong>El ciclo real nunca termina:</strong></p>
+
+                <pre><code>Plan
+↓
+Code
+↓
+Build
+↓
+Test
+↓
+Release
+↓
+Deploy
+↓
+Operate
+↓
+Monitor
+↓
+Learn
+↓
+Repeat</code></pre>
+
+                <p>Este es el desarrollo moderno.</p>
+
+                <p>No importa si es:</p>
+
+                <ul>
+                    <li>Backend</li>
+                    <li>Frontend</li>
+                    <li>Mobile</li>
+                    <li>Infraestructura</li>
+                </ul>
+
+                <p>El ciclo es el mismo.</p>
+
+                <h2>1️⃣4️⃣ Valor Profesional</h2>
+
+                <p><strong>Cuando dominas esto, puedes:</strong></p>
+
+                <ul>
+                    <li>✅ Aplicar a roles reales de Fullstack/DevOps</li>
+                    <li>✅ Aspirar a posiciones de Tech Lead</li>
+                    <li>✅ Arquitectar sistemas completos</li>
+                    <li>✅ Tomar decisiones técnicas reales</li>
+                    <li>✅ Negociar mejor salario</li>
+                </ul>
+
+                <p>Porque aportas impacto real.</p>
+
+                <h2>1️⃣5️⃣ Checklist de Listo para Producción</h2>
+
+                <p><strong>¿Puedes decir SÍ a todo esto?</strong></p>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>Item</th>
+                        <th>¿Listo?</th>
+                    </tr>
+                    <tr>
+                        <td>Mi build es reproducible</td>
+                        <td>☐</td>
+                    </tr>
+                    <tr>
+                        <td>Tengo pipeline CI automatizado</td>
+                        <td>☐</td>
+                    </tr>
+                    <tr>
+                        <td>Tengo entorno staging</td>
+                        <td>☐</td>
+                    </tr>
+                    <tr>
+                        <td>Puedo deployar a producción de forma segura</td>
+                        <td>☐</td>
+                    </tr>
+                    <tr>
+                        <td>Tengo logging estructurado</td>
+                        <td>☐</td>
+                    </tr>
+                    <tr>
+                        <td>Tengo métricas básicas & dashboards</td>
+                        <td>☐</td>
+                    </tr>
+                    <tr>
+                        <td>Puedo hacer rollback rápido</td>
+                        <td>☐</td>
+                    </tr>
+                    <tr>
+                        <td>Gestiono secretos correctamente</td>
+                        <td>☐</td>
+                    </tr>
+                    <tr>
+                        <td>Mi app tiene health checks</td>
+                        <td>☐</td>
+                    </tr>
+                    <tr>
+                        <td>Entiendo cómo operarla</td>
+                        <td>☐</td>
+                    </tr>
+                </table>
+
+                <p><strong>Si puedes marcar la mayoría...</strong></p>
+
+                <p>Ya no eres solo un developer.</p>
+
+                <p>Estás operando como un senior.</p>
+
+                <h2>1️⃣6️⃣ Preguntas de Entrevista</h2>
+
+                <h3>❓ ¿Qué es CI/CD?</h3>
+
+                <p>CI es testear y construir automáticamente cada cambio.<br>
+                CD es deployar automáticamente después de validación.</p>
+
+                <h3>❓ ¿Cuál es la diferencia entre Blue/Green y Canary?</h3>
+
+                <p>Blue/Green cambia todo el tráfico de una vez con rollback instantáneo.<br>
+                Canary aumenta tráfico gradualmente, monitoreando métricas.</p>
+
+                <h3>❓ ¿Por qué no reconstruir para producción?</h3>
+
+                <p>Porque diferentes builds pueden comportarse diferente debido a diferencias de entorno.<br>
+                Siempre promociona el mismo artefacto testeado.</p>
+
+                <h3>❓ ¿Qué es el principio de menor privilegio?</h3>
+
+                <p>Dale a las aplicaciones solo los permisos que absolutamente necesitan.<br>
+                Limita el daño si es comprometida.</p>
+
+                <h3>❓ ¿Por qué son importantes los health checks?</h3>
+
+                <p>Habilitan reinicios automáticos, los load balancers saben cuándo enviar tráfico,<br>
+                los orquestadores pueden auto-sanarse.</p>
+
+                <h2>1️⃣7️⃣ Mentalidad Senior</h2>
+
+                <ul>
+                    <li>El código no es el producto. El código funcional y operacional sí.</li>
+                    <li>Tu pipeline de CI/CD es parte de tu arquitectura.</li>
+                    <li>Si no puedes desplegarlo de forma segura, no está hecho.</li>
+                    <li>La observabilidad no es opcional. Es cómo operas.</li>
+                    <li>Velocidad de rollback = Excelencia operativa.</li>
+                    <li>Eres responsable de todo el ciclo de vida.</li>
+                </ul>
+
+                <h2>1️⃣8️⃣ Una Frase Para Recordar</h2>
+
+                <p><strong>"You build it, you run it. El software no está hecho hasta que está en producción, funcionando de forma confiable, y puedes operarlo con confianza."</strong></p>
+
+                <h2>1️⃣9️⃣ Referencias y Recursos</h2>
+
+                <ul>
+                    <li><a href="https://12factor.net/" target="_blank">12 Factor App Methodology</a></li>
+                    <li><a href="https://www.docker.com/resources/what-docker/" target="_blank">Documentación Oficial Docker</a></li>
+                    <li><a href="https://www.atlassian.com/continuous-delivery" target="_blank">Continuous Delivery - Mejores Prácticas</a></li>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/" target="_blank">Dragos - Patrones de DevOps & Arquitectura</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Volver Atrás</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Volver al Inicio →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>

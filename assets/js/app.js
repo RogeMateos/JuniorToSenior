@@ -238,9 +238,10 @@ function injectSidebarAndNav() {
   const currentUrl = window.location.pathname;
   const isSpanish = currentUrl.includes("/es/");
   const isSection = currentUrl.includes("/sections/");
+  const isSoftwareCycle = currentUrl.includes("/softwarecycle/");
   const isFullStack = currentUrl.includes("/fullstack/");
 
-  if (!isSection) {
+  if (!isSection && !isSoftwareCycle) {
     return; // No estamos en una sección
   }
 
@@ -356,6 +357,17 @@ function injectSidebarAndNav() {
                         <li><a href="${isFullStack ? (isSpanish ? '10-authentication-oauth.html' : '10-authentication-oauth.html') : (isSpanish ? '../../../fullstack/es/sections/10-authentication-oauth.html' : '../../../fullstack/en/sections/10-authentication-oauth.html')}" class="nav-link">${isSpanish ? '🔐 4.0 Authentication: OAuth 2.0 + OIDC' : '🔐 4.0 Authentication: OAuth 2.0 + OIDC'}</a></li>
                         <li><a href="${isFullStack ? (isSpanish ? '11-sql-injection.html' : '11-sql-injection.html') : (isSpanish ? '../../../fullstack/es/sections/11-sql-injection.html' : '../../../fullstack/en/sections/11-sql-injection.html')}" class="nav-link">${isSpanish ? '🔓 5.1 Security: SQL Injection' : '🔓 5.1 Security: SQL Injection'}</a></li>
                         <li><a href="${isFullStack ? (isSpanish ? '12-xss-attacks.html' : '12-xss-attacks.html') : (isSpanish ? '../../../fullstack/es/sections/12-xss-attacks.html' : '../../../fullstack/en/sections/12-xss-attacks.html')}" class="nav-link">${isSpanish ? '👨🏽‍💻 5.2 Security: XSS Attacks' : '👨🏽‍💻 5.2 Security: XSS Attacks'}</a></li>
+                    </ul>
+                </li>
+
+                <!-- SECCIÓN 7: SOFTWARE LIFECYCLE -->
+                <li class="nav-accordion">
+                    <div class="nav-accordion-header" data-accordion="section7">
+                        <span>${isSpanish ? '⚙️ 7.0 Software Lifecycle' : '⚙️ 7.0 Software Lifecycle'}</span>
+                        <span class="nav-accordion-icon">▶</span>
+                    </div>
+                    <ul class="nav-accordion-content" id="section7-content">
+                        <li><a href="${isSpanish ? '../../../../softwarecycle/es/senior-mindset.html' : '../../../../softwarecycle/en/senior-mindset.html'}" class="nav-link">${isSpanish ? '🚀 Senior Mindset: DevOps' : '🚀 Senior Mindset: DevOps'}</a></li>
                     </ul>
                 </li>
             </ul>
