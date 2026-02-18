@@ -389,6 +389,66 @@ Posible N+1 problem</code></pre>
 
                 <p><strong>Ambos son herramientas. La clave está en elegir según el contexto, no por moda.</strong></p>
 
+                <h2>1️⃣0️⃣ Casos de Uso Real: Cuándo Usar GraphQL</h2>
+
+                <p>Un ejemplo claro de dónde utilizarías GraphQL es en el desarrollo de una <strong>red social de gran escala</strong>, similar a Facebook, donde los retos de ingeniería son masivos debido a los miles de millones de usuarios generando datos constantemente.</p>
+
+                <p><strong>Aquí te detallo situaciones específicas donde GraphQL es la mejor opción:</strong></p>
+
+                <h3>🎯 Optimización de Aplicaciones Móviles</h3>
+
+                <p>Si tienes una pantalla que solo necesita mostrar el nombre y la foto de un usuario, en REST podrías recibir datos innecesarios como el correo, país o historial (over-fetching).</p>
+
+                <p><strong>Con GraphQL:</strong></p>
+
+                <p>El cliente pide exactamente lo que necesita, lo que ahorra ancho de banda y hace que la aplicación sea más rápida.</p>
+
+                <h3>⚡ Equipos de Desarrollo que Necesitan Rapidez</h3>
+
+                <p>Es ideal cuando quieres acelerar el trabajo entre frontend y backend.</p>
+
+                <p><strong>Con GraphQL:</strong></p>
+
+                <p>El equipo de frontend no tiene que esperar a que el backend cree o actualice "endpoints" específicos cada vez que necesitan un dato nuevo; simplemente lo solicitan a través del esquema ya existente.</p>
+
+                <h3>🔗 Aplicaciones con Múltiples Fuentes de Datos</h3>
+
+                <p>Si tu proyecto consume información de:</p>
+
+                <ul>
+                    <li>Una base de datos SQL</li>
+                    <li>Otra NoSQL</li>
+                    <li>Una API REST externa</li>
+                </ul>
+
+                <p><strong>Puedes usar GraphQL:</strong></p>
+
+                <p>Como una capa única que conecte todas estas fuentes a través de "resolvers" y las exponga al cliente de forma unificada.</p>
+
+                <h3>🔔 Funcionalidades en Tiempo Real</h3>
+
+                <p>Gracias a las <strong>Subscriptions</strong>, es perfecto para aplicaciones que requieren eventos en tiempo real, como:</p>
+
+                <ul>
+                    <li>Chats</li>
+                    <li>Notificaciones</li>
+                    <li>Actualizaciones instantáneas</li>
+                </ul>
+
+                <p><strong>Utiliza WebSockets para mantener la información actualizada instantáneamente.</strong></p>
+
+                <h3>✅ Conclusión: Cuándo Usar GraphQL</h3>
+
+                <p><strong>Deberías usarlo cuando:</strong></p>
+
+                <ul>
+                    <li>Necesites un punto de conexión único para toda tu información</li>
+                    <li>Quieras que el cliente tenga el control total sobre los datos que recibe</li>
+                    <li>Tengas múltiples dispositivos o clientes con necesidades diferentes</li>
+                    <li>Busques optimizar ancho de banda en aplicaciones móviles</li>
+                    <li>Necesites iterar rápidamente sin cambiar endpoints</li>
+                </ul>
+
                 <h2>1️⃣1️⃣ Checklist Senior</h2>
 
                 <ul>

@@ -389,6 +389,66 @@ Possible N+1 problem</code></pre>
 
                 <p><strong>Both are tools. The key is choosing based on context, not on trend.</strong></p>
 
+                <h2>1️⃣0️⃣ Real Use Cases: When to Use GraphQL</h2>
+
+                <p>A clear example of where you would use GraphQL is in developing a <strong>large-scale social network</strong>, similar to Facebook, where engineering challenges are massive due to billions of users generating data constantly.</p>
+
+                <p><strong>Here are specific situations where GraphQL is the best option:</strong></p>
+
+                <h3>🎯 Mobile Application Optimization</h3>
+
+                <p>If you have a screen that only needs to display a user's name and photo, in REST you might receive unnecessary data like email, country, or history (over-fetching).</p>
+
+                <p><strong>With GraphQL:</strong></p>
+
+                <p>The client asks for exactly what it needs, which saves bandwidth and makes the application faster.</p>
+
+                <h3>⚡ Development Teams That Need Speed</h3>
+
+                <p>It's ideal when you want to accelerate work between frontend and backend.</p>
+
+                <p><strong>With GraphQL:</strong></p>
+
+                <p>The frontend team doesn't have to wait for the backend to create or update specific "endpoints" every time they need new data; they simply request it through the existing schema.</p>
+
+                <h3>🔗 Applications with Multiple Data Sources</h3>
+
+                <p>If your project consumes information from:</p>
+
+                <ul>
+                    <li>A SQL database</li>
+                    <li>Another NoSQL database</li>
+                    <li>An external REST API</li>
+                </ul>
+
+                <p><strong>You can use GraphQL:</strong></p>
+
+                <p>As a single layer that connects all these sources through "resolvers" and exposes them to the client in a unified way.</p>
+
+                <h3>🔔 Real-Time Features</h3>
+
+                <p>Thanks to <strong>Subscriptions</strong>, it's perfect for applications that require real-time events, such as:</p>
+
+                <ul>
+                    <li>Chats</li>
+                    <li>Notifications</li>
+                    <li>Instant updates</li>
+                </ul>
+
+                <p><strong>Uses WebSockets to keep information updated instantly.</strong></p>
+
+                <h3>✅ Conclusion: When to Use GraphQL</h3>
+
+                <p><strong>You should use it when:</strong></p>
+
+                <ul>
+                    <li>You need a single endpoint for all your information</li>
+                    <li>You want the client to have full control over the data it receives</li>
+                    <li>You have multiple devices or clients with different needs</li>
+                    <li>You want to optimize bandwidth in mobile applications</li>
+                    <li>You need to iterate quickly without changing endpoints</li>
+                </ul>
+
                 <h2>1️⃣1️⃣ Senior Checklist</h2>
 
                 <ul>
