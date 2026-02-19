@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Build Pipeline | Software Lifecycle</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-build-pipeline">
+                <h1>💿 The Build Pipeline</h1>
+                <p><strong>Complete Guide to CI/CD Build Systems</strong></p>
+
+                <h2>🎯 Goal</h2>
+
+                <p>Understand what the Build Pipeline is, how it works, why it's critical in CI/CD, and how to implement it correctly in different application types (SPA, Node API, Docker).</p>
+
+                <p>We'll see it as a senior developer would guide a junior.</p>
+
+                <h2>1️⃣ Mental Model: What is the Build Pipeline?</h2>
+
+                <p>In a modern pipeline we distinguish three concepts:</p>
+
+                <p><strong>Code → Build → Artifact → Release/Deploy → Runtime</strong></p>
+
+                <p><strong>🔹 Build Pipeline</strong></p>
+
+                <p>It's the automated process that:</p>
+
+                <ul>
+                    <li>Installs dependencies</li>
+                    <li>Validates code</li>
+                    <li>Executes tests</li>
+                    <li>Compiles / transpiles</li>
+                    <li>Packages</li>
+                    <li>Produces reproducible artifact</li>
+                </ul>
+
+                <p><strong>🔹 Artifact</strong></p>
+
+                <p>It's the executable result of the build.</p>
+
+                <p>Must follow a key rule:</p>
+
+                <p>🔐 <strong>The artifact must be deployable without recompiling.</strong></p>
+
+                <p>If you need to rebuild in production, your design is wrong.</p>
+
+                <h2>2️⃣ Why Separate Build and Deploy?</h2>
+
+                <p>Many systems run build + deploy together.<br>
+                But mentally we should separate them.</p>
+
+                <p>🚀 <strong>Main advantage: Fast Rollback</strong></p>
+
+                <p>If there's an error in production:</p>
+
+                <p><strong>❌ Without separation:</strong></p>
+
+                <ul>
+                    <li>You run build again</li>
+                    <li>Dependencies may have changed</li>
+                    <li>Result is not identical</li>
+                </ul>
+
+                <p><strong>✅ With separation:</strong></p>
+
+                <ul>
+                    <li>Take previous artifact</li>
+                    <li>Redeploy it</li>
+                    <li>Back to normal in seconds</li>
+                </ul>
+
+                <p><strong>That's DevOps maturity.</strong></p>
+
+                <h2>3️⃣ Events That Trigger the Build</h2>
+
+                <p>Not all builds are equal.</p>
+
+                <p><strong>🔹 Pull Request</strong></p>
+
+                <p>Goal: Validate quality<br>
+                Does NOT generate official artifact.</p>
+
+                <p><strong>🔹 Merge to main</strong></p>
+
+                <p>Goal: Create official artifact<br>
+                Publish to artifact repository.</p>
+
+                <p>This separates:</p>
+
+                <ul>
+                    <li>Validation</li>
+                    <li>Official manufacturing</li>
+                </ul>
+
+                <h2>4️⃣ General Structure of a Build Pipeline</h2>
+
+                <p>A professional build has these phases:</p>
+
+                <h3>Step 1 — Prepare Environment</h3>
+
+                <ul>
+                    <li>Select runtime version (Node 20, etc.)</li>
+                    <li>Restore cache</li>
+                    <li>Install dependencies reproducibly</li>
+                </ul>
+
+                <p><strong>⚠️ Never use:</strong></p>
+
+                <pre><code>npm install</code></pre>
+
+                <p><strong>✅ Use:</strong></p>
+
+                <pre><code>npm ci</code></pre>
+
+                <p>Because it uses lockfile and guarantees reproducibility.</p>
+
+                <h3>Step 2 — Quality Gates (Fail Fast)</h3>
+
+                <p>We validate before compiling.</p>
+
+                <ul>
+                    <li>Lint</li>
+                    <li>Type check</li>
+                    <li>Unit tests</li>
+                    <li>Security scan</li>
+                </ul>
+
+                <p>These steps can run in parallel.</p>
+
+                <h3>Step 3 — Build / Package</h3>
+
+                <p>Transform code into executable.</p>
+
+                <p>Depends on application type.</p>
+
+                <h2>5️⃣ Artifacts by Application Type</h2>
+
+                <h3>🟦 Case 1 — SPA (React, Vue, etc.)</h3>
+
+                <p><strong>Typical flow:</strong></p>
+
+                <pre><code>npm ci
+npm run lint
+npm run typecheck
+npm test
+npm run build</code></pre>
+
+                <p><strong>What build does:</strong></p>
+
+                <ul>
+                    <li>Transpiles TypeScript → JavaScript</li>
+                    <li>Bundles modules</li>
+                    <li>Optimizes assets</li>
+                    <li>Generates /dist folder</li>
+                </ul>
+
+                <p><strong>🎁 Artifact:</strong></p>
+
+                <pre><code>dist/
+  index.html
+  assets/
+  bundle.js
+  styles.css</code></pre>
+
+                <p>This directory is uploaded to:</p>
+
+                <ul>
+                    <li>S3</li>
+                    <li>Static hosting</li>
+                    <li>CDN</li>
+                    <li>Artifact repository</li>
+                </ul>
+
+                <h3>🟩 Case 2 — Node API</h3>
+
+                <p><strong>Typical flow:</strong></p>
+
+                <pre><code>npm ci
+npm run lint
+npm test
+npm run build</code></pre>
+
+                <p><strong>Result:</strong></p>
+
+                <pre><code>dist/
+  server.js
+  routes/
+  services/</code></pre>
+
+                <p><strong>🎁 Artifact:</strong></p>
+
+                <ul>
+                    <li>/dist folder</li>
+                    <li>package.json</li>
+                    <li>lockfile</li>
+                    <li>Optional: node_modules if packaging complete</li>
+                </ul>
+
+                <h3>🟧 Case 3 — Dockerized Application</h3>
+
+                <p>Here the artifact is different.</p>
+
+                <p><strong>Flow:</strong></p>
+
+                <pre><code>docker build -t myapp:1.0.0 .
+docker push registry/myapp:1.0.0</code></pre>
+
+                <p><strong>🎁 Artifact:</strong></p>
+
+                <p>A versioned Docker image.</p>
+
+                <p><strong>Huge advantage:</strong></p>
+
+                <ul>
+                    <li>Identical environment everywhere</li>
+                    <li>Zero differences between staging and prod</li>
+                </ul>
+
+                <h2>6️⃣ Versioning and Traceability</h2>
+
+                <p>A senior never publishes artifacts without versioning.</p>
+
+                <p><strong>Best practices:</strong></p>
+
+                <ul>
+                    <li>Semver: 1.8.3</li>
+                    <li>Commit SHA: myapp:1.8.3-abc123</li>
+                    <li>Store metadata:
+                        <ul>
+                            <li>commit</li>
+                            <li>date</li>
+                            <li>pipeline id</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <p><strong>Key question you must always answer:</strong></p>
+
+                <p><strong>What commit is running in production?</strong></p>
+
+                <h2>7️⃣ Security in Build</h2>
+
+                <p>Today build is not just compiling.</p>
+
+                <p>Must include:</p>
+
+                <p><strong>🔍 SCA (dependency scan)</strong></p>
+
+                <ul>
+                    <li>npm audit</li>
+                    <li>Snyk</li>
+                    <li>Dependabot</li>
+                </ul>
+
+                <p><strong>🔐 Secret scanning</strong></p>
+
+                <p>Avoid accidentally uploading tokens.</p>
+
+                <p><strong>🧠 SAST</strong></p>
+
+                <p>Static code analysis.</p>
+
+                <p>In large companies this is mandatory.</p>
+
+                <h2>8️⃣ Pipeline Optimization</h2>
+
+                <p>If build takes 20 minutes, nobody will use it.</p>
+
+                <p><strong>Best practices:</strong></p>
+
+                <p><strong>⚡ Caching</strong></p>
+
+                <p>Cache node_modules</p>
+
+                <p><strong>⚡ Parallelization</strong></p>
+
+                <p>Lint + tests + typecheck in parallel</p>
+
+                <p><strong>⚡ Monorepo</strong></p>
+
+                <p>Build only what changed (Nx, Turborepo)</p>
+
+                <h2>9️⃣ Real Example — GitHub Actions (SPA)</h2>
+
+                <pre><code>name: build-spa
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck --if-present
+      - run: npm test
+
+  build:
+    if: github.ref == 'refs/heads/main'
+    needs: quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: spa-dist-${{ github.sha }}
+          path: dist</code></pre>
+
+                <p>This implements exactly the mental separation:</p>
+
+                <ul>
+                    <li>PR → quality</li>
+                    <li>main → official artifact</li>
+                </ul>
+
+                <h2>🔟 Professional Build Pipeline Checklist</h2>
+
+                <p>If you're senior, your build must meet:</p>
+
+                <ul>
+                    <li>✅ Reproducible</li>
+                    <li>✅ Versioned</li>
+                    <li>✅ Traceable</li>
+                    <li>✅ Secure</li>
+                    <li>✅ Cached</li>
+                    <li>✅ Parallelized</li>
+                    <li>✅ Separate from deploy</li>
+                    <li>✅ Capable of immediate rollback</li>
+                </ul>
+
+                <h2>🧠 Final Summary</h2>
+
+                <p><strong>The Build Pipeline is not simply:</strong></p>
+
+                <p>"run npm run build"</p>
+
+                <p><strong>It's an automated system that:</strong></p>
+
+                <ul>
+                    <li>Guarantees quality</li>
+                    <li>Produces reproducible artifacts</li>
+                    <li>Enables fast rollback</li>
+                    <li>Adds security</li>
+                    <li>Scales with the team</li>
+                    <li>Is transferable to any language</li>
+                </ul>
+
+                <p><strong>Once you understand this pattern, you can do CI/CD for:</strong></p>
+
+                <ul>
+                    <li>React</li>
+                    <li>Node</li>
+                    <li>Java</li>
+                    <li>.NET</li>
+                    <li>Python</li>
+                    <li>Docker</li>
+                    <li>Kubernetes</li>
+                </ul>
+
+                <p><strong>The language changes.<br>
+                The mental structure does not.</strong></p>
+
+                <h2>📚 Resources</h2>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/69965325-3eb4-8396-9363-87897df941c1" target="_blank">The Build Pipeline — Complete CI/CD Guide - Dragos</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Back</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Home →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Blueprint Universal para CI/CD | Ciclo de Software</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-universal-blueprint">
+                <h1>📝 El Blueprint Universal para CI/CD</h1>
+                <p><strong>Un modelo mental que puedes aplicar en cualquier lugar</strong></p>
+
+                <h2>🎯 Objetivo de esta lección</h2>
+
+                <p>Entender cómo pasar de:</p>
+
+                <p><strong>"Tengo código en mi máquina"</strong></p>
+
+                <p>a</p>
+
+                <p><strong>"Tengo software estable funcionando en producción, con despliegues seguros y automatizados"</strong></p>
+
+                <p>Y lo más importante:</p>
+
+                <p>👉 <strong>Desarrollar el modelo mental universal que puedes aplicar en:</strong></p>
+
+                <ul>
+                    <li>una startup con Vercel</li>
+                    <li>un backend en Node</li>
+                    <li>una SPA en React</li>
+                    <li>un microservicio en Docker</li>
+                    <li>un cluster en Kubernetes</li>
+                    <li>o un entorno serverless</li>
+                </ul>
+
+                <p><strong>Las herramientas cambian.<br>
+                El modelo mental NO cambia.</strong></p>
+
+                <h2>🧠 El Modelo Mental Universal</h2>
+
+                <p>Todo sistema moderno se puede dividir en 4 grandes fases:</p>
+
+                <p><strong>Develop → Build → Release → Monitor</strong></p>
+
+                <p>Este es el blueprint que debes tener en la cabeza siempre.</p>
+
+                <h2>1️⃣ DEVELOP – Desarrollo y Control de Versiones</h2>
+
+                <h3>¿Qué ocurre aquí?</h3>
+
+                <ul>
+                    <li>Trabajas en ramas (feature/*)</li>
+                    <li>Haces commits pequeños</li>
+                    <li>Abres Pull Requests</li>
+                    <li>Recibes revisión de código</li>
+                    <li>Se integra al branch principal (main)</li>
+                </ul>
+
+                <h3>🧠 Mentalidad Senior</h3>
+
+                <p><strong>El branch main debe estar SIEMPRE desplegable.</strong></p>
+
+                <p>Eso significa:</p>
+
+                <ul>
+                    <li>Nada se mergea si rompe tests</li>
+                    <li>Nada se mergea sin revisión</li>
+                    <li>Nada se mergea sin pasar el pipeline</li>
+                </ul>
+
+                <h3>📌 Conceptos clave</h3>
+
+                <p><strong>Branching strategy (Git Flow simplificado)</strong></p>
+
+                <p><strong>Ejemplo típico:</strong></p>
+
+                <pre><code>main
+ ├── feature/login
+ ├── feature/payment
+ └── hotfix/bug-123</code></pre>
+
+                <p><strong>Flujo común:</strong></p>
+
+                <ul>
+                    <li>Creas feature/*</li>
+                    <li>Abres PR</li>
+                    <li>Pipeline corre automáticamente</li>
+                    <li>Si pasa → merge</li>
+                    <li>Se dispara CI oficial</li>
+                </ul>
+
+                <h2>2️⃣ BUILD – Convertir Código en Artefacto</h2>
+
+                <h3>🎯 Objetivo</h3>
+
+                <p>Transformar el código en algo ejecutable y reproducible.</p>
+
+                <p>Ese resultado se llama:</p>
+
+                <p>📦 <strong>Artefacto</strong></p>
+
+                <h3>🔎 ¿Qué es un artefacto?</h3>
+
+                <p>Depende del tipo de aplicación:</p>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>Tipo de app</th>
+                        <th>Artefacto</th>
+                    </tr>
+                    <tr>
+                        <td>React SPA</td>
+                        <td>carpeta dist/</td>
+                    </tr>
+                    <tr>
+                        <td>Node API</td>
+                        <td>JS compilado</td>
+                    </tr>
+                    <tr>
+                        <td>TypeScript</td>
+                        <td>JS transpileado</td>
+                    </tr>
+                    <tr>
+                        <td>Java</td>
+                        <td>.jar</td>
+                    </tr>
+                    <tr>
+                        <td>.NET</td>
+                        <td>.dll o ejecutable</td>
+                    </tr>
+                    <tr>
+                        <td>Docker</td>
+                        <td>Imagen Docker</td>
+                    </tr>
+                </table>
+
+                <h3>🔁 Qué debe ocurrir en el build</h3>
+
+                <p><strong>Orden correcto (feedback rápido primero):</strong></p>
+
+                <ul>
+                    <li>Lint</li>
+                    <li>Type check</li>
+                    <li>Unit tests</li>
+                    <li>Build</li>
+                    <li>Empaquetado del artefacto</li>
+                </ul>
+
+                <h3>🧠 Regla de oro senior</h3>
+
+                <p>🔥 <strong>Build una vez. Despliega muchas veces.</strong></p>
+
+                <p>Nunca reconstruyas en producción.<br>
+                El mismo artefacto que probaste en staging debe ir a producción.</p>
+
+                <h2>3️⃣ RELEASE – Desplegar el Artefacto</h2>
+
+                <p>Aquí es donde muchas empresas fallan.</p>
+
+                <p><strong>Release NO es solo "subir archivos".</strong></p>
+
+                <p>Es:</p>
+
+                <ul>
+                    <li>Desplegar artefacto</li>
+                    <li>Ejecutar migraciones</li>
+                    <li>Configurar variables de entorno</li>
+                    <li>Cambiar tráfico</li>
+                    <li>Garantizar disponibilidad</li>
+                </ul>
+
+                <h3>🏗 Entornos típicos</h3>
+
+                <p>Local → Dev → Staging → Production</p>
+
+                <p><strong>Staging</strong></p>
+
+                <p>Réplica cercana a producción<br>
+                Aquí corren integration / e2e tests<br>
+                Puede requerir aprobación manual</p>
+
+                <h3>📊 Tipos de Deployment</h3>
+
+                <p><strong>1️⃣ Recreate</strong></p>
+
+                <p>Apagas servidor viejo → arrancas nuevo<br>
+                ❌ Downtime</p>
+
+                <p><strong>2️⃣ Rolling Deployment</strong></p>
+
+                <p>Reemplazas instancias progresivamente<br>
+                ✅ Sin downtime<br>
+                ✅ Muy común</p>
+
+                <p><strong>3️⃣ Blue/Green</strong></p>
+
+                <p>Dos entornos paralelos<br>
+                Cambias tráfico cuando el nuevo está listo<br>
+                ✅ Muy seguro<br>
+                ⚠️ Más costoso</p>
+
+                <p><strong>4️⃣ Canary</strong></p>
+
+                <p>Despliegas a 5% de usuarios primero<br>
+                Si todo va bien → 100%<br>
+                ✅ Muy profesional<br>
+                ✅ Minimiza riesgo</p>
+
+                <h2>4️⃣ MONITOR – Operación Continua</h2>
+
+                <p>Aquí termina el ciclo… y empieza otro.</p>
+
+                <p>Monitorizar significa:</p>
+
+                <ul>
+                    <li>Logs centralizados</li>
+                    <li>Métricas (CPU, memoria, latencia)</li>
+                    <li>Alertas automáticas</li>
+                    <li>Dashboards</li>
+                </ul>
+
+                <h3>🔥 Punto clave senior: ¿Y si algo falla?</h3>
+
+                <p>Debes tener plan de:</p>
+
+                <p>🔄 <strong>Rollback</strong></p>
+
+                <p>Volver a versión anterior</p>
+
+                <p>o</p>
+
+                <p>🔧 <strong>Rollforward</strong></p>
+
+                <p>Sacar fix rápido y desplegar</p>
+
+                <p><strong>Sin esto, monitor no sirve de nada.</strong></p>
+
+                <h2>⚙️ CI vs CD – Diferencia Real</h2>
+
+                <h3>Continuous Integration (CI)</h3>
+
+                <p>Cada merge:</p>
+
+                <ul>
+                    <li>Corre tests</li>
+                    <li>Genera artefacto</li>
+                    <li>Garantiza que el sistema está integrado</li>
+                </ul>
+
+                <h3>Continuous Delivery</h3>
+
+                <p>Despliegue automático a staging<br>
+                Requiere aprobación manual para prod</p>
+
+                <h3>Continuous Deployment (CD real)</h3>
+
+                <p>Sin intervención humana<br>
+                Si pasa tests → va directo a producción</p>
+
+                <p>⚠️ Solo viable con:</p>
+
+                <ul>
+                    <li>Alta cobertura de tests</li>
+                    <li>Observabilidad sólida</li>
+                    <li>Confianza en el pipeline</li>
+                </ul>
+
+                <h2>📦 Artifact Repository – La Pieza Clave</h2>
+
+                <p><strong>Ejemplos:</strong></p>
+
+                <ul>
+                    <li>Docker Registry</li>
+                    <li>GitHub Packages</li>
+                    <li>AWS ECR</li>
+                    <li>Nexus</li>
+                    <li>S3 versionado</li>
+                </ul>
+
+                <p>El repo NO es el artefacto.<br>
+                El artefacto es el resultado del build.</p>
+
+                <h2>🔐 Seguridad Básica (Que Siempre Preguntan)</h2>
+
+                <p>Un pipeline profesional incluye:</p>
+
+                <ul>
+                    <li>Escaneo de dependencias</li>
+                    <li>Secrets fuera del repo</li>
+                    <li>Permisos mínimos en CI</li>
+                    <li>Auditoría de builds</li>
+                </ul>
+
+                <p>No necesitas ser DevSecOps,<br>
+                pero debes saber que esto existe.</p>
+
+                <h2>🧪 Ejemplo 1 – SPA React</h2>
+
+                <p><strong>Pipeline típico:</strong></p>
+
+                <p><strong>PR:</strong></p>
+
+                <ul>
+                    <li>lint</li>
+                    <li>typecheck</li>
+                    <li>tests</li>
+                    <li>build</li>
+                </ul>
+
+                <p><strong>Merge a main:</strong></p>
+
+                <ul>
+                    <li>build</li>
+                    <li>subir dist a S3</li>
+                    <li>invalidar CDN</li>
+                </ul>
+
+                <p><strong>Deployment:</strong></p>
+
+                <ul>
+                    <li>automático</li>
+                </ul>
+
+                <h2>🧪 Ejemplo 2 – API Node con Docker</h2>
+
+                <p><strong>PR:</strong></p>
+
+                <ul>
+                    <li>tests</li>
+                    <li>build imagen</li>
+                </ul>
+
+                <p><strong>Merge:</strong></p>
+
+                <ul>
+                    <li>push imagen api:&lt;sha&gt; a registry</li>
+                </ul>
+
+                <p><strong>Staging:</strong></p>
+
+                <ul>
+                    <li>deploy imagen</li>
+                    <li>integration tests</li>
+                </ul>
+
+                <p><strong>Prod:</strong></p>
+
+                <ul>
+                    <li>promote misma imagen</li>
+                    <li>rolling deployment</li>
+                </ul>
+
+                <h2>🧠 Action Item Importante</h2>
+
+                <p>Haz este ejercicio:</p>
+
+                <p>En tu empresa actual responde:</p>
+
+                <ul>
+                    <li>¿Cuál es el artefacto?</li>
+                    <li>¿Dónde se guarda?</li>
+                    <li>¿Qué dispara el build?</li>
+                    <li>¿Qué dispara el deploy?</li>
+                    <li>¿Hay aprobación manual?</li>
+                    <li>¿Qué estrategia de despliegue usan?</li>
+                    <li>¿Cómo hacen rollback?</li>
+                </ul>
+
+                <p><strong>Si no puedes responder estas 7 preguntas,<br>
+                no entiendes tu pipeline aún.</strong></p>
+
+                <h2>🎯 Cómo Responder en una Entrevista</h2>
+
+                <p><strong>Respuesta senior modelo:</strong></p>
+
+                <p>"Trabajamos con PR obligatorias. El merge a main dispara CI que corre lint, tests y build. Generamos una imagen Docker versionada con el commit SHA y la subimos al registry. Desplegamos esa misma imagen a staging, ejecutamos tests de integración y luego promovemos a producción con rolling deployment. Monitorizamos logs y métricas y podemos hacer rollback inmediato si es necesario."</p>
+
+                <p>Esto demuestra:</p>
+
+                <ul>
+                    <li>✔ Entiendes CI</li>
+                    <li>✔ Entiendes artefactos</li>
+                    <li>✔ Entiendes despliegue</li>
+                    <li>✔ Piensas en producción</li>
+                </ul>
+
+                <h2>🏁 Conclusión Final</h2>
+
+                <p><strong>CI/CD no es una herramienta.<br>
+                No es GitLab.<br>
+                No es Jenkins.<br>
+                No es GitHub Actions.</strong></p>
+
+                <p><strong>Es un modelo mental de automatización.</strong></p>
+
+                <p>Desarrollas.<br>
+                Construyes.<br>
+                Publicas.<br>
+                Observas.</p>
+
+                <p>Y repites.</p>
+
+                <h2>📚 Recursos</h2>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/6995fec6-f638-838c-8a7d-b90e1aa6e3ab?tab=chats" target="_blank">CI/CD: El Blueprint Universal para Desplegar Software - Dragos</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Volver Atrás</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Volver al Inicio →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>

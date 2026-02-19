@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fundamentos de CI/CD | Ciclo de Software</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-cicd-fundamentals">
+                <h1>💾 Fundamentos de CI/CD</h1>
+                <p><strong>De "quemar CDs" a infraestructura declarativa y despliegues sin downtime</strong></p>
+
+                <h2>1️⃣ Antes de empezar: ¿Qué es realmente CI/CD?</h2>
+
+                <p>Muchos creen que CI/CD es "usar GitHub Actions".</p>
+
+                <p><strong>No.</strong></p>
+
+                <p>👉 <strong>CI/CD es un sistema para entregar software rápido, seguro y de forma repetible.</strong></p>
+
+                <p>Su objetivo es:</p>
+
+                <ul>
+                    <li>Reducir errores humanos</li>
+                    <li>Automatizar tareas repetitivas</li>
+                    <li>Desplegar frecuentemente</li>
+                    <li>Poder hacer rollback fácilmente</li>
+                    <li>Escalar equipos y microservicios</li>
+                </ul>
+
+                <h2>2️⃣ Evolución histórica (Por qué existe CI/CD)</h2>
+
+                <h3>📀 Año 2000 – Distribución por CD</h3>
+
+                <p><strong>Flujo clásico:</strong></p>
+
+                <ul>
+                    <li>Desarrollas software</li>
+                    <li>Generas un ejecutable</li>
+                    <li>Lo grabas en un CD</li>
+                    <li>El usuario lo instala</li>
+                    <li>¿Bug? Sacas parche</li>
+                </ul>
+
+                <p><strong>Problemas:</strong></p>
+
+                <ul>
+                    <li>Releases cada 6 meses</li>
+                    <li>Difícil actualizar usuarios</li>
+                    <li>No escalable</li>
+                </ul>
+
+                <h3>🌐 Era Web – Software consumido online</h3>
+
+                <p>La web cambió todo:</p>
+
+                <ul>
+                    <li>Los usuarios siempre acceden a la última versión</li>
+                    <li>El software vive en un servidor</li>
+                    <li>Podemos desplegar en cualquier momento</li>
+                    <li>Los equipos crecen</li>
+                    <li>Aparecen microservicios</li>
+                </ul>
+
+                <p>Pero surge un problema nuevo:</p>
+
+                <p>👉 <strong>Ahora desplegar se vuelve complejo y manual.</strong></p>
+
+                <h2>3️⃣ Cómo se desplegaba un servidor en los 2000</h2>
+
+                <p>Imagina que quieres subir una web.</p>
+
+                <p><strong>Pasos reales:</strong></p>
+
+                <ol>
+                    <li>Comprar servidor físico</li>
+                    <li>Instalar sistema operativo</li>
+                    <li>Configurar red</li>
+                    <li>Instalar runtime (Node, Java, Apache…)</li>
+                    <li>Instalar base de datos</li>
+                    <li>Configurar DNS</li>
+                    <li>Subir código por SSH</li>
+                    <li>Reiniciar aplicación</li>
+                    <li>Mirar logs manualmente</li>
+                </ol>
+
+                <p>Todo manual.</p>
+
+                <p><strong>Problemas:</strong></p>
+
+                <ul>
+                    <li>Tiempo enorme</li>
+                    <li>Dependencia de una persona experta</li>
+                    <li>Errores humanos</li>
+                    <li>No escalable</li>
+                    <li>Downtime en cada deploy</li>
+                    <li>Rollback complicado</li>
+                </ul>
+
+                <h2>4️⃣ Nace la automatización</h2>
+
+                <p><strong>Primero:</strong></p>
+
+                <ul>
+                    <li>Scripts bash</li>
+                    <li>Automatización manual</li>
+                </ul>
+
+                <p><strong>Luego:</strong></p>
+
+                <ul>
+                    <li>Jenkins</li>
+                    <li>CI Servers autogestionados</li>
+                </ul>
+
+                <p><strong>Después:</strong></p>
+
+                <ul>
+                    <li>GitHub Actions</li>
+                    <li>GitLab CI</li>
+                    <li>Azure DevOps</li>
+                </ul>
+
+                <p><strong>Y finalmente:</strong></p>
+
+                <ul>
+                    <li>Infrastructure as Code</li>
+                    <li>Serverless</li>
+                    <li>Kubernetes</li>
+                    <li>Observabilidad avanzada</li>
+                </ul>
+
+                <h2>5️⃣ Mental Model Clave: El Blueprint Universal</h2>
+
+                <p>Todo sistema CI/CD moderno tiene 3 bloques fundamentales:</p>
+
+                <h3>🏗 1) Provisioning (Infraestructura)</h3>
+
+                <p>Preparar el entorno donde correrá tu aplicación.</p>
+
+                <p>Incluye:</p>
+
+                <ul>
+                    <li>Servidores</li>
+                    <li>Clusters Kubernetes</li>
+                    <li>Bases de datos</li>
+                    <li>Caché</li>
+                    <li>Redes</li>
+                    <li>Seguridad</li>
+                </ul>
+
+                <p><strong>Antes:</strong> SSH manual<br>
+                <strong>Ahora:</strong> Infrastructure as Code</p>
+
+                <p><strong>Ejemplo conceptual Terraform:</strong></p>
+
+                <pre><code>resource "aws_instance" "app" {
+  instance_type = "t3.micro"
+  ami = "ami-12345"
+}</code></pre>
+
+                <p>🎯 Esto convierte infraestructura en código versionable.</p>
+
+                <h3>📦 2) Deployment (Despliegue)</h3>
+
+                <p>Mover tu aplicación al entorno preparado.</p>
+
+                <p>Aquí aparece el concepto más importante:</p>
+
+                <p>👉 <strong>Artifact</strong></p>
+
+                <p>Un artifact es:</p>
+
+                <ul>
+                    <li>La versión ejecutable de tu software</li>
+                </ul>
+
+                <p><strong>Ejemplos:</strong></p>
+
+                <ul>
+                    <li>Carpeta dist/ de React</li>
+                    <li>Imagen Docker myapp:1.2.3</li>
+                    <li>Binario compilado</li>
+                    <li>Archivo JAR</li>
+                </ul>
+
+                <p><strong>Regla senior:</strong></p>
+
+                <p>👉 <strong>Un artifact se construye UNA vez y se despliega MUCHAS veces.</strong></p>
+
+                <p>Nunca recompiles para producción algo diferente que lo que probaste en staging.</p>
+
+                <h3>📊 3) Monitoring (Observabilidad)</h3>
+
+                <p><strong>Antes:</strong></p>
+
+                <ul>
+                    <li>SSH</li>
+                    <li>Leer logs manualmente</li>
+                </ul>
+
+                <p><strong>Ahora:</strong></p>
+
+                <ul>
+                    <li>Logs centralizados</li>
+                    <li>Métricas</li>
+                    <li>Alertas</li>
+                    <li>Tracing</li>
+                </ul>
+
+                <p><strong>Triángulo moderno:</strong></p>
+
+                <ul>
+                    <li><strong>Logs</strong> → Qué pasó</li>
+                    <li><strong>Métricas</strong> → Qué tan grave es</li>
+                    <li><strong>Traces</strong> → Dónde ocurrió</li>
+                </ul>
+
+                <h2>6️⃣ Ahora sí: ¿Qué es CI?</h2>
+
+                <p><strong>CI = Continuous Integration</strong></p>
+
+                <p>Es la parte donde:</p>
+
+                <ul>
+                    <li>Se integra código frecuentemente</li>
+                    <li>Se validan cambios automáticamente</li>
+                    <li>Se construye el artifact</li>
+                </ul>
+
+                <p><strong>Pipeline típico:</strong></p>
+
+                <ul>
+                    <li>Trigger (push o PR)</li>
+                    <li>Checkout código</li>
+                    <li>Instalar dependencias</li>
+                    <li>Lint</li>
+                    <li>Tests</li>
+                    <li>Build</li>
+                    <li>Security scan</li>
+                    <li>Publicar artifact</li>
+                </ul>
+
+                <p><strong>Ejemplo conceptual:</strong></p>
+
+                <pre><code>stages:
+  - test
+  - build
+  - publish
+
+test:
+  run: npm ci && npm test
+
+build:
+  run: npm run build
+
+publish:
+  run: docker build -t myapp:${GIT_SHA} .</code></pre>
+
+                <p>No importa la herramienta.</p>
+
+                <p>Importa el flujo.</p>
+
+                <h2>7️⃣ ¿Qué es CD?</h2>
+
+                <p><strong>CD puede significar:</strong></p>
+
+                <p><strong>Continuous Delivery</strong></p>
+
+                <p>El sistema siempre está listo para producción,<br>
+                pero requiere aprobación manual.</p>
+
+                <p><strong>Continuous Deployment</strong></p>
+
+                <p>Cada cambio que pasa el pipeline<br>
+                se despliega automáticamente.</p>
+
+                <h2>8️⃣ Entornos y Promoción de Artefactos</h2>
+
+                <p><strong>Modelo profesional:</strong></p>
+
+                <p>dev → staging → production</p>
+
+                <p><strong>Importante:</strong></p>
+
+                <p>👉 <strong>El mismo artifact debe moverse entre entornos.</strong></p>
+
+                <p>No recompiles en cada entorno.</p>
+
+                <h2>9️⃣ Estrategias modernas de despliegue (Evitar downtime)</h2>
+
+                <p>Si reinicias la app → downtime.</p>
+
+                <p><strong>Soluciones:</strong></p>
+
+                <p><strong>Rolling Update</strong></p>
+
+                <p>Actualizas instancias gradualmente.</p>
+
+                <p><strong>Blue/Green</strong></p>
+
+                <p>Dos entornos:</p>
+
+                <ul>
+                    <li>Uno activo</li>
+                    <li>Uno nuevo</li>
+                    <li>Cambias el tráfico</li>
+                </ul>
+
+                <p><strong>Canary</strong></p>
+
+                <p>Solo un porcentaje de usuarios usa la nueva versión.</p>
+
+                <p><strong>Feature Flags</strong></p>
+
+                <p>Activar/desactivar funcionalidades sin redeploy.</p>
+
+                <h2>🔟 Infrastructure as Code</h2>
+
+                <p><strong>Antes:</strong></p>
+
+                <p>"Necesitamos un servidor"<br>
+                Admin lo crea manualmente</p>
+
+                <p><strong>Ahora:</strong></p>
+
+                <p>Lo declaras en código<br>
+                Lo versionas<br>
+                Lo revisas en PR<br>
+                Se aplica automáticamente</p>
+
+                <p><strong>Beneficios:</strong></p>
+
+                <ul>
+                    <li>Reproducible</li>
+                    <li>Auditabilidad</li>
+                    <li>Rollback posible</li>
+                    <li>No dependes de memoria humana</li>
+                </ul>
+
+                <h2>1️⃣1️⃣ Observabilidad y SRE Básico</h2>
+
+                <p><strong>Conceptos importantes:</strong></p>
+
+                <ul>
+                    <li><strong>SLI</strong> → Métrica real (ej: latencia p95)</li>
+                    <li><strong>SLO</strong> → Objetivo (99.9% uptime)</li>
+                    <li><strong>SLA</strong> → Compromiso contractual</li>
+                </ul>
+
+                <p><strong>Alertas deben ser:</strong></p>
+
+                <ul>
+                    <li>Accionables</li>
+                    <li>Pocas</li>
+                    <li>Basadas en impacto real</li>
+                </ul>
+
+                <h2>1️⃣2️⃣ Evolución completa del ecosistema</h2>
+
+                <p>Manual SSH → Scripts Bash → Jenkins → Managed CI → Containers → IaC → Serverless → Observability → DevOps + SRE mindset</p>
+
+                <h2>1️⃣3️⃣ Mental Model Final (Para entrevistas)</h2>
+
+                <p>Un pipeline moderno es:</p>
+
+                <ol>
+                    <li>Código</li>
+                    <li>CI valida y construye artifact</li>
+                    <li>Artifact se publica en registry</li>
+                    <li>Infra está declarada (IaC)</li>
+                    <li>CD despliega a staging</li>
+                    <li>Tests automáticos</li>
+                    <li>Deploy progresivo a producción</li>
+                    <li>Observabilidad activa</li>
+                    <li>Rollback inmediato si falla</li>
+                </ol>
+
+                <h2>1️⃣4️⃣ Qué hace que alguien sea Senior en CI/CD</h2>
+
+                <p>No es saber usar AWS.</p>
+
+                <p>Es entender:</p>
+
+                <ul>
+                    <li>Cómo minimizar riesgo</li>
+                    <li>Cómo evitar downtime</li>
+                    <li>Cómo versionar infraestructura</li>
+                    <li>Cómo promover artifacts</li>
+                    <li>Cómo automatizar todo</li>
+                    <li>Cómo observar sistemas en producción</li>
+                    <li>Cómo diseñar rollback seguro</li>
+                </ul>
+
+                <h2>1️⃣5️⃣ Resumen ultra claro</h2>
+
+                <p><strong>CI/CD no es una herramienta.</strong></p>
+
+                <p><strong>Es:</strong></p>
+
+                <ul>
+                    <li>Industrialización del desarrollo de software</li>
+                    <li>Provisioning + Deployment + Monitoring</li>
+                    <li>Automatizado</li>
+                    <li>Versionado</li>
+                    <li>Reproducible</li>
+                    <li>Escalable</li>
+                </ul>
+
+                <h2>📚 Recursos</h2>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/6995fc5b-aa7c-8386-af09-5cd7d01c5c82?tab=chats" target="_blank">🚀 Fundamentos de CI/CD & Cloud - Dragos</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Volver Atrás</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Volver al Inicio →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>

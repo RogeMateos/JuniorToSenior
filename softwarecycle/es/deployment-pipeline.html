@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Pipeline de Despliegue | Ciclo de Software</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-deployment-pipeline">
+                <h1>🚀 El Pipeline de Despliegue</h1>
+                <p><strong>Guía Completa para Despliegues Seguros y Reversibles en Producción</strong></p>
+
+                <h2>🎯 Objetivo</h2>
+
+                <p>Entregar cambios a producción de forma segura, repetible y sin downtime, con capacidad de rollback inmediato si algo falla.</p>
+
+                <p><strong>Un despliegue no termina cuando el código "sube".<br>
+                Termina cuando:</strong></p>
+
+                <ul>
+                    <li>El sistema está healthy</li>
+                    <li>Las métricas están estables</li>
+                    <li>No hay regresiones</li>
+                    <li>Podemos volver atrás en segundos si algo falla</li>
+                </ul>
+
+                <h2>1️⃣ CI vs Continuous Delivery vs Continuous Deployment</h2>
+
+                <h3>🔹 Continuous Integration (CI)</h3>
+
+                <p>Cada commit:</p>
+
+                <ul>
+                    <li>Se construye (build)</li>
+                    <li>Se ejecutan tests</li>
+                    <li>Se valida automáticamente</li>
+                </ul>
+
+                <p>👉 <strong>Objetivo: detectar errores lo antes posible.</strong></p>
+
+                <h3>🔹 Continuous Delivery</h3>
+
+                <p>El sistema está siempre listo para desplegar.</p>
+
+                <p><strong>Pipeline típico:</strong></p>
+
+                <p>Commit → Build → Tests → Artifact → Deploy Staging → Verify → (Manual Approval) → Production</p>
+
+                <p>Aquí hay un botón humano antes de producción.</p>
+
+                <p>👉 <strong>Es lo más común en empresas.</strong></p>
+
+                <h3>🔹 Continuous Deployment</h3>
+
+                <p>Cada cambio que pasa el pipeline:</p>
+
+                <p>Commit → Build → Tests → Artifact → Production (automático)</p>
+
+                <p>Sin aprobación manual.</p>
+
+                <p>⚠️ <strong>Solo viable si:</strong></p>
+
+                <ul>
+                    <li>Tests son muy sólidos</li>
+                    <li>Observabilidad es buena</li>
+                    <li>Rollback es rápido</li>
+                    <li>Equipo es maduro</li>
+                </ul>
+
+                <h2>2️⃣ ¿Qué significa realmente "desplegar"?</h2>
+
+                <p>Depende del tipo de aplicación.</p>
+
+                <h3>🟢 Caso 1: Web estática (SPA)</h3>
+
+                <p>React build → archivos HTML/CSS/JS</p>
+
+                <p>Se puede desplegar en:</p>
+
+                <ul>
+                    <li>S3 + CloudFront</li>
+                    <li>Vercel</li>
+                    <li>Netlify</li>
+                    <li>Azure Blob</li>
+                </ul>
+
+                <p>No necesitas servidor aquí.</p>
+
+                <p>Rollback = volver a subir versión anterior.</p>
+
+                <h3>🟢 Caso 2: Backend / SSR / API</h3>
+
+                <p>Necesitas compute:</p>
+
+                <ul>
+                    <li>Virtual Machine</li>
+                    <li>Containers</li>
+                    <li>Serverless</li>
+                </ul>
+
+                <p>Aquí el despliegue implica:</p>
+
+                <ul>
+                    <li>Actualizar proceso</li>
+                    <li>Gestionar tráfico</li>
+                    <li>Manejar estado</li>
+                    <li>Controlar downtime</li>
+                </ul>
+
+                <h2>3️⃣ Evolución de las formas de desplegar</h2>
+
+                <h3>1️⃣ On-Premise</h3>
+
+                <p>Servidor físico propio.</p>
+
+                <p><strong>Pros:</strong></p>
+
+                <ul>
+                    <li>Control total</li>
+                </ul>
+
+                <p><strong>Contras:</strong></p>
+
+                <ul>
+                    <li>Escalabilidad limitada</li>
+                    <li>Coste alto</li>
+                    <li>Operaciones complejas</li>
+                </ul>
+
+                <h3>2️⃣ Virtual Machines (Cloud)</h3>
+
+                <p>Ej: EC2, Azure VM</p>
+
+                <p>Cloud providers usan hypervisor para crear múltiples VMs dentro de grandes máquinas físicas.</p>
+
+                <p><strong>Pros:</strong></p>
+
+                <ul>
+                    <li>Más flexible</li>
+                    <li>Escalable</li>
+                    <li>Control completo</li>
+                </ul>
+
+                <p><strong>Contras:</strong></p>
+
+                <p>Tú gestionas:</p>
+
+                <ul>
+                    <li>Parches</li>
+                    <li>Seguridad</li>
+                    <li>Escalado</li>
+                    <li>Reinicios</li>
+                </ul>
+
+                <h3>3️⃣ Containers (Docker)</h3>
+
+                <p>Aquí no gestionas tanto el servidor.</p>
+
+                <p>Subes una imagen Docker:</p>
+
+                <pre><code>docker build → docker push → cloud runs it</code></pre>
+
+                <p>Ej:</p>
+
+                <ul>
+                    <li>ECS / Fargate</li>
+                    <li>Kubernetes</li>
+                    <li>Cloud Run</li>
+                </ul>
+
+                <p><strong>Pros:</strong></p>
+
+                <ul>
+                    <li>Reproducible</li>
+                    <li>Portable</li>
+                    <li>Estándar en empresas</li>
+                </ul>
+
+                <p><strong>Contras:</strong></p>
+
+                <ul>
+                    <li>Más complejidad inicial</li>
+                </ul>
+
+                <h3>4️⃣ Serverless</h3>
+
+                <p>Ej:</p>
+
+                <ul>
+                    <li>AWS Lambda</li>
+                    <li>Azure Functions</li>
+                </ul>
+
+                <p>Subes código → el proveedor ejecuta.</p>
+
+                <p><strong>Pros:</strong></p>
+
+                <ul>
+                    <li>Escala automático</li>
+                    <li>Pagas por uso</li>
+                    <li>Casi cero infraestructura</li>
+                </ul>
+
+                <p><strong>Contras:</strong></p>
+
+                <ul>
+                    <li>Límites</li>
+                    <li>Cold starts</li>
+                    <li>Debugging más difícil</li>
+                    <li>Vendor lock-in</li>
+                </ul>
+
+                <h2>4️⃣ Requisitos de un buen despliegue</h2>
+
+                <p>Dos cosas clave:</p>
+
+                <p><strong>✅ Zero Downtime</strong></p>
+
+                <p>El usuario no debe notar el despliegue.</p>
+
+                <p><strong>✅ Reversible</strong></p>
+
+                <p>Debe existir mecanismo de rollback inmediato.</p>
+
+                <p><strong>Un despliegue sin rollback no es production-ready.</strong></p>
+
+                <h2>5️⃣ Deployment Styles (Cómo desplegar sin romper nada)</h2>
+
+                <h3>1️⃣ In-Place (Big Bang)</h3>
+
+                <p>Actualizas servidor existente y reinicias.</p>
+
+                <p><strong>Pros:</strong></p>
+
+                <ul>
+                    <li>Simple</li>
+                    <li>Barato</li>
+                </ul>
+
+                <p><strong>Contras:</strong></p>
+
+                <ul>
+                    <li>Downtime</li>
+                    <li>Riesgo alto</li>
+                    <li>Rollback lento</li>
+                </ul>
+
+                <p>Solo aceptable en:</p>
+
+                <ul>
+                    <li>Proyectos pequeños</li>
+                    <li>Entornos internos</li>
+                </ul>
+
+                <h3>2️⃣ Rolling Deployment</h3>
+
+                <p>Actualizas instancias poco a poco.</p>
+
+                <p>Ej:</p>
+
+                <p>10 servidores<br>
+                Actualizas 1 → validas → actualizas siguiente</p>
+
+                <p><strong>Pros:</strong></p>
+
+                <ul>
+                    <li>Casi sin downtime</li>
+                    <li>Más seguro</li>
+                </ul>
+
+                <p><strong>Contras:</strong></p>
+
+                <ul>
+                    <li>Conviven versiones distintas</li>
+                </ul>
+
+                <p>⚠️ <strong>Requiere compatibilidad hacia atrás.</strong></p>
+
+                <h3>3️⃣ Blue / Green</h3>
+
+                <p>Tienes dos entornos completos:</p>
+
+                <ul>
+                    <li>Blue = producción actual</li>
+                    <li>Green = nueva versión</li>
+                </ul>
+
+                <p>Cuando Green está validado:<br>
+                → Cambias tráfico</p>
+
+                <p><strong>Pros:</strong></p>
+
+                <ul>
+                    <li>Rollback instantáneo</li>
+                    <li>Sin downtime real</li>
+                </ul>
+
+                <p><strong>Contras:</strong></p>
+
+                <ul>
+                    <li>Doble infraestructura</li>
+                </ul>
+
+                <p>Muy común en sistemas críticos.</p>
+
+                <h3>4️⃣ Canary Deployment</h3>
+
+                <p>Envías pequeño porcentaje de tráfico:</p>
+
+                <p>10% → 30% → 60% → 100%</p>
+
+                <p><strong>Pros:</strong></p>
+
+                <ul>
+                    <li>Detectas problemas reales antes de impactar a todos</li>
+                </ul>
+
+                <p><strong>Contras:</strong></p>
+
+                <ul>
+                    <li>Necesitas métricas sólidas</li>
+                </ul>
+
+                <p>⚠️ <strong>Canary sin métricas = apostar a ciegas</strong></p>
+
+                <h2>6️⃣ Rollback real (lo que casi nadie explica)</h2>
+
+                <p>Hay 3 niveles:</p>
+
+                <h3>1️⃣ Rollback de aplicación</h3>
+
+                <p>Volver a imagen anterior:</p>
+
+                <pre><code>deploy image:v1.2.3</code></pre>
+
+                <p>Si versionas artefactos bien → fácil.</p>
+
+                <h3>2️⃣ Rollback de configuración</h3>
+
+                <p>A veces el problema es:</p>
+
+                <ul>
+                    <li>Variable de entorno</li>
+                    <li>Feature flag</li>
+                    <li>Secret mal configurado</li>
+                </ul>
+
+                <p>Debes tener configuración auditada y versionada.</p>
+
+                <h3>3️⃣ Rollback de base de datos (el difícil)</h3>
+
+                <p>Nunca hagas migraciones destructivas antes de tiempo.</p>
+
+                <p><strong>Estrategia correcta:</strong></p>
+
+                <p>Expand → Migrate → Contract</p>
+
+                <ul>
+                    <li>Añades nueva columna (sin borrar nada)</li>
+                    <li>Despliegas código compatible</li>
+                    <li>Migras datos</li>
+                    <li>Eliminas estructura vieja después</li>
+                </ul>
+
+                <p>Así Rolling o Blue/Green no rompe nada.</p>
+
+                <h2>7️⃣ Monitoring: El despliegue no termina cuando sube</h2>
+
+                <p>Después de desplegar debes verificar:</p>
+
+                <p><strong>Checklist post-deploy:</strong></p>
+
+                <ul>
+                    <li>Health checks OK</li>
+                    <li>Error rate estable</li>
+                    <li>Latencia p95/p99 normal</li>
+                    <li>CPU/mem no se disparan</li>
+                    <li>No nuevas alertas</li>
+                    <li>Smoke tests pasan</li>
+                </ul>
+
+                <p>Si algo falla:<br>
+                → Rollback inmediato</p>
+
+                <h2>8️⃣ Pipeline moderno completo</h2>
+
+                <p>Ejemplo con containers:</p>
+
+                <pre><code>Commit
+  ↓
+Build Docker Image
+  ↓
+Run Tests
+  ↓
+Security Scan
+  ↓
+Push to Registry
+  ↓
+Deploy to Staging
+  ↓
+Smoke Tests
+  ↓
+Manual Approval (Delivery)
+  ↓
+Deploy Production (Rolling / BlueGreen / Canary)
+  ↓
+Monitor
+  ↓
+Auto Rollback if metrics fail</code></pre>
+
+                <p><strong>Eso es cerrar el ciclo de CI/CD.</strong></p>
+
+                <h2>9️⃣ Cómo piensa una empresa madura</h2>
+
+                <p>Una empresa madura:</p>
+
+                <ul>
+                    <li>No despliega sin métricas</li>
+                    <li>No despliega sin rollback</li>
+                    <li>No rompe compatibilidad en DB</li>
+                    <li>Automatiza todo lo repetible</li>
+                    <li>Mide impacto real</li>
+                    <li>Hace despliegues pequeños y frecuentes</li>
+                </ul>
+
+                <p><strong>Porque pequeños cambios = menor riesgo.</strong></p>
+
+                <h2>🔟 Resumen mental</h2>
+
+                <p><strong>Si recuerdas solo esto:</strong></p>
+
+                <p><strong>Automatización + Observabilidad + Rollback rápido = Despliegue seguro</strong></p>
+
+                <p><strong>Y:</strong></p>
+
+                <p><strong>Zero Downtime no es magia.<br>
+                Es arquitectura + estrategia + disciplina.</strong></p>
+
+                <h2>📚 Recursos</h2>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/699653fb-a7ac-8384-af94-ce53da2c6840" target="_blank">El Pipeline de Despliegue — Guía Completa - Dragos</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Volver Atrás</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Volver al Inicio →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>

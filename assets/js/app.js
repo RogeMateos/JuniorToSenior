@@ -368,6 +368,16 @@ function injectSidebarAndNav() {
                     </div>
                     <ul class="nav-accordion-content" id="section7-content">
                         <li><a href="${isSpanish ? '../../../../softwarecycle/es/senior-mindset.html' : '../../../../softwarecycle/en/senior-mindset.html'}" class="nav-link">${isSpanish ? '🚀 Senior Mindset: DevOps' : '🚀 Senior Mindset: DevOps'}</a></li>
+                        <li><a href="${isSpanish ? '../../../../softwarecycle/es/roadmap.html' : '../../../../softwarecycle/en/roadmap.html'}" class="nav-link">${isSpanish ? '👨🏽‍💻 Software Lifecycle Roadmap' : '👨🏽‍💻 Software Lifecycle Roadmap'}</a></li>
+                        <li><a href="${isSpanish ? '../../../../softwarecycle/es/operation-excellence.html' : '../../../../softwarecycle/en/operation-excellence.html'}" class="nav-link">${isSpanish ? '🧬 Operational Excellence Principles' : '🧬 Operational Excellence Principles'}</a></li>
+                        <li><a href="${isSpanish ? '../../../../softwarecycle/es/cicd-fundamentals.html' : '../../../../softwarecycle/en/cicd-fundamentals.html'}" class="nav-link">${isSpanish ? '💾 CI/CD Fundamentals' : '💾 CI/CD Fundamentals'}</a></li>
+                        <li><a href="${isSpanish ? '../../../../softwarecycle/es/universal-blueprint.html' : '../../../../softwarecycle/en/universal-blueprint.html'}" class="nav-link">${isSpanish ? '📝 The Universal Blueprint for CI/CD' : '📝 The Universal Blueprint for CI/CD'}</a></li>
+                        <li><a href="${isSpanish ? '../../../../softwarecycle/es/version-control-patterns.html' : '../../../../softwarecycle/en/version-control-patterns.html'}" class="nav-link">${isSpanish ? '📝🔄 Version Control Patterns' : '📝🔄 Version Control Patterns'}</a></li>
+                        <li><a href="${isSpanish ? '../../../../softwarecycle/es/build-pipeline.html' : '../../../../softwarecycle/en/build-pipeline.html'}" class="nav-link">${isSpanish ? '💿 The Build Pipeline' : '💿 The Build Pipeline'}</a></li>
+                        <li><a href="${isSpanish ? '../../../../softwarecycle/es/deployment-pipeline.html' : '../../../../softwarecycle/en/deployment-pipeline.html'}" class="nav-link">${isSpanish ? '🚀 The Deployment Pipeline' : '🚀 The Deployment Pipeline'}</a></li>
+                        <li><a href="${isSpanish ? '../../../../softwarecycle/es/linux-servers.html' : '../../../../softwarecycle/en/linux-servers.html'}" class="nav-link">${isSpanish ? '⌨️ Introduction to Linux Servers' : '⌨️ Introduction to Linux Servers'}</a></li>
+                        <li><a href="${isSpanish ? '../../../../softwarecycle/es/cloud-providers.html' : '../../../../softwarecycle/en/cloud-providers.html'}" class="nav-link">${isSpanish ? '⌨️☁️ Cloud Providers: AWS, Azure & GCP' : '⌨️☁️ Cloud Providers: AWS, Azure & GCP'}</a></li>
+                        <li><a href="${isSpanish ? '../../../../softwarecycle/es/network-security.html' : '../../../../softwarecycle/en/network-security.html'}" class="nav-link">${isSpanish ? '⌨️☁️ Fundamentos de Seguridad de Red en AWS' : '⌨️☁️ Network Security Fundamentals in AWS'}</a></li>
                     </ul>
                 </li>
             </ul>

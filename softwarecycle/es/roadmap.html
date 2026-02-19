@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Software Lifecycle Roadmap | FullStack</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-roadmap">
+                <h1>👨🏽‍💻 Software Lifecycle Roadmap</h1>
+                <p><strong>🚀 De Fullstack a "You Build It, You Run It"</strong></p>
+                <p><strong>Roadmap práctico para desplegar aplicaciones en la nube</strong></p>
+
+                <h2>🎯 Objetivo del tutorial</h2>
+
+                <p>Al terminar este roadmap deberías ser capaz de:</p>
+
+                <ul>
+                    <li>Desplegar una app en un servidor Linux</li>
+                    <li>Exponerla con dominio y HTTPS</li>
+                    <li>Automatizar despliegues con CI/CD</li>
+                    <li>Entender containers y serverless</li>
+                    <li>Hacer rollback sin pánico</li>
+                    <li>Tener monitoreo básico</li>
+                    <li>Usar infraestructura como código</li>
+                    <li>Debuggear problemas reales en producción</li>
+                </ul>
+
+                <p><strong>No vas a ser DevOps.<br>Vas a ser un fullstack autónomo y sólido.</strong></p>
+
+                <h2>🧠 Mentalidad correcta</h2>
+
+                <p>No estás aquí para memorizar comandos.<br>
+                Estás aquí para entender cómo funciona el sistema completo.</p>
+
+                <p>Un senior no recuerda todos los comandos.<br>
+                Un senior sabe:</p>
+
+                <ul>
+                    <li>qué es posible,</li>
+                    <li>qué mirar cuando falla,</li>
+                    <li>y cómo automatizarlo.</li>
+                </ul>
+
+                <h2>🏗 FASE 1 — Fundamentos de servidor (Linux + red básica)</h2>
+
+                <h3>🎯 Objetivo</h3>
+
+                <p>Ser capaz de entrar a un servidor y ejecutar tu aplicación ahí.</p>
+
+                <h3>1️⃣ Conectarte por SSH</h3>
+
+                <p><strong>Aprender:</strong></p>
+
+                <ul>
+                    <li>Qué es SSH</li>
+                    <li>Claves públicas/privadas</li>
+                    <li>Por qué nunca usar password en producción</li>
+                </ul>
+
+                <p><strong>Ejemplo:</strong></p>
+
+                <pre><code>ssh -i mykey.pem user@your-server-ip</code></pre>
+
+                <p><strong>Mental model:</strong></p>
+
+                <p>SSH es tu puerta de entrada<br>
+                Si no puedes entrar, no puedes arreglar nada</p>
+
+                <h3>2️⃣ Comandos básicos de Linux que SÍ necesitas</h3>
+
+                <p>No necesitas ser experto. Necesitas saber:</p>
+
+                <ul>
+                    <li>ls</li>
+                    <li>cd</li>
+                    <li>cat</li>
+                    <li>nano / vim</li>
+                    <li>top</li>
+                    <li>ps</li>
+                    <li>kill</li>
+                    <li>systemctl</li>
+                    <li>journalctl</li>
+                </ul>
+
+                <p><strong>Ejemplo práctico:</strong></p>
+
+                <pre><code>ps aux | grep node</code></pre>
+
+                <p>Esto te dice si tu app está corriendo.</p>
+
+                <h3>3️⃣ Correr tu app como servicio (systemd)</h3>
+
+                <p>No puedes hacer: <code>node index.js</code> y dejar eso así.</p>
+
+                <p>Necesitas un servicio Linux.</p>
+
+                <p><strong>Archivo ejemplo:</strong> <code>/etc/systemd/system/myapp.service</code></p>
+
+                <pre><code>[Unit]
+Description=My Node App
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/node /home/user/app/index.js
+Restart=always
+User=user
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+
+                <p><strong>Luego:</strong></p>
+
+                <pre><code>sudo systemctl enable myapp
+sudo systemctl start myapp</code></pre>
+
+                <p>🔎 Ahora tu app se reinicia sola si se cae.<br>
+                Eso es mentalidad producción.</p>
+
+                <h3>4️⃣ Puertos y firewall</h3>
+
+                <p>Si tu app escucha en 3000 pero nadie puede acceder…</p>
+
+                <p>Revisas:</p>
+
+                <ul>
+                    <li>¿Está escuchando en 0.0.0.0?</li>
+                    <li>¿Está abierto el puerto en firewall?</li>
+                    <li>¿Está abierto el puerto en el security group del cloud?</li>
+                </ul>
+
+                <h2>🌍 FASE 2 — Dominio, HTTPS y Reverse Proxy</h2>
+
+                <p>Una app sin HTTPS no es producción.</p>
+
+                <h3>1️⃣ DNS</h3>
+
+                <p><strong>Aprender:</strong></p>
+
+                <ul>
+                    <li>A record</li>
+                    <li>CNAME</li>
+                    <li>Qué es propagación</li>
+                </ul>
+
+                <p><strong>Ejemplo:</strong><br>
+                <code>api.midominio.com</code> → apunta a IP del servidor</p>
+
+                <h3>2️⃣ Reverse Proxy (Nginx)</h3>
+
+                <p>Nunca expongas Node directamente.</p>
+
+                <p>Instalas Nginx:</p>
+
+                <pre><code>sudo apt install nginx</code></pre>
+
+                <p><strong>Config básica:</strong></p>
+
+                <pre><code>server {
+    listen 80;
+    server_name api.midominio.com;
+
+    location / {
+        proxy_pass http://localhost:3000;
+    }
+}</code></pre>
+
+                <h3>3️⃣ HTTPS con Let's Encrypt</h3>
+
+                <pre><code>sudo certbot --nginx -d api.midominio.com</code></pre>
+
+                <p>Ahora tienes:</p>
+
+                <ul>
+                    <li>🔐 HTTPS</li>
+                    <li>Renovación automática</li>
+                    <li>Seguridad básica real</li>
+                </ul>
+
+                <h2>🔄 FASE 3 — CI/CD (Automatización)</h2>
+
+                <p>Aquí dejas de hacer deploy manual.</p>
+
+                <h3>🧠 Mental model</h3>
+
+                <ul>
+                    <li>CI = Confianza</li>
+                    <li>CD = Entrega automática</li>
+                </ul>
+
+                <h3>1️⃣ CI (Continuous Integration)</h3>
+
+                <p>Pipeline debe:</p>
+
+                <ul>
+                    <li>Instalar dependencias</li>
+                    <li>Lint</li>
+                    <li>Typecheck</li>
+                    <li>Tests</li>
+                    <li>Build</li>
+                </ul>
+
+                <p><strong>Ejemplo GitHub Actions:</strong></p>
+
+                <pre><code>jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm install
+      - run: npm run build
+      - run: npm test</code></pre>
+
+                <h3>2️⃣ Artefactos</h3>
+
+                <p>Un artefacto es:</p>
+
+                <ul>
+                    <li>build de React</li>
+                    <li>zip de backend</li>
+                    <li>imagen Docker</li>
+                </ul>
+
+                <p><strong>Lo importante:</strong></p>
+
+                <p>Nunca recompilar en producción.<br>
+                Desplegar EXACTAMENTE lo que testeaste.</p>
+
+                <h3>3️⃣ CD (Deploy automático)</h3>
+
+                <p><strong>Ejemplo:</strong></p>
+
+                <ul>
+                    <li>Merge a main → despliega a staging</li>
+                    <li>Approval manual → despliega a producción</li>
+                </ul>
+
+                <p>Ahora eres profesional.</p>
+
+                <h2>📦 FASE 4 — Tipos de despliegue</h2>
+
+                <p>No todo se despliega igual.</p>
+
+                <h3>1️⃣ Static Deployment</h3>
+
+                <p><strong>Para:</strong></p>
+
+                <ul>
+                    <li>React</li>
+                    <li>Next.js export</li>
+                    <li>Landing pages</li>
+                </ul>
+
+                <p><strong>Deploy:</strong></p>
+
+                <ul>
+                    <li>S3 + CDN</li>
+                    <li>Vercel</li>
+                    <li>Netlify</li>
+                </ul>
+
+                <p>Ideal para frontend.</p>
+
+                <h3>2️⃣ Virtual Machine</h3>
+
+                <p>Simple.<br>
+                Control total.<br>
+                Más responsabilidad.</p>
+
+                <p><strong>Ideal para:</strong></p>
+
+                <ul>
+                    <li>APIs pequeñas</li>
+                    <li>Servicios simples</li>
+                </ul>
+
+                <h3>3️⃣ Containers (Docker)</h3>
+
+                <p><strong>Ventajas:</strong></p>
+
+                <ul>
+                    <li>Entorno consistente</li>
+                    <li>Fácil de escalar</li>
+                    <li>Portabilidad</li>
+                </ul>
+
+                <p><strong>Ejemplo Dockerfile:</strong></p>
+
+                <pre><code>FROM node:18
+WORKDIR /app
+COPY package*.json .
+RUN npm install
+COPY . .
+CMD ["node", "index.js"]</code></pre>
+
+                <p><strong>Construir:</strong></p>
+
+                <pre><code>docker build -t myapp .</code></pre>
+
+                <h3>4️⃣ Serverless (Lambda)</h3>
+
+                <p><strong>Ideal para:</strong></p>
+
+                <ul>
+                    <li>APIs pequeñas</li>
+                    <li>Procesamiento por eventos</li>
+                    <li>Picos impredecibles</li>
+                </ul>
+
+                <p>No gestionas servidores.<br>
+                Pero tienes límites.</p>
+
+                <h2>🟢 FASE 5 — Estrategias de despliegue sin miedo</h2>
+
+                <p>Desplegar no debe dar miedo.</p>
+
+                <h3>Blue-Green Deployment</h3>
+
+                <ul>
+                    <li>Tienes versión azul (actual)</li>
+                    <li>Despliegas verde (nueva)</li>
+                    <li>Cambias tráfico</li>
+                    <li>Si falla → vuelves atrás</li>
+                </ul>
+
+                <p>Cero downtime.</p>
+
+                <h3>Feature Flags</h3>
+
+                <p>Lanzas código sin activar funcionalidad.</p>
+
+                <p>Si algo falla:</p>
+
+                <ul>
+                    <li>Desactivas flag</li>
+                    <li>No necesitas redeploy</li>
+                </ul>
+
+                <p><strong>Rollback rápido</strong></p>
+
+                <p>Siempre pregúntate:</p>
+
+                <p><strong>Si esto falla, ¿cómo vuelvo atrás en menos de 5 minutos?</strong></p>
+
+                <h2>📊 FASE 6 — Monitoring y Observabilidad</h2>
+
+                <p>Si no lo monitoreas, no existe.</p>
+
+                <h3>Lo mínimo que debes tener</h3>
+
+                <ul>
+                    <li>Logs centralizados</li>
+                    <li>Métricas:
+                        <ul>
+                            <li>CPU</li>
+                            <li>memoria</li>
+                            <li>error rate</li>
+                            <li>latencia</li>
+                        </ul>
+                    </li>
+                    <li>Alertas</li>
+                </ul>
+
+                <h3>Cuando algo falla, orden mental:</h3>
+
+                <ul>
+                    <li>¿Está arriba el servicio?</li>
+                    <li>¿Hubo deploy reciente?</li>
+                    <li>¿Hay errores en logs?</li>
+                    <li>¿Está la base de datos saturada?</li>
+                    <li>¿CPU/memoria al 100%?</li>
+                </ul>
+
+                <h2>🔐 FASE 7 — Seguridad básica que no puedes ignorar</h2>
+
+                <ul>
+                    <li>No secretos en git</li>
+                    <li>Variables de entorno seguras</li>
+                    <li>Principio de mínimo privilegio</li>
+                    <li>Actualizar dependencias</li>
+                    <li>HTTPS siempre</li>
+                </ul>
+
+                <h2>🏗 FASE 8 — Infrastructure as Code</h2>
+
+                <p>Nunca hagas click manual en producción.</p>
+
+                <p><strong>Usa:</strong></p>
+
+                <ul>
+                    <li>Terraform</li>
+                    <li>Pulumi</li>
+                    <li>CloudFormation</li>
+                </ul>
+
+                <p><strong>Ventajas:</strong></p>
+
+                <ul>
+                    <li>Versionado</li>
+                    <li>Revisiones por PR</li>
+                    <li>Reproducible</li>
+                    <li>Equipo alineado</li>
+                </ul>
+
+                <p>Infraestructura como código = profesionalismo.</p>
+
+                <h2>🧾 FASE 9 — Nivel Senior</h2>
+
+                <p>Aquí es donde realmente te diferencias.</p>
+
+                <p><strong>Aprender conceptos como:</strong></p>
+
+                <ul>
+                    <li>SLA (Service Level Agreement)</li>
+                    <li>RTO / RPO</li>
+                    <li>Cost optimization</li>
+                    <li>Runbooks</li>
+                    <li>Incident response</li>
+                    <li>Postmortems</li>
+                </ul>
+
+                <p>Un senior no solo deploya.<br>
+                Un senior sabe operar.</p>
+
+                <h2>🎓 Proyecto Final (Capstone)</h2>
+
+                <p>Construye esto:</p>
+
+                <ul>
+                    <li>Frontend React → static + CDN</li>
+                    <li>Backend Node → container o VM</li>
+                    <li>Base de datos gestionada</li>
+                    <li>CI/CD con staging y producción</li>
+                    <li>HTTPS</li>
+                    <li>Monitoring básico</li>
+                    <li>Rollback documentado</li>
+                </ul>
+
+                <p><strong>Si puedes hacer esto solo…</strong></p>
+
+                <p><strong>Estás listo para producción real.</strong></p>
+
+                <h2>🏁 Conclusión</h2>
+
+                <p>No necesitas Kubernetes.<br>
+                No necesitas 20 certificaciones.<br>
+                No necesitas ser DevOps.</p>
+
+                <p><strong>Pero sí necesitas:</strong></p>
+
+                <ul>
+                    <li>Entender el sistema completo</li>
+                    <li>Automatizar</li>
+                    <li>No depender de otros para desplegar</li>
+                    <li>No tener miedo a producción</li>
+                </ul>
+
+                <h2>📚 Recursos Adicionales</h2>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/6995f7a1-8620-838a-a1b6-9697e521d3c5?tab=chats" target="_blank">Dragos - Patrones Avanzados de DevOps y Deployment</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Volver Atrás</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Volver al Inicio →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Universal Blueprint for CI/CD | Software Lifecycle</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-universal-blueprint">
+                <h1>📝 The Universal Blueprint for CI/CD</h1>
+                <p><strong>A mental model you can apply anywhere</strong></p>
+
+                <h2>🎯 Lesson Goal</h2>
+
+                <p>Understand how to go from:</p>
+
+                <p><strong>"I have code on my machine"</strong></p>
+
+                <p>to</p>
+
+                <p><strong>"I have stable software running in production, with safe and automated deployments"</strong></p>
+
+                <p>And most importantly:</p>
+
+                <p>👉 <strong>Develop the universal mental model you can apply in:</strong></p>
+
+                <ul>
+                    <li>A startup with Vercel</li>
+                    <li>A Node backend</li>
+                    <li>A React SPA</li>
+                    <li>A Docker microservice</li>
+                    <li>A Kubernetes cluster</li>
+                    <li>A serverless environment</li>
+                </ul>
+
+                <p><strong>Tools change.<br>
+                The mental model does NOT.</strong></p>
+
+                <h2>🧠 The Universal Mental Model</h2>
+
+                <p>Every modern system can be divided into 4 major phases:</p>
+
+                <p><strong>Develop → Build → Release → Monitor</strong></p>
+
+                <p>This is the blueprint you must always have in your head.</p>
+
+                <h2>1️⃣ DEVELOP – Development and Version Control</h2>
+
+                <h3>What Happens Here?</h3>
+
+                <ul>
+                    <li>Work on branches (feature/*)</li>
+                    <li>Make small commits</li>
+                    <li>Open Pull Requests</li>
+                    <li>Receive code review</li>
+                    <li>Integrate to main branch</li>
+                </ul>
+
+                <h3>🧠 Senior Mindset</h3>
+
+                <p><strong>The main branch must ALWAYS be deployable.</strong></p>
+
+                <p>That means:</p>
+
+                <ul>
+                    <li>Nothing merges if tests fail</li>
+                    <li>Nothing merges without review</li>
+                    <li>Nothing merges without passing the pipeline</li>
+                </ul>
+
+                <h3>📌 Key Concepts</h3>
+
+                <p><strong>Branching Strategy (Simplified Git Flow)</strong></p>
+
+                <p><strong>Typical example:</strong></p>
+
+                <pre><code>main
+ ├── feature/login
+ ├── feature/payment
+ └── hotfix/bug-123</code></pre>
+
+                <p><strong>Common flow:</strong></p>
+
+                <ul>
+                    <li>Create feature/*</li>
+                    <li>Open PR</li>
+                    <li>Pipeline runs automatically</li>
+                    <li>If passes → merge</li>
+                    <li>Official CI is triggered</li>
+                </ul>
+
+                <h2>2️⃣ BUILD – Convert Code into Artifact</h2>
+
+                <h3>🎯 Objective</h3>
+
+                <p>Transform code into something executable and reproducible.</p>
+
+                <p>That result is called:</p>
+
+                <p>📦 <strong>Artifact</strong></p>
+
+                <h3>🔎 What is an Artifact?</h3>
+
+                <p>It depends on the application type:</p>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>App Type</th>
+                        <th>Artifact</th>
+                    </tr>
+                    <tr>
+                        <td>React SPA</td>
+                        <td>dist/ folder</td>
+                    </tr>
+                    <tr>
+                        <td>Node API</td>
+                        <td>Compiled JS</td>
+                    </tr>
+                    <tr>
+                        <td>TypeScript</td>
+                        <td>Transpiled JS</td>
+                    </tr>
+                    <tr>
+                        <td>Java</td>
+                        <td>.jar</td>
+                    </tr>
+                    <tr>
+                        <td>.NET</td>
+                        <td>.dll or executable</td>
+                    </tr>
+                    <tr>
+                        <td>Docker</td>
+                        <td>Docker image</td>
+                    </tr>
+                </table>
+
+                <h3>🔁 What Should Happen in Build</h3>
+
+                <p><strong>Correct order (fast feedback first):</strong></p>
+
+                <ul>
+                    <li>Lint</li>
+                    <li>Type check</li>
+                    <li>Unit tests</li>
+                    <li>Build</li>
+                    <li>Package artifact</li>
+                </ul>
+
+                <h3>🧠 Senior Golden Rule</h3>
+
+                <p>🔥 <strong>Build once. Deploy many times.</strong></p>
+
+                <p>Never rebuild in production.<br>
+                The same artifact you tested in staging must go to production.</p>
+
+                <h2>3️⃣ RELEASE – Deploy the Artifact</h2>
+
+                <p>This is where many companies fail.</p>
+
+                <p><strong>Release is NOT just "uploading files".</strong></p>
+
+                <p>It is:</p>
+
+                <ul>
+                    <li>Deploy artifact</li>
+                    <li>Execute migrations</li>
+                    <li>Configure environment variables</li>
+                    <li>Switch traffic</li>
+                    <li>Guarantee availability</li>
+                </ul>
+
+                <h3>🏗 Typical Environments</h3>
+
+                <p>Local → Dev → Staging → Production</p>
+
+                <p><strong>Staging</strong></p>
+
+                <p>Close replica to production<br>
+                Integration/E2E tests run here<br>
+                May require manual approval</p>
+
+                <h3>📊 Deployment Types</h3>
+
+                <p><strong>1️⃣ Recreate</strong></p>
+
+                <p>Shut down old server → start new<br>
+                ❌ Downtime</p>
+
+                <p><strong>2️⃣ Rolling Deployment</strong></p>
+
+                <p>Replace instances progressively<br>
+                ✅ No downtime<br>
+                ✅ Very common</p>
+
+                <p><strong>3️⃣ Blue/Green</strong></p>
+
+                <p>Two parallel environments<br>
+                Switch traffic when new is ready<br>
+                ✅ Very safe<br>
+                ⚠️ More expensive</p>
+
+                <p><strong>4️⃣ Canary</strong></p>
+
+                <p>Deploy to 5% of users first<br>
+                If all good → 100%<br>
+                ✅ Very professional<br>
+                ✅ Minimizes risk</p>
+
+                <h2>4️⃣ MONITOR – Continuous Operation</h2>
+
+                <p>This is where the cycle ends… and starts again.</p>
+
+                <p>Monitoring means:</p>
+
+                <ul>
+                    <li>Centralized logs</li>
+                    <li>Metrics (CPU, memory, latency)</li>
+                    <li>Automatic alerts</li>
+                    <li>Dashboards</li>
+                </ul>
+
+                <h3>🔥 Senior Key Point: What If Something Fails?</h3>
+
+                <p>You must have a plan for:</p>
+
+                <p>🔄 <strong>Rollback</strong></p>
+
+                <p>Go back to previous version</p>
+
+                <p>or</p>
+
+                <p>🔧 <strong>Rollforward</strong></p>
+
+                <p>Ship fix fast and deploy</p>
+
+                <p><strong>Without this, monitoring is useless.</strong></p>
+
+                <h2>⚙️ CI vs CD – Real Difference</h2>
+
+                <h3>Continuous Integration (CI)</h3>
+
+                <p>Every merge:</p>
+
+                <ul>
+                    <li>Runs tests</li>
+                    <li>Generates artifact</li>
+                    <li>Guarantees system is integrated</li>
+                </ul>
+
+                <h3>Continuous Delivery</h3>
+
+                <p>Automatic deployment to staging<br>
+                Requires manual approval for prod</p>
+
+                <h3>Continuous Deployment (True CD)</h3>
+
+                <p>No human intervention<br>
+                If passes tests → goes straight to production</p>
+
+                <p>⚠️ Only viable with:</p>
+
+                <ul>
+                    <li>High test coverage</li>
+                    <li>Solid observability</li>
+                    <li>Pipeline confidence</li>
+                </ul>
+
+                <h2>📦 Artifact Repository – The Key Piece</h2>
+
+                <p><strong>Examples:</strong></p>
+
+                <ul>
+                    <li>Docker Registry</li>
+                    <li>GitHub Packages</li>
+                    <li>AWS ECR</li>
+                    <li>Nexus</li>
+                    <li>Versioned S3</li>
+                </ul>
+
+                <p>The repo is NOT the artifact.<br>
+                The artifact is the build result.</p>
+
+                <h2>🔐 Basic Security (Always Asked)</h2>
+
+                <p>A professional pipeline includes:</p>
+
+                <ul>
+                    <li>Dependency scanning</li>
+                    <li>Secrets outside repo</li>
+                    <li>Minimal permissions in CI</li>
+                    <li>Build audit trail</li>
+                </ul>
+
+                <p>You don't need to be DevSecOps,<br>
+                but you should know this exists.</p>
+
+                <h2>🧪 Example 1 – React SPA</h2>
+
+                <p><strong>Typical pipeline:</strong></p>
+
+                <p><strong>PR:</strong></p>
+
+                <ul>
+                    <li>lint</li>
+                    <li>typecheck</li>
+                    <li>tests</li>
+                    <li>build</li>
+                </ul>
+
+                <p><strong>Merge to main:</strong></p>
+
+                <ul>
+                    <li>build</li>
+                    <li>upload dist to S3</li>
+                    <li>invalidate CDN</li>
+                </ul>
+
+                <p><strong>Deployment:</strong></p>
+
+                <ul>
+                    <li>automatic</li>
+                </ul>
+
+                <h2>🧪 Example 2 – Node API with Docker</h2>
+
+                <p><strong>PR:</strong></p>
+
+                <ul>
+                    <li>tests</li>
+                    <li>build image</li>
+                </ul>
+
+                <p><strong>Merge:</strong></p>
+
+                <ul>
+                    <li>push image api:&lt;sha&gt; to registry</li>
+                </ul>
+
+                <p><strong>Staging:</strong></p>
+
+                <ul>
+                    <li>deploy image</li>
+                    <li>integration tests</li>
+                </ul>
+
+                <p><strong>Prod:</strong></p>
+
+                <ul>
+                    <li>promote same image</li>
+                    <li>rolling deployment</li>
+                </ul>
+
+                <h2>🧠 Important Action Item</h2>
+
+                <p>Do this exercise:</p>
+
+                <p>In your current company answer:</p>
+
+                <ul>
+                    <li>What is the artifact?</li>
+                    <li>Where is it stored?</li>
+                    <li>What triggers the build?</li>
+                    <li>What triggers the deploy?</li>
+                    <li>Is there manual approval?</li>
+                    <li>What deployment strategy?</li>
+                    <li>How do they rollback?</li>
+                </ul>
+
+                <p><strong>If you can't answer these 7 questions,<br>
+                you don't understand your pipeline yet.</strong></p>
+
+                <h2>🎯 How to Answer in an Interview</h2>
+
+                <p><strong>Senior model answer:</strong></p>
+
+                <p>"We work with mandatory PRs. Merge to main triggers CI which runs lint, tests, and build. We generate a Docker image versioned with the commit SHA and push it to the registry. We deploy that same image to staging, run integration tests, then promote to production with rolling deployment. We monitor logs and metrics and can rollback immediately if needed."</p>
+
+                <p>This demonstrates:</p>
+
+                <ul>
+                    <li>✔ You understand CI</li>
+                    <li>✔ You understand artifacts</li>
+                    <li>✔ You understand deployment</li>
+                    <li>✔ You think in production terms</li>
+                </ul>
+
+                <h2>🏁 Final Conclusion</h2>
+
+                <p><strong>CI/CD is not a tool.<br>
+                It is not GitLab.<br>
+                It is not Jenkins.<br>
+                It is not GitHub Actions.</strong></p>
+
+                <p><strong>It is a mental model of automation.</strong></p>
+
+                <p>You develop.<br>
+                You build.<br>
+                You publish.<br>
+                You observe.</p>
+
+                <p>And repeat.</p>
+
+                <h2>📚 Resources</h2>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/6995fec6-f638-838c-8a7d-b90e1aa6e3ab?tab=chats" target="_blank">CI/CD: The Universal Blueprint - Dragos</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Back</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Home →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction to Linux Servers | Software Lifecycle</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-linux-servers">
+                <h1>⌨️ Introduction to Linux Servers</h1>
+                <p><strong>From Developer to Deploying in the Cloud</strong></p>
+                <p><strong>Complete Guide: Linux Server → EC2 → Reverse Proxy → Scalability → Containers → Serverless → IaC</strong></p>
+
+                <h2>1️⃣ The Mindset Shift</h2>
+
+                <p><strong>Before:</strong></p>
+
+                <ul>
+                    <li>You bought hardware</li>
+                    <li>Installed Linux</li>
+                    <li>Deployed your app</li>
+                    <li>Maintained it yourself</li>
+                </ul>
+
+                <p><strong>Now:</strong></p>
+
+                <ul>
+                    <li>You rent infrastructure in the cloud</li>
+                    <li>Pay for usage</li>
+                    <li>Can scale up and shut down when needed</li>
+                </ul>
+
+                <p>👉 <strong>But the core concept doesn't change:</strong></p>
+
+                <p><strong>An application is a process running inside an operating system.</strong></p>
+
+                <p>If you understand that, you understand everything else.</p>
+
+                <h2>2️⃣ What is Really a Server Today?</h2>
+
+                <h3>Real Model in the Cloud</h3>
+
+                <p><strong>4 Real Layers:</strong></p>
+
+                <ul>
+                    <li>Physical Hardware (AWS data center)</li>
+                    <li>Hypervisor (virtualizes)</li>
+                    <li>Virtual Machine (EC2)</li>
+                    <li>Linux</li>
+                    <li>Your Application (process)</li>
+                </ul>
+
+                <p>👉 <strong>EC2 is not magic.<br>
+                It's a rented virtual machine.</strong></p>
+
+                <h2>3️⃣ What is EC2 Really?</h2>
+
+                <p>Amazon Web Services launched as second service:</p>
+
+                <ul>
+                    <li>S3 (storage)</li>
+                    <li>EC2 (Elastic Compute)</li>
+                </ul>
+
+                <p><strong>Why "Elastic"?</strong></p>
+
+                <p>Because you can:</p>
+
+                <ul>
+                    <li>Increase CPU/RAM</li>
+                    <li>Create more instances</li>
+                    <li>Shut them down when not needed</li>
+                    <li>Pay only for what you use</li>
+                </ul>
+
+                <p>🔹 <strong>This is elasticity.</strong></p>
+
+                <h2>4️⃣ Linux Distributions — Which One to Use?</h2>
+
+                <p>Don't overcomplicate it.</p>
+
+                <p><strong>Recommendation:</strong></p>
+
+                <ul>
+                    <li>Ubuntu LTS (to learn)</li>
+                    <li>Amazon Linux (if on AWS)</li>
+                </ul>
+
+                <p>Main differences:</p>
+
+                <ul>
+                    <li>Package manager (apt vs yum)</li>
+                    <li>Default configurations</li>
+                </ul>
+
+                <p>👉 <strong>For the mental model, they're equivalent.</strong></p>
+
+                <h2>5️⃣ First Day on a Linux Server (Minimum You Should Know)</h2>
+
+                <p>When you create an instance:</p>
+
+                <ul>
+                    <li>Connect via SSH</li>
+                    <li>Update packages</li>
+                    <li>Create non-root user</li>
+                    <li>Configure firewall</li>
+                    <li>Install dependencies</li>
+                </ul>
+
+                <h3>🔐 Basic Security (Mandatory)</h3>
+
+                <p><strong>Minimum checklist:</strong></p>
+
+                <ul>
+                    <li>SSH with key (not password)</li>
+                    <li>Disable root login</li>
+                    <li>Firewall active</li>
+                    <li>Open only 22, 80, 443</li>
+                </ul>
+
+                <p><strong>Conceptual example:</strong></p>
+
+                <pre><code>sudo adduser deploy
+sudo usermod -aG sudo deploy
+sudo ufw allow OpenSSH
+sudo ufw allow 80
+sudo ufw allow 443
+sudo ufw enable</code></pre>
+
+                <p>👉 <strong>If you don't do this, automated bots attack you in minutes.</strong></p>
+
+                <h2>6️⃣ What Does "Deploy" Really Mean?</h2>
+
+                <p><strong>Deploy =</strong></p>
+
+                <ul>
+                    <li>Copy code</li>
+                    <li>Install dependencies</li>
+                    <li>Build app</li>
+                    <li>Execute as process</li>
+                    <li>Keep it alive</li>
+                </ul>
+
+                <h2>7️⃣ Processes and systemd (Fundamental)</h2>
+
+                <p>In Linux, your app is a process.</p>
+
+                <p>You need it to:</p>
+
+                <ul>
+                    <li>Start on reboot</li>
+                    <li>Restart if it fails</li>
+                    <li>Have logs</li>
+                    <li>Run in production mode</li>
+                </ul>
+
+                <p>That's where systemd comes in.</p>
+
+                <p><strong>Conceptual example:</strong></p>
+
+                <pre><code>ExecStart=/usr/bin/node server.js
+Restart=always
+WorkingDirectory=/var/www/app</code></pre>
+
+                <p>👉 <strong>This is real production.</strong></p>
+
+                <h2>8️⃣ Why Don't We Expose Node Directly?</h2>
+
+                <p>Because we need:</p>
+
+                <ul>
+                    <li>HTTPS</li>
+                    <li>Compression</li>
+                    <li>Security</li>
+                    <li>Traffic handling</li>
+                </ul>
+
+                <p>We use Nginx as reverse proxy.</p>
+
+                <h3>🔁 Reverse Proxy</h3>
+
+                <p><strong>Flow:</strong></p>
+
+                <p>User → Domain → IP → Nginx → Node (localhost:3000)</p>
+
+                <p>Node is never exposed directly.</p>
+
+                <h2>9️⃣ Domain and HTTPS</h2>
+
+                <p><strong>Steps:</strong></p>
+
+                <ul>
+                    <li>Buy domain</li>
+                    <li>Point DNS to public IP</li>
+                    <li>Install Let's Encrypt</li>
+                    <li>Automatic certificate</li>
+                </ul>
+
+                <p>👉 <strong>Production without HTTPS doesn't exist.</strong></p>
+
+                <h2>🔟 Minimum Observability</h2>
+
+                <p>You must know:</p>
+
+                <pre><code>journalctl -u myapp -f
+tail -f /var/log/nginx/error.log
+top</code></pre>
+
+                <p><strong>If you can't debug a server, you can't operate production.</strong></p>
+
+                <h2>11️⃣ Scalability — What Comes Next</h2>
+
+                <p>There are two types:</p>
+
+                <p><strong>Vertical</strong></p>
+
+                <p>More CPU/RAM</p>
+
+                <p><strong>Horizontal</strong></p>
+
+                <p>More servers behind a Load Balancer</p>
+
+                <h2>12️⃣ Containers (Docker)</h2>
+
+                <p><strong>Why do they exist?</strong></p>
+
+                <p>Classic problem:</p>
+
+                <p>"Works on my machine"</p>
+
+                <p>Docker solves:</p>
+
+                <ul>
+                    <li>Reproducible environment</li>
+                    <li>Isolated dependencies</li>
+                    <li>Portability</li>
+                </ul>
+
+                <p><strong>Model:</strong></p>
+
+                <p>Server → Docker Engine → Container → App</p>
+
+                <h2>13️⃣ Serverless (Lambdas)</h2>
+
+                <p>Instead of a server:</p>
+
+                <ul>
+                    <li>Upload function</li>
+                    <li>AWS executes when called</li>
+                    <li>Pay per execution</li>
+                    <li>Don't manage operating system</li>
+                </ul>
+
+                <p><strong>Advantages:</strong></p>
+
+                <ul>
+                    <li>Automatic scaling</li>
+                    <li>No server maintenance</li>
+                </ul>
+
+                <p><strong>Limitations:</strong></p>
+
+                <ul>
+                    <li>Cold starts</li>
+                    <li>Max execution time</li>
+                    <li>Less control</li>
+                </ul>
+
+                <h2>14️⃣ Terraform — Infrastructure as Code</h2>
+
+                <p>Instead of manually creating servers:</p>
+
+                <p>You write:</p>
+
+                <pre><code>resource "aws_instance" "app" {
+  instance_type = "t2.micro"
+}</code></pre>
+
+                <p>And Terraform creates:</p>
+
+                <ul>
+                    <li>Instance</li>
+                    <li>Security Group</li>
+                    <li>IP</li>
+                    <li>Everything versioned in Git</li>
+                </ul>
+
+                <p>👉 <strong>Reproducible<br>
+                👉 Audited<br>
+                👉 Automatable</strong></p>
+
+                <h2>15️⃣ The Complete Map (Final Mental Model)</h2>
+
+                <p>You learn Linux</p>
+
+                <p>→ Deploy manually</p>
+
+                <p>→ Understand processes and networking</p>
+
+                <p>→ Add Nginx</p>
+
+                <p>→ Add HTTPS</p>
+
+                <p>→ Scale</p>
+
+                <p>→ Add Docker</p>
+
+                <p>→ Automate with Terraform</p>
+
+                <p>→ Evolve to Serverless if applicable</p>
+
+                <h2>🎯 What Really Matters</h2>
+
+                <p>It's not learning AWS.</p>
+
+                <p>It's understanding:</p>
+
+                <ul>
+                    <li>What is a process</li>
+                    <li>What is a network</li>
+                    <li>What is a server</li>
+                    <li>What is a proxy</li>
+                    <li>What is scaling</li>
+                    <li>What is automating infrastructure</li>
+                </ul>
+
+                <p><strong>When you understand that, any cloud stops being intimidating.</strong></p>
+
+                <h2>🧠 Senior Mindset</h2>
+
+                <p>A senior doesn't memorize commands.</p>
+
+                <p>A senior understands:</p>
+
+                <ul>
+                    <li>What's happening underneath</li>
+                    <li>How to debug</li>
+                    <li>How to automate</li>
+                    <li>When to use each tool</li>
+                </ul>
+
+                <h2>📚 Resources</h2>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/69965520-a52c-8391-b79a-757ddd8ff884" target="_blank">Introduction to Linux Servers & Cloud Deployment - Dragos</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Back</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Home →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>

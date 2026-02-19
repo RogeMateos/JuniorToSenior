@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CI/CD Fundamentals | Software Lifecycle</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-cicd-fundamentals">
+                <h1>💾 CI/CD Fundamentals</h1>
+                <p><strong>From burning CDs to declarative infrastructure and zero-downtime deployments</strong></p>
+
+                <h2>1️⃣ Before We Start: What is CI/CD Really?</h2>
+
+                <p>Many think CI/CD is "using GitHub Actions".</p>
+
+                <p><strong>It's not.</strong></p>
+
+                <p>👉 <strong>CI/CD is a system to deliver software fast, safely, and repeatedly.</strong></p>
+
+                <p>Its goals are:</p>
+
+                <ul>
+                    <li>Reduce human errors</li>
+                    <li>Automate repetitive tasks</li>
+                    <li>Deploy frequently</li>
+                    <li>Enable easy rollbacks</li>
+                    <li>Scale teams and microservices</li>
+                </ul>
+
+                <h2>2️⃣ Historical Evolution (Why CI/CD Exists)</h2>
+
+                <h3>📀 Year 2000 – CD Distribution</h3>
+
+                <p><strong>Classic flow:</strong></p>
+
+                <ul>
+                    <li>Develop software</li>
+                    <li>Generate executable</li>
+                    <li>Burn to CD</li>
+                    <li>User installs it</li>
+                    <li>Bug? Release patch</li>
+                </ul>
+
+                <p><strong>Problems:</strong></p>
+
+                <ul>
+                    <li>Releases every 6 months</li>
+                    <li>Difficult to update users</li>
+                    <li>Not scalable</li>
+                </ul>
+
+                <h3>🌐 Web Era – Software Consumed Online</h3>
+
+                <p>The web changed everything:</p>
+
+                <ul>
+                    <li>Users always access latest version</li>
+                    <li>Software lives on servers</li>
+                    <li>We can deploy anytime</li>
+                    <li>Teams grow</li>
+                    <li>Microservices appear</li>
+                </ul>
+
+                <p>But a new problem emerges:</p>
+
+                <p>👉 <strong>Deployment becomes complex and manual.</strong></p>
+
+                <h2>3️⃣ How Servers Were Deployed in the 2000s</h2>
+
+                <p>Imagine you want to deploy a web app.</p>
+
+                <p><strong>Real steps:</strong></p>
+
+                <ol>
+                    <li>Buy physical server</li>
+                    <li>Install operating system</li>
+                    <li>Configure network</li>
+                    <li>Install runtime (Node, Java, Apache...)</li>
+                    <li>Install database</li>
+                    <li>Configure DNS</li>
+                    <li>Upload code via SSH</li>
+                    <li>Restart application</li>
+                    <li>Monitor logs manually</li>
+                </ol>
+
+                <p>Everything manual.</p>
+
+                <p><strong>Problems:</strong></p>
+
+                <ul>
+                    <li>Enormous time</li>
+                    <li>Dependency on one expert</li>
+                    <li>Human errors</li>
+                    <li>Not scalable</li>
+                    <li>Downtime on every deploy</li>
+                    <li>Complicated rollbacks</li>
+                </ul>
+
+                <h2>4️⃣ Automation Is Born</h2>
+
+                <p><strong>First:</strong></p>
+
+                <ul>
+                    <li>Bash scripts</li>
+                    <li>Manual automation</li>
+                </ul>
+
+                <p><strong>Then:</strong></p>
+
+                <ul>
+                    <li>Jenkins</li>
+                    <li>Self-managed CI servers</li>
+                </ul>
+
+                <p><strong>After:</strong></p>
+
+                <ul>
+                    <li>GitHub Actions</li>
+                    <li>GitLab CI</li>
+                    <li>Azure DevOps</li>
+                </ul>
+
+                <p><strong>Finally:</strong></p>
+
+                <ul>
+                    <li>Infrastructure as Code</li>
+                    <li>Serverless</li>
+                    <li>Kubernetes</li>
+                    <li>Advanced observability</li>
+                </ul>
+
+                <h2>5️⃣ Key Mental Model: The Universal Blueprint</h2>
+
+                <p>Every modern CI/CD system has 3 fundamental blocks:</p>
+
+                <h3>🏗 1) Provisioning (Infrastructure)</h3>
+
+                <p>Prepare the environment where your application will run.</p>
+
+                <p>Includes:</p>
+
+                <ul>
+                    <li>Servers</li>
+                    <li>Kubernetes clusters</li>
+                    <li>Databases</li>
+                    <li>Cache</li>
+                    <li>Networks</li>
+                    <li>Security</li>
+                </ul>
+
+                <p><strong>Before:</strong> SSH manual<br>
+                <strong>Now:</strong> Infrastructure as Code</p>
+
+                <p><strong>Conceptual Terraform example:</strong></p>
+
+                <pre><code>resource "aws_instance" "app" {
+  instance_type = "t3.micro"
+  ami = "ami-12345"
+}</code></pre>
+
+                <p>🎯 This converts infrastructure into versionable code.</p>
+
+                <h3>📦 2) Deployment (Release)</h3>
+
+                <p>Move your application to the prepared environment.</p>
+
+                <p>Here appears the most important concept:</p>
+
+                <p>👉 <strong>Artifact</strong></p>
+
+                <p>An artifact is:</p>
+
+                <ul>
+                    <li>The executable version of your software</li>
+                </ul>
+
+                <p><strong>Examples:</strong></p>
+
+                <ul>
+                    <li>React dist/ folder</li>
+                    <li>Docker image myapp:1.2.3</li>
+                    <li>Compiled binary</li>
+                    <li>JAR file</li>
+                </ul>
+
+                <p><strong>Senior principle:</strong></p>
+
+                <p>👉 <strong>An artifact is built ONCE and deployed MANY times.</strong></p>
+
+                <p>Never recompile for production something different from what you tested in staging.</p>
+
+                <h3>📊 3) Monitoring (Observability)</h3>
+
+                <p><strong>Before:</strong></p>
+
+                <ul>
+                    <li>SSH</li>
+                    <li>Read logs manually</li>
+                </ul>
+
+                <p><strong>Now:</strong></p>
+
+                <ul>
+                    <li>Centralized logs</li>
+                    <li>Metrics</li>
+                    <li>Alerts</li>
+                    <li>Tracing</li>
+                </ul>
+
+                <p><strong>Modern triangle:</strong></p>
+
+                <ul>
+                    <li><strong>Logs</strong> → What happened</li>
+                    <li><strong>Metrics</strong> → How severe</li>
+                    <li><strong>Traces</strong> → Where it occurred</li>
+                </ul>
+
+                <h2>6️⃣ Now Really: What is CI?</h2>
+
+                <p><strong>CI = Continuous Integration</strong></p>
+
+                <p>It's the part where:</p>
+
+                <ul>
+                    <li>Code is integrated frequently</li>
+                    <li>Changes are validated automatically</li>
+                    <li>The artifact is built</li>
+                </ul>
+
+                <p><strong>Typical pipeline:</strong></p>
+
+                <ul>
+                    <li>Trigger (push or PR)</li>
+                    <li>Checkout code</li>
+                    <li>Install dependencies</li>
+                    <li>Lint</li>
+                    <li>Tests</li>
+                    <li>Build</li>
+                    <li>Security scan</li>
+                    <li>Publish artifact</li>
+                </ul>
+
+                <p><strong>Conceptual example:</strong></p>
+
+                <pre><code>stages:
+  - test
+  - build
+  - publish
+
+test:
+  run: npm ci && npm test
+
+build:
+  run: npm run build
+
+publish:
+  run: docker build -t myapp:${GIT_SHA} .</code></pre>
+
+                <p>The tool doesn't matter.</p>
+
+                <p>The flow matters.</p>
+
+                <h2>7️⃣ What is CD?</h2>
+
+                <p><strong>CD can mean:</strong></p>
+
+                <p><strong>Continuous Delivery</strong></p>
+
+                <p>The system is always ready for production,<br>
+                but requires manual approval.</p>
+
+                <p><strong>Continuous Deployment</strong></p>
+
+                <p>Every change that passes the pipeline<br>
+                is automatically deployed.</p>
+
+                <h2>8️⃣ Environments and Artifact Promotion</h2>
+
+                <p><strong>Professional model:</strong></p>
+
+                <p>dev → staging → production</p>
+
+                <p><strong>Important:</strong></p>
+
+                <p>👉 <strong>The same artifact must move between environments.</strong></p>
+
+                <p>Don't recompile in each environment.</p>
+
+                <h2>9️⃣ Modern Deployment Strategies (Avoiding Downtime)</h2>
+
+                <p>Restarting the app = downtime.</p>
+
+                <p><strong>Solutions:</strong></p>
+
+                <p><strong>Rolling Update</strong></p>
+
+                <p>Update instances gradually.</p>
+
+                <p><strong>Blue/Green</strong></p>
+
+                <p>Two environments:</p>
+
+                <ul>
+                    <li>One active</li>
+                    <li>One new</li>
+                    <li>Switch traffic</li>
+                </ul>
+
+                <p><strong>Canary</strong></p>
+
+                <p>Only a percentage of users uses the new version.</p>
+
+                <p><strong>Feature Flags</strong></p>
+
+                <p>Enable/disable features without redeploying.</p>
+
+                <h2>🔟 Infrastructure as Code</h2>
+
+                <p><strong>Before:</strong></p>
+
+                <p>"We need a server"<br>
+                Admin creates it manually</p>
+
+                <p><strong>Now:</strong></p>
+
+                <p>Declare it in code<br>
+                Version it<br>
+                Review it in PR<br>
+                Apply automatically</p>
+
+                <p><strong>Benefits:</strong></p>
+
+                <ul>
+                    <li>Reproducible</li>
+                    <li>Auditable</li>
+                    <li>Rollback possible</li>
+                    <li>No dependency on human memory</li>
+                </ul>
+
+                <h2>1️⃣1️⃣ Observability and Basic SRE</h2>
+
+                <p><strong>Important concepts:</strong></p>
+
+                <ul>
+                    <li><strong>SLI</strong> → Real metric (e.g., latency p95)</li>
+                    <li><strong>SLO</strong> → Target (99.9% uptime)</li>
+                    <li><strong>SLA</strong> → Contractual commitment</li>
+                </ul>
+
+                <p><strong>Alerts should be:</strong></p>
+
+                <ul>
+                    <li>Actionable</li>
+                    <li>Few</li>
+                    <li>Based on real impact</li>
+                </ul>
+
+                <h2>1️⃣2️⃣ Complete Ecosystem Evolution</h2>
+
+                <p>Manual SSH → Bash Scripts → Jenkins → Managed CI → Containers → IaC → Serverless → Observability → DevOps + SRE mindset</p>
+
+                <h2>1️⃣3️⃣ Final Mental Model (For Interviews)</h2>
+
+                <p>A modern pipeline is:</p>
+
+                <ol>
+                    <li>Code</li>
+                    <li>CI validates and builds artifact</li>
+                    <li>Artifact published to registry</li>
+                    <li>Infra declared (IaC)</li>
+                    <li>CD deploys to staging</li>
+                    <li>Automated tests</li>
+                    <li>Progressive deployment to production</li>
+                    <li>Active observability</li>
+                    <li>Immediate rollback if failure</li>
+                </ol>
+
+                <h2>1️⃣4️⃣ What Makes Someone Senior in CI/CD</h2>
+
+                <p>It's not knowing AWS.</p>
+
+                <p>It's understanding:</p>
+
+                <ul>
+                    <li>How to minimize risk</li>
+                    <li>How to avoid downtime</li>
+                    <li>How to version infrastructure</li>
+                    <li>How to promote artifacts</li>
+                    <li>How to automate everything</li>
+                    <li>How to observe production systems</li>
+                    <li>How to design safe rollbacks</li>
+                </ul>
+
+                <h2>1️⃣5️⃣ Ultra Clear Summary</h2>
+
+                <p><strong>CI/CD is not a tool.</strong></p>
+
+                <p><strong>It is:</strong></p>
+
+                <ul>
+                    <li>Industrialization of software development</li>
+                    <li>Provisioning + Deployment + Monitoring</li>
+                    <li>Automated</li>
+                    <li>Versioned</li>
+                    <li>Reproducible</li>
+                    <li>Scalable</li>
+                </ul>
+
+                <h2>📚 Resources</h2>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/6995fc5b-aa7c-8386-af09-5cd7d01c5c82?tab=chats" target="_blank">🚀 CI/CD & Cloud Fundamentals - Dragos</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Back</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Home →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>

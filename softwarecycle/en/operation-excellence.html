@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operational Excellence Principles | Software Lifecycle</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-operational-excellence">
+                <h1>🧬 Operational Excellence Principles</h1>
+                <p><strong>Building processes that reduce risk, reduce cost, and increase speed</strong></p>
+                <p><strong>A discipline for modern software teams</strong></p>
+
+                <h2>🎯 What is Operational Excellence in Software?</h2>
+
+                <p>Operational Excellence means designing your development and deployment process to:</p>
+
+                <ul>
+                    <li>Reduce risk</li>
+                    <li>Reduce cost (time and money)</li>
+                    <li>Increase speed</li>
+                    <li>Improve quality</li>
+                    <li>Improve developer experience</li>
+                </ul>
+
+                <p><strong>It's not just CI/CD.</strong><br>
+                It's a complete discipline based on principles.</p>
+
+                <p>In mature teams, this translates to:</p>
+
+                <ul>
+                    <li>Frequent deployments</li>
+                    <li>Strong automation</li>
+                    <li>Fast feedback</li>
+                    <li>Simple rollback</li>
+                    <li>Real observability</li>
+                    <li>Measurable metrics</li>
+                </ul>
+
+                <h2>🛠️ Small & Frequent Increments (Small Batch > Big Bang)</h2>
+
+                <h3>📌 The Principle</h3>
+
+                <p>Always prefer small frequent changes over large releases.</p>
+
+                <h3>❌ Big Release</h3>
+
+                <ul>
+                    <li>3 weeks developing</li>
+                    <li>1 massive deploy</li>
+                    <li>20 changes together</li>
+                    <li>Something fails → you don't know what caused it</li>
+                    <li>Incident in production</li>
+                    <li>Stress</li>
+                </ul>
+
+                <h3>✅ Small Increments</h3>
+
+                <ul>
+                    <li>Small PRs</li>
+                    <li>Deploy several times per week</li>
+                    <li>Isolated changes</li>
+                    <li>Easy rollback</li>
+                    <li>Low risk</li>
+                </ul>
+
+                <h3>🧠 Why does it work?</h3>
+
+                <p>Risk grows exponentially with change size.</p>
+
+                <p>More lines of code together = more unpredictable interactions.</p>
+
+                <h3>🔧 Real practices to apply this</h3>
+
+                <p><strong>1️⃣ Small Pull Requests</strong></p>
+
+                <p>Ideally changes you can review in 10-15 minutes.</p>
+
+                <p><strong>2️⃣ Trunk-based development</strong></p>
+
+                <p>Avoid long-lived branches.</p>
+
+                <p><strong>3️⃣ Feature Flags</strong></p>
+
+                <p>Deploy code without activating it:</p>
+
+                <pre><code>if (featureFlags.newCheckout) {
+  renderNewCheckout();
+}</code></pre>
+
+                <p>You can deploy fearlessly and activate later.</p>
+
+                <p><strong>4️⃣ Safe Migrations</strong></p>
+
+                <p>Always backward compatible.</p>
+
+                <h2>🔄 Continuous Feedback & Improvement</h2>
+
+                <p>Fast deployment is not enough.<br>
+                We need continuous feedback.</p>
+
+                <h3>🌀 Feedback Layers</h3>
+
+                <p><strong>1️⃣ Local</strong></p>
+
+                <ul>
+                    <li>ESLint</li>
+                    <li>Prettier</li>
+                    <li>Unit tests</li>
+                    <li>Feedback in seconds</li>
+                </ul>
+
+                <p><strong>2️⃣ CI (Pull Request)</strong></p>
+
+                <ul>
+                    <li>Automated tests</li>
+                    <li>Build</li>
+                    <li>Security scan</li>
+                    <li>Feedback in minutes</li>
+                </ul>
+
+                <p><strong>3️⃣ Staging</strong></p>
+
+                <ul>
+                    <li>Integration tests</li>
+                    <li>E2E</li>
+                    <li>Smoke tests</li>
+                </ul>
+
+                <p><strong>4️⃣ Production</strong></p>
+
+                <ul>
+                    <li>Logs</li>
+                    <li>Metrics</li>
+                    <li>Alerts</li>
+                    <li>Monitoring</li>
+                </ul>
+
+                <h3>💡 Key Concept: Shift Left</h3>
+
+                <p>Move quality and security as early as possible.</p>
+
+                <p>Detecting errors in PR costs 1 unit.<br>
+                Detecting errors in production costs 100 units.</p>
+
+                <h2>💰 Low Cost (Time) Through Automation</h2>
+
+                <p>Automation is not a luxury.<br>
+                It's an efficiency multiplier.</p>
+
+                <h3>🔁 What to automate (must-have)</h3>
+
+                <ul>
+                    <li>Linting</li>
+                    <li>Testing</li>
+                    <li>Build</li>
+                    <li>Deploy</li>
+                    <li>Versioning</li>
+                    <li>Dependency scanning</li>
+                    <li>Secret detection</li>
+                </ul>
+
+                <h3>❌ What NOT to do</h3>
+
+                <p>Don't over-automate before having basics.<br>
+                First stability, then sophistication.</p>
+
+                <h3>Real cost of manual deployment</h3>
+
+                <p>30 min manual deploy<br>
+                × 3 times per week<br>
+                × 5 devs</p>
+
+                <p>= 7.5 hours lost weekly.</p>
+
+                <p>Not counting human errors.</p>
+
+                <h2>😊 Happier Developers (Not philosophy, it's engineering)</h2>
+
+                <p>Operational Excellence reduces:</p>
+
+                <ul>
+                    <li>Night incidents</li>
+                    <li>Overtime</li>
+                    <li>Stress</li>
+                    <li>Constant firefighting</li>
+                </ul>
+
+                <h3>🔁 Key Mechanisms</h3>
+
+                <p><strong>Fast Rollback</strong></p>
+
+                <p>Ability to go back to previous version in minutes.</p>
+
+                <p><strong>Canary Release</strong></p>
+
+                <p>Deploy to 5% of users first.</p>
+
+                <p><strong>Blue/Green Deployment</strong></p>
+
+                <p>Two identical environments, switch traffic.</p>
+
+                <p><strong>Feature Flags</strong></p>
+
+                <p>Disable feature without redeploying.</p>
+
+                <p>When you can revert in 2 minutes → you deploy fearlessly.</p>
+
+                <p>That completely changes the developer experience.</p>
+
+                <h2>🚀 What a Real CI/CD Pipeline Looks Like</h2>
+
+                <p>Typical example for modern web app.</p>
+
+                <h3>🧩 Pipeline</h3>
+
+                <p><strong>🔹 Pull Request (CI)</strong></p>
+
+                <ul>
+                    <li>Lint</li>
+                    <li>Unit tests</li>
+                    <li>Build</li>
+                    <li>Security scan</li>
+                </ul>
+
+                <p><strong>🔹 Merge to main</strong></p>
+
+                <ul>
+                    <li>Build artifact</li>
+                    <li>Integration tests</li>
+                    <li>Publish artifact to registry</li>
+                </ul>
+
+                <p><strong>🔹 Deploy Staging</strong></p>
+
+                <ul>
+                    <li>Automatic deployment</li>
+                    <li>E2E tests</li>
+                    <li>Smoke tests</li>
+                </ul>
+
+                <p><strong>🔹 Deploy Production</strong></p>
+
+                <ul>
+                    <li>Manual approval (initially)</li>
+                    <li>Canary rollout</li>
+                    <li>Active monitoring</li>
+                </ul>
+
+                <p><strong>🔹 Post Deploy</strong></p>
+
+                <ul>
+                    <li>Metrics</li>
+                    <li>Logs</li>
+                    <li>Alerts</li>
+                    <li>Rollback if SLO drops</li>
+                </ul>
+
+                <h2>📊 Metrics That Mature Teams Use (DORA)</h2>
+
+                <p>If you don't measure, you don't improve.</p>
+
+                <p><strong>1️⃣ Deployment Frequency</strong></p>
+
+                <p>How often do you deploy?</p>
+
+                <p><strong>2️⃣ Lead Time</strong></p>
+
+                <p>How long from merge to production?</p>
+
+                <p><strong>3️⃣ Change Failure Rate</strong></p>
+
+                <p>% of deployments causing incidents?</p>
+
+                <p><strong>4️⃣ MTTR (Mean Time To Recovery)</strong></p>
+
+                <p>How long to recover from failure?</p>
+
+                <p>Elite teams:</p>
+
+                <ul>
+                    <li>Daily or multiple deployments</li>
+                    <li>Low MTTR</li>
+                    <li>Low failure rate</li>
+                </ul>
+
+                <h2>🛠️ How to Start in Your Project Step by Step</h2>
+
+                <p>If I were coaching a junior, we'd do this:</p>
+
+                <p><strong>Step 1 — Standardize Quality</strong></p>
+
+                <p>Scripts in package.json:</p>
+
+                <pre><code>"scripts": {
+  "lint": "eslint .",
+  "test": "jest",
+  "build": "tsc"
+}</code></pre>
+
+                <p><strong>Step 2 — Basic CI</strong></p>
+
+                <p>On PR execute:</p>
+
+                <ul>
+                    <li>lint</li>
+                    <li>test</li>
+                    <li>build</li>
+                </ul>
+
+                <p>Nothing merges if it fails.</p>
+
+                <p><strong>Step 3 — Automatic Deploy to Staging</strong></p>
+
+                <p>Every merge to main → staging.</p>
+
+                <p><strong>Step 4 — Production with Protection</strong></p>
+
+                <p>First manual approval.<br>
+                Then automate progressively.</p>
+
+                <p><strong>Step 5 — Minimum Observability</strong></p>
+
+                <ul>
+                    <li>Structured logs</li>
+                    <li>500 error metrics</li>
+                    <li>Simple alerts</li>
+                </ul>
+
+                <p><strong>Step 6 — Practice Rollback</strong></p>
+
+                <p>Simulate failure.<br>
+                Measure how long to rollback.</p>
+
+                <h2>🧠 Mental Summary</h2>
+
+                <p><strong>Operational Excellence =</strong></p>
+
+                <ul>
+                    <li>Small batch size</li>
+                    <li>Automation</li>
+                    <li>Fast feedback</li>
+                    <li>Safe releases</li>
+                    <li>Observability</li>
+                    <li>Measured performance</li>
+                </ul>
+
+                <p><strong>=</strong></p>
+
+                <ul>
+                    <li>Less risk</li>
+                    <li>Less overtime</li>
+                    <li>More speed</li>
+                    <li>Better quality</li>
+                    <li>Happy developers</li>
+                </ul>
+
+                <h2>🎤 Bonus: Perfect Interview Answer</h2>
+
+                <p><strong>"I prefer working in teams that optimize for small batch sizes and frequent deployments. Automation in CI/CD reduces risk, improves quality, and lowers operational cost. We measure performance using DORA metrics and ensure safe releases through rollback mechanisms, feature flags, and canary deployments."</strong></p>
+
+                <p>That sounds senior.</p>
+
+                <h2>📚 Resources</h2>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/6995f972-e700-838f-8a9a-b40f860458fc?tab=chats" target="_blank">🧬 Operational Excellence Principles in Modern Software Teams - Dragos</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Back</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Home →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>

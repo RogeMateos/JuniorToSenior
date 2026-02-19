@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Deployment Pipeline | Software Lifecycle</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-deployment-pipeline">
+                <h1>🚀 The Deployment Pipeline</h1>
+                <p><strong>Complete Guide to Safe and Reversible Production Deployments</strong></p>
+
+                <h2>🎯 Goal</h2>
+
+                <p>Deliver changes to production safely, repeatedly, and without downtime, with the ability to rollback immediately if something fails.</p>
+
+                <p><strong>A deployment doesn't end when code "goes up".<br>
+                It ends when:</strong></p>
+
+                <ul>
+                    <li>The system is healthy</li>
+                    <li>Metrics are stable</li>
+                    <li>There are no regressions</li>
+                    <li>We can rollback in seconds if needed</li>
+                </ul>
+
+                <h2>1️⃣ CI vs Continuous Delivery vs Continuous Deployment</h2>
+
+                <h3>🔹 Continuous Integration (CI)</h3>
+
+                <p>Each commit:</p>
+
+                <ul>
+                    <li>Gets built</li>
+                    <li>Tests are executed</li>
+                    <li>Gets validated automatically</li>
+                </ul>
+
+                <p>👉 <strong>Goal: Detect errors as early as possible.</strong></p>
+
+                <h3>🔹 Continuous Delivery</h3>
+
+                <p>The system is always ready to deploy.</p>
+
+                <p><strong>Typical pipeline:</strong></p>
+
+                <p>Commit → Build → Tests → Artifact → Deploy Staging → Verify → (Manual Approval) → Production</p>
+
+                <p>Here there's a human button before production.</p>
+
+                <p>👉 <strong>Most common in enterprises.</strong></p>
+
+                <h3>🔹 Continuous Deployment</h3>
+
+                <p>Every change that passes the pipeline:</p>
+
+                <p>Commit → Build → Tests → Artifact → Production (automatic)</p>
+
+                <p>No manual approval.</p>
+
+                <p>⚠️ <strong>Only viable if:</strong></p>
+
+                <ul>
+                    <li>Tests are very solid</li>
+                    <li>Observability is good</li>
+                    <li>Rollback is fast</li>
+                    <li>Team is mature</li>
+                </ul>
+
+                <h2>2️⃣ What Does "Deploy" Really Mean?</h2>
+
+                <p>Depends on application type.</p>
+
+                <h3>🟢 Case 1: Static Web (SPA)</h3>
+
+                <p>React build → HTML/CSS/JS files</p>
+
+                <p>Can be deployed to:</p>
+
+                <ul>
+                    <li>S3 + CloudFront</li>
+                    <li>Vercel</li>
+                    <li>Netlify</li>
+                    <li>Azure Blob</li>
+                </ul>
+
+                <p>No server needed here.</p>
+
+                <p>Rollback = upload previous version.</p>
+
+                <h3>🟢 Case 2: Backend / SSR / API</h3>
+
+                <p>You need compute:</p>
+
+                <ul>
+                    <li>Virtual Machine</li>
+                    <li>Containers</li>
+                    <li>Serverless</li>
+                </ul>
+
+                <p>Here deployment involves:</p>
+
+                <ul>
+                    <li>Update process</li>
+                    <li>Manage traffic</li>
+                    <li>Handle state</li>
+                    <li>Control downtime</li>
+                </ul>
+
+                <h2>3️⃣ Evolution of Deployment Methods</h2>
+
+                <h3>1️⃣ On-Premise</h3>
+
+                <p>Your own physical server.</p>
+
+                <p><strong>Pros:</strong></p>
+
+                <ul>
+                    <li>Full control</li>
+                </ul>
+
+                <p><strong>Cons:</strong></p>
+
+                <ul>
+                    <li>Limited scalability</li>
+                    <li>High cost</li>
+                    <li>Complex operations</li>
+                </ul>
+
+                <h3>2️⃣ Virtual Machines (Cloud)</h3>
+
+                <p>E.g.: EC2, Azure VM</p>
+
+                <p>Cloud providers use hypervisor to create multiple VMs within large physical machines.</p>
+
+                <p><strong>Pros:</strong></p>
+
+                <ul>
+                    <li>More flexible</li>
+                    <li>Scalable</li>
+                    <li>Full control</li>
+                </ul>
+
+                <p><strong>Cons:</strong></p>
+
+                <p>You manage:</p>
+
+                <ul>
+                    <li>Patches</li>
+                    <li>Security</li>
+                    <li>Scaling</li>
+                    <li>Restarts</li>
+                </ul>
+
+                <h3>3️⃣ Containers (Docker)</h3>
+
+                <p>You don't manage the server as much.</p>
+
+                <p>You push a Docker image:</p>
+
+                <pre><code>docker build → docker push → cloud runs it</code></pre>
+
+                <p>E.g.:</p>
+
+                <ul>
+                    <li>ECS / Fargate</li>
+                    <li>Kubernetes</li>
+                    <li>Cloud Run</li>
+                </ul>
+
+                <p><strong>Pros:</strong></p>
+
+                <ul>
+                    <li>Reproducible</li>
+                    <li>Portable</li>
+                    <li>Standard in enterprises</li>
+                </ul>
+
+                <p><strong>Cons:</strong></p>
+
+                <ul>
+                    <li>More initial complexity</li>
+                </ul>
+
+                <h3>4️⃣ Serverless</h3>
+
+                <p>E.g.:</p>
+
+                <ul>
+                    <li>AWS Lambda</li>
+                    <li>Azure Functions</li>
+                </ul>
+
+                <p>You upload code → provider executes it.</p>
+
+                <p><strong>Pros:</strong></p>
+
+                <ul>
+                    <li>Auto scales</li>
+                    <li>Pay per use</li>
+                    <li>Almost zero infrastructure</li>
+                </ul>
+
+                <p><strong>Cons:</strong></p>
+
+                <ul>
+                    <li>Limits</li>
+                    <li>Cold starts</li>
+                    <li>Debugging harder</li>
+                    <li>Vendor lock-in</li>
+                </ul>
+
+                <h2>4️⃣ Requirements for a Good Deployment</h2>
+
+                <p>Two key things:</p>
+
+                <p><strong>✅ Zero Downtime</strong></p>
+
+                <p>User shouldn't notice the deployment.</p>
+
+                <p><strong>✅ Reversible</strong></p>
+
+                <p>Immediate rollback mechanism must exist.</p>
+
+                <p><strong>A deployment without rollback is not production-ready.</strong></p>
+
+                <h2>5️⃣ Deployment Styles (How to Deploy Without Breaking)</h2>
+
+                <h3>1️⃣ In-Place (Big Bang)</h3>
+
+                <p>Update existing server and restart.</p>
+
+                <p><strong>Pros:</strong></p>
+
+                <ul>
+                    <li>Simple</li>
+                    <li>Cheap</li>
+                </ul>
+
+                <p><strong>Cons:</strong></p>
+
+                <ul>
+                    <li>Downtime</li>
+                    <li>High risk</li>
+                    <li>Slow rollback</li>
+                </ul>
+
+                <p>Only acceptable for:</p>
+
+                <ul>
+                    <li>Small projects</li>
+                    <li>Internal environments</li>
+                </ul>
+
+                <h3>2️⃣ Rolling Deployment</h3>
+
+                <p>Update instances gradually.</p>
+
+                <p>E.g.:</p>
+
+                <p>10 servers<br>
+                Update 1 → validate → update next</p>
+
+                <p><strong>Pros:</strong></p>
+
+                <ul>
+                    <li>Almost no downtime</li>
+                    <li>Safer</li>
+                </ul>
+
+                <p><strong>Cons:</strong></p>
+
+                <ul>
+                    <li>Different versions coexist</li>
+                </ul>
+
+                <p>⚠️ <strong>Requires backward compatibility.</strong></p>
+
+                <h3>3️⃣ Blue / Green</h3>
+
+                <p>You have two complete environments:</p>
+
+                <ul>
+                    <li>Blue = current production</li>
+                    <li>Green = new version</li>
+                </ul>
+
+                <p>When Green is validated:<br>
+                → Switch traffic</p>
+
+                <p><strong>Pros:</strong></p>
+
+                <ul>
+                    <li>Instant rollback</li>
+                    <li>True zero downtime</li>
+                </ul>
+
+                <p><strong>Cons:</strong></p>
+
+                <ul>
+                    <li>Double infrastructure</li>
+                </ul>
+
+                <p>Very common in critical systems.</p>
+
+                <h3>4️⃣ Canary Deployment</h3>
+
+                <p>Send small percentage of traffic:</p>
+
+                <p>10% → 30% → 60% → 100%</p>
+
+                <p><strong>Pros:</strong></p>
+
+                <ul>
+                    <li>Detect problems before impacting everyone</li>
+                </ul>
+
+                <p><strong>Cons:</strong></p>
+
+                <ul>
+                    <li>Need solid metrics</li>
+                </ul>
+
+                <p>⚠️ <strong>Canary without metrics = blind guessing</strong></p>
+
+                <h2>6️⃣ Real Rollback (What Almost Nobody Explains)</h2>
+
+                <p>There are 3 levels:</p>
+
+                <h3>1️⃣ Application Rollback</h3>
+
+                <p>Go back to previous image:</p>
+
+                <pre><code>deploy image:v1.2.3</code></pre>
+
+                <p>If you version artifacts well → easy.</p>
+
+                <h3>2️⃣ Configuration Rollback</h3>
+
+                <p>Sometimes the problem is:</p>
+
+                <ul>
+                    <li>Environment variable</li>
+                    <li>Feature flag</li>
+                    <li>Secret misconfigured</li>
+                </ul>
+
+                <p>You must have versioned, audited configuration.</p>
+
+                <h3>3️⃣ Database Rollback (The Hard One)</h3>
+
+                <p>Never do destructive migrations early.</p>
+
+                <p><strong>Correct strategy:</strong></p>
+
+                <p>Expand → Migrate → Contract</p>
+
+                <ul>
+                    <li>Add new column (don't delete anything)</li>
+                    <li>Deploy compatible code</li>
+                    <li>Migrate data</li>
+                    <li>Remove old structure later</li>
+                </ul>
+
+                <p>This way Rolling or Blue/Green doesn't break anything.</p>
+
+                <h2>7️⃣ Monitoring: Deployment Doesn't End When It Goes Up</h2>
+
+                <p>After deployment you must verify:</p>
+
+                <p><strong>Post-Deploy Checklist:</strong></p>
+
+                <ul>
+                    <li>Health checks OK</li>
+                    <li>Error rate stable</li>
+                    <li>Latency p95/p99 normal</li>
+                    <li>CPU/mem not spiking</li>
+                    <li>No new alerts</li>
+                    <li>Smoke tests pass</li>
+                </ul>
+
+                <p>If anything fails:<br>
+                → Immediate rollback</p>
+
+                <h2>8️⃣ Complete Modern Pipeline</h2>
+
+                <p>Example with containers:</p>
+
+                <pre><code>Commit
+  ↓
+Build Docker Image
+  ↓
+Run Tests
+  ↓
+Security Scan
+  ↓
+Push to Registry
+  ↓
+Deploy to Staging
+  ↓
+Smoke Tests
+  ↓
+Manual Approval (Delivery)
+  ↓
+Deploy Production (Rolling / BlueGreen / Canary)
+  ↓
+Monitor
+  ↓
+Auto Rollback if metrics fail</code></pre>
+
+                <p><strong>That's closing the CI/CD loop.</strong></p>
+
+                <h2>9️⃣ How a Mature Company Thinks</h2>
+
+                <p>A mature company:</p>
+
+                <ul>
+                    <li>Never deploys without metrics</li>
+                    <li>Never deploys without rollback</li>
+                    <li>Never breaks DB compatibility</li>
+                    <li>Automates all repetitive things</li>
+                    <li>Measures real impact</li>
+                    <li>Does small, frequent deployments</li>
+                </ul>
+
+                <p><strong>Because small changes = lower risk.</strong></p>
+
+                <h2>🔟 Mental Summary</h2>
+
+                <p><strong>If you remember only this:</strong></p>
+
+                <p><strong>Automation + Observability + Fast Rollback = Safe Deployment</strong></p>
+
+                <p><strong>And:</strong></p>
+
+                <p><strong>Zero Downtime is not magic.<br>
+                It's architecture + strategy + discipline.</strong></p>
+
+                <h2>📚 Resources</h2>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/699653fb-a7ac-8384-af94-ce53da2c6840" target="_blank">The Deployment Pipeline — Complete Guide - Dragos</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Back</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Home →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>

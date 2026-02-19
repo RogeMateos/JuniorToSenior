@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Providers: AWS, Azure and GCP | Software Lifecycle</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-cloud-providers">
+                <h1>⌨️☁️ Cloud Providers: AWS, Azure and GCP</h1>
+                <p><strong>Understanding Cloud Computing for Developers</strong></p>
+                <p><strong>Master AWS (and any cloud) without getting lost</strong></p>
+
+                <h2>1️⃣ What is Really "The Cloud"?</h2>
+
+                <p><strong>Cloud = rent infrastructure on demand, pay for use, and automate everything.</strong></p>
+
+                <p><strong>Before:</strong></p>
+
+                <ul>
+                    <li>You bought physical servers</li>
+                    <li>Installed them in an office</li>
+                    <li>Paid everything upfront (CAPEX)</li>
+                    <li>Scaling was slow and expensive</li>
+                </ul>
+
+                <p><strong>Now:</strong></p>
+
+                <ul>
+                    <li>You rent servers in minutes</li>
+                    <li>Scale automatically</li>
+                    <li>Pay only what you use (OPEX)</li>
+                </ul>
+
+                <h2>2️⃣ 🛒 The Supermarket Analogy (But Understood Correctly)</h2>
+
+                <p>Cloud is like a supermarket:</p>
+
+                <p>You can bake bread at home…<br>
+                Or buy it ready-made and save time.</p>
+
+                <p>Cloud providers (AWS, Azure, GCP) sell:</p>
+
+                <ul>
+                    <li>Ready Linux servers</li>
+                    <li>Configured databases</li>
+                    <li>Storage systems</li>
+                    <li>Monitoring tools</li>
+                </ul>
+
+                <p><strong>But ⚠️ Important:</strong></p>
+
+                <p>Even if you buy the bread, you decide who has the oven key, how long it runs, and how much it consumes.</p>
+
+                <p>In cloud you're still responsible for:</p>
+
+                <ul>
+                    <li>Permissions</li>
+                    <li>Security</li>
+                    <li>Configuration</li>
+                    <li>Costs</li>
+                </ul>
+
+                <p>This is called:</p>
+
+                <p>🔐 <strong>Shared Responsibility Model</strong></p>
+
+                <p>Provider protects physical infrastructure.<br>
+                You protect:</p>
+
+                <ul>
+                    <li>Your data</li>
+                    <li>Your configurations</li>
+                    <li>Your access</li>
+                    <li>Your mistakes</li>
+                </ul>
+
+                <h2>3️⃣ The Mental Model That Prevents You From Getting Lost</h2>
+
+                <p>Don't memorize services.</p>
+
+                <p><strong>Memorize these 5 universal categories:</strong></p>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>Category</th>
+                        <th>Key Question</th>
+                        <th>Example AWS</th>
+                    </tr>
+                    <tr>
+                        <td>🔑 Identity</td>
+                        <td>Who can do what?</td>
+                        <td>IAM</td>
+                    </tr>
+                    <tr>
+                        <td>🌐 Network</td>
+                        <td>Where does it run and how connect?</td>
+                        <td>VPC</td>
+                    </tr>
+                    <tr>
+                        <td>🖥️ Compute</td>
+                        <td>Where does my code execute?</td>
+                        <td>EC2</td>
+                    </tr>
+                    <tr>
+                        <td>💾 Storage/DB</td>
+                        <td>Where do I store data?</td>
+                        <td>S3 / RDS</td>
+                    </tr>
+                    <tr>
+                        <td>📊 Observability</td>
+                        <td>How do I monitor everything?</td>
+                        <td>CloudWatch</td>
+                    </tr>
+                </table>
+
+                <p>Any service you see fits into one of these.</p>
+
+                <p><strong>This is your mental map.</strong></p>
+
+                <h2>4️⃣ The 3 Big Cloud Providers</h2>
+
+                <h3>🟠 AWS (Amazon Web Services)</h3>
+
+                <ul>
+                    <li>Market leader</li>
+                    <li>Very strong in startups and tech companies</li>
+                    <li>Huge ecosystem</li>
+                </ul>
+
+                <h3>🔵 Microsoft Azure</h3>
+
+                <ul>
+                    <li>Strong in public sector and large corporations</li>
+                    <li>Solid enterprise integration</li>
+                    <li>Strong recent growth</li>
+                </ul>
+
+                <h3>🟢 Google Cloud Platform (GCP)</h3>
+
+                <ul>
+                    <li>Strong in data and machine learning</li>
+                    <li>Smaller market share overall</li>
+                </ul>
+
+                <h2>5️⃣ 🧠 Don't Marry Brand Names</h2>
+
+                <p><strong>Typical junior mistake:</strong></p>
+
+                <p>"I only know AWS."</p>
+
+                <p><strong>Wrong.</strong></p>
+
+                <p>They all offer the same thing with different names.</p>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>Concept</th>
+                        <th>AWS</th>
+                        <th>Azure</th>
+                        <th>GCP</th>
+                    </tr>
+                    <tr>
+                        <td>Virtual Machine</td>
+                        <td>EC2</td>
+                        <td>Virtual Machines</td>
+                        <td>Compute Engine</td>
+                    </tr>
+                    <tr>
+                        <td>Object Storage</td>
+                        <td>S3</td>
+                        <td>Blob Storage</td>
+                        <td>Cloud Storage</td>
+                    </tr>
+                    <tr>
+                        <td>Kubernetes</td>
+                        <td>EKS</td>
+                        <td>AKS</td>
+                        <td>GKE</td>
+                    </tr>
+                </table>
+
+                <p><strong>If you understand the concept, you can use any of them.</strong></p>
+
+                <h2>6️⃣ AWS History (And Why It Matters)</h2>
+
+                <p>AWS was born because Amazon needed to scale its online store.</p>
+
+                <p>The two initial pillars were:</p>
+
+                <h3>📦 S3 (Simple Storage Service)</h3>
+
+                <p>Object storage:</p>
+
+                <ul>
+                    <li>PDFs</li>
+                    <li>Images</li>
+                    <li>Backups</li>
+                    <li>Static assets</li>
+                </ul>
+
+                <p>It's like an "internet hard drive".</p>
+
+                <h3>🖥️ EC2 (Elastic Compute Cloud)</h3>
+
+                <p>On-demand virtual machines.<br>
+                You can:</p>
+
+                <ul>
+                    <li>Create servers in minutes</li>
+                    <li>Increase or decrease capacity</li>
+                    <li>Pay only while they're active</li>
+                </ul>
+
+                <p>Everything else grew from here.</p>
+
+                <h2>7️⃣ Why Are There So Many Services?</h2>
+
+                <p>When you enter AWS you see hundreds of services.</p>
+
+                <p>Don't panic.</p>
+
+                <p>They're variations of:</p>
+
+                <ul>
+                    <li>compute</li>
+                    <li>storage</li>
+                    <li>network</li>
+                    <li>security</li>
+                    <li>data</li>
+                    <li>automation</li>
+                </ul>
+
+                <p><strong>For example, containers:</strong></p>
+
+                <ul>
+                    <li>ECS</li>
+                    <li>EKS</li>
+                    <li>Fargate</li>
+                </ul>
+
+                <p>All deploy containers.<br>
+                They differ in control level and complexity.</p>
+
+                <h2>8️⃣ Abstraction Levels (Very Important)</h2>
+
+                <p>This is key to thinking like a senior.</p>
+
+                <h3>🧱 IaaS (Infrastructure as a Service)</h3>
+
+                <p><strong>Example: EC2</strong></p>
+
+                <p>You manage:</p>
+
+                <ul>
+                    <li>Operating system</li>
+                    <li>Patches</li>
+                    <li>Configuration</li>
+                </ul>
+
+                <p>More control, more work.</p>
+
+                <h3>🏗️ PaaS (Platform as a Service)</h3>
+
+                <p><strong>Example: Managed databases (RDS)</strong></p>
+
+                <p>Less manual management.</p>
+
+                <h3>⚡ Serverless</h3>
+
+                <p><strong>Example: AWS Lambda</strong></p>
+
+                <p>Pay per execution.<br>
+                Don't manage visible servers.</p>
+
+                <p>Ideal for:</p>
+
+                <ul>
+                    <li>Small APIs</li>
+                    <li>Event-based processing</li>
+                    <li>Automations</li>
+                </ul>
+
+                <h2>9️⃣ The Logical Learning Path</h2>
+
+                <p>As a senior I'd tell you:</p>
+
+                <ol>
+                    <li>Learn basic Linux</li>
+                    <li>Deploy an app in a VM</li>
+                    <li>Dockerize your app</li>
+                    <li>Deploy the container</li>
+                    <li>Try serverless</li>
+                </ol>
+
+                <p>That gives you real intuition.</p>
+
+                <p><strong>Don't just learn by clicking the console.</strong></p>
+
+                <h2>🔟 Costs: The Part Nobody Explains</h2>
+
+                <p>Cloud is "pay per use"… but:</p>
+
+                <p>You pay for:</p>
+
+                <ul>
+                    <li>Execution time</li>
+                    <li>Storage</li>
+                    <li>Requests</li>
+                    <li>Data transfer (egress)</li>
+                    <li>Logs</li>
+                    <li>Managed services</li>
+                </ul>
+
+                <p><strong>Real example:</strong></p>
+
+                <p>Store 100GB in S3 → cheap</p>
+
+                <p>Serve those 100GB millions of times → can be expensive</p>
+
+                <p><strong>Thinking about costs is part of design.</strong></p>
+
+                <h2>11️⃣ Regions and Availability</h2>
+
+                <p>Cloud is not magic.</p>
+
+                <p>Your infrastructure lives in:</p>
+
+                <ul>
+                    <li>One region (e.g., Europe)</li>
+                    <li>Multiple availability zones</li>
+                </ul>
+
+                <p>Deploying across multiple zones:</p>
+
+                <ul>
+                    <li>Increases resilience</li>
+                    <li>Reduces outage risk</li>
+                </ul>
+
+                <h2>12️⃣ What You Should Take as a Developer</h2>
+
+                <p>✅ Don't memorize names<br>
+                ✅ Understand concepts<br>
+                ✅ Learn basic networking<br>
+                ✅ Learn basic Linux<br>
+                ✅ Understand costs<br>
+                ✅ Understand security<br>
+                ✅ Practice real deployments</p>
+
+                <h2>🎯 Final Summary</h2>
+
+                <p><strong>Cloud is not:</strong></p>
+
+                <ul>
+                    <li>Marketing</li>
+                    <li>Magic</li>
+                    <li>Just pretty dashboards</li>
+                </ul>
+
+                <p><strong>Cloud is:</strong></p>
+
+                <ul>
+                    <li>Rented infrastructure</li>
+                    <li>Automatable</li>
+                    <li>Scalable</li>
+                    <li>Pay-per-use</li>
+                </ul>
+
+                <p><strong>AWS, Azure and GCP are different supermarkets.</strong></p>
+
+                <p>Products change names.<br>
+                Milk is still milk.</p>
+
+                <p>If you understand:</p>
+
+                <ul>
+                    <li>Compute</li>
+                    <li>Storage</li>
+                    <li>Network</li>
+                    <li>Identity</li>
+                    <li>Observability</li>
+                </ul>
+
+                <p><strong>You can work in any of them.</strong></p>
+
+                <h2>📚 Resources</h2>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/project" target="_blank">Cloud Computing for Developers - Dragos</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Back</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Home →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>

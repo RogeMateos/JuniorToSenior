@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patrones de Control de Versiones | Ciclo de Software</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-version-control">
+                <h1>📝🔄 Patrones de Control de Versiones</h1>
+                <p><strong>Git Flows – Guía Completa</strong></p>
+
+                <h2>🎯 Objetivo</h2>
+
+                <p>Entender:</p>
+
+                <ul>
+                    <li>Qué es un Git Flow realmente (más allá de "ramas")</li>
+                    <li>Cuándo usar cada estrategia</li>
+                    <li>Qué problemas resuelve cada una</li>
+                    <li>Cómo se conecta con CI/CD</li>
+                    <li>Qué esperan escuchar en una entrevista</li>
+                    <li>Qué usar en proyectos reales</li>
+                </ul>
+
+                <h2>1️⃣ Primero: ¿Por qué importa el branching strategy?</h2>
+
+                <p>Como junior podrías pensar:</p>
+
+                <p>"Da igual, hacemos ramas y ya."</p>
+
+                <p>Pero en realidad el branching strategy define:</p>
+
+                <ul>
+                    <li>Cómo se integra el código</li>
+                    <li>Cómo se revisa</li>
+                    <li>Cómo se despliega</li>
+                    <li>Cómo se gestionan hotfixes</li>
+                    <li>Cuánto conflicto tendrás</li>
+                    <li>Qué tan rápido puedes entregar valor</li>
+                </ul>
+
+                <p><strong>No es una decisión técnica aislada.<br>
+                Es una decisión organizacional.</strong></p>
+
+                <h2>2️⃣ Los 4 Patrones Más Importantes</h2>
+
+                <p>No son 20. Son 4. Y con estos cubres el 95% de las empresas.</p>
+
+                <h3>🟢 1. Trunk-Based Development</h3>
+
+                <p><strong>📌 Idea central</strong></p>
+
+                <p>Existe una sola rama principal de larga duración (main o trunk).<br>
+                Todo se integra ahí frecuentemente.</p>
+
+                <pre><code>main
+ ├── commit
+ ├── commit
+ ├── commit</code></pre>
+
+                <p><strong>❗ Importante</strong></p>
+
+                <p>NO significa "push directo sin control".</p>
+
+                <p>En equipos modernos:</p>
+
+                <ul>
+                    <li>PRs pequeños</li>
+                    <li>CI obligatorio</li>
+                    <li>Feature flags</li>
+                    <li>main siempre verde</li>
+                </ul>
+
+                <p><strong>✅ Ventajas</strong></p>
+
+                <ul>
+                    <li>Integración continua real</li>
+                    <li>Conflictos pequeños</li>
+                    <li>Velocidad alta</li>
+                    <li>Ideal para CI/CD maduro</li>
+                </ul>
+
+                <p><strong>❌ Desventajas</strong></p>
+
+                <ul>
+                    <li>Requiere disciplina</li>
+                    <li>CI rápido (menos de 10-15 min)</li>
+                    <li>Equipo maduro</li>
+                </ul>
+
+                <p><strong>🧠 Cuándo usarlo</strong></p>
+
+                <ul>
+                    <li>Equipos senior</li>
+                    <li>Cultura DevOps fuerte</li>
+                    <li>Deploy continuo</li>
+                    <li>SaaS modernos</li>
+                </ul>
+
+                <h3>🟡 2. Feature Flow (GitHub Flow)</h3>
+
+                <p>⚠️ <strong>Este es el más común hoy en día.</strong></p>
+
+                <p><strong>📌 Estructura</strong></p>
+
+                <p>main (larga vida)<br>
+                Ramas feature/* cortas<br>
+                Pull Request<br>
+                Merge a main<br>
+                Deploy automático</p>
+
+                <pre><code>main
+ ├── feature/login
+ ├── feature/payment
+ └── feature/profile</code></pre>
+
+                <p><strong>📋 Flujo diario real</strong></p>
+
+                <p><strong>Crear rama:</strong></p>
+
+                <pre><code>feature/REN-245-add-banner</code></pre>
+
+                <p>Hacer commits<br>
+                Abrir PR<br>
+                CI corre tests + lint<br>
+                Review<br>
+                Merge (normalmente squash)<br>
+                Deploy desde main</p>
+
+                <p><strong>🔥 ¿Por qué es tan popular?</strong></p>
+
+                <p>Porque equilibra:</p>
+
+                <ul>
+                    <li>Control</li>
+                    <li>Simplicidad</li>
+                    <li>Escalabilidad media</li>
+                </ul>
+
+                <p><strong>✅ Ventajas</strong></p>
+
+                <ul>
+                    <li>PRs permiten code review</li>
+                    <li>main protegida</li>
+                    <li>Muy simple de entender</li>
+                    <li>Funciona en equipos de 3–50 personas</li>
+                </ul>
+
+                <p><strong>❌ Desventajas</strong></p>
+
+                <ul>
+                    <li>Si PRs son grandes → conflictos</li>
+                    <li>Si no hay CI → desastre</li>
+                </ul>
+
+                <p><strong>🧠 Recomendación Senior</strong></p>
+
+                <p><strong>Si no sabes qué usar…</strong></p>
+
+                <p>👉 <strong>Usa Feature Flow.</strong></p>
+
+                <p><strong>Es el estándar moderno.</strong></p>
+
+                <h3>🔵 3. Gitflow (Modelo clásico complejo)</h3>
+
+                <p><strong>📌 Estructura</strong></p>
+
+                <p>Tres ramas largas:</p>
+
+                <ul>
+                    <li>main</li>
+                    <li>develop</li>
+                    <li>release/*</li>
+                </ul>
+
+                <p>Más:</p>
+
+                <ul>
+                    <li>feature/*</li>
+                    <li>hotfix/*</li>
+                </ul>
+
+                <pre><code>main
+develop
+release/1.2
+feature/x
+hotfix/y</code></pre>
+
+                <p><strong>📦 Cómo funciona</strong></p>
+
+                <ul>
+                    <li>Features → merge a develop</li>
+                    <li>Release branch → estabilización</li>
+                    <li>Cuando está lista → merge a main</li>
+                    <li>Hotfix → directo en main</li>
+                    <li>Luego se sincroniza hacia develop</li>
+                </ul>
+
+                <p><strong>🧠 ¿Por qué existe?</strong></p>
+
+                <p>Para empresas con:</p>
+
+                <ul>
+                    <li>Releases programadas</li>
+                    <li>Versionado formal</li>
+                    <li>Equipos grandes</li>
+                    <li>Compliance</li>
+                    <li>Producto instalado en clientes</li>
+                </ul>
+
+                <p><strong>❌ Problemas reales</strong></p>
+
+                <ul>
+                    <li>Mucho overhead</li>
+                    <li>Confusión</li>
+                    <li>Merges complejos</li>
+                    <li>Duplicación de trabajo</li>
+                    <li>Requiere conocimiento avanzado de Git</li>
+                </ul>
+
+                <p><strong>⚠️ Error típico</strong></p>
+
+                <p>Equipos pequeños usando Gitflow "porque suena profesional".</p>
+
+                <p><strong>No lo es. Es costoso.</strong></p>
+
+                <h3>🟣 4. Release Branch Strategy (Híbrido moderno)</h3>
+
+                <p>Muchos equipos grandes no usan Gitflow completo.</p>
+
+                <p>Usan:</p>
+
+                <ul>
+                    <li>main</li>
+                    <li>feature branches</li>
+                    <li>release/x.y cuando necesitan estabilizar</li>
+                </ul>
+
+                <p><strong>Más simple.<br>
+                Menos ramas largas.<br>
+                Más flexible.</strong></p>
+
+                <h2>3️⃣ Comparación Rápida</h2>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>Strategy</th>
+                        <th>Complejidad</th>
+                        <th>Escalabilidad</th>
+                        <th>Ideal para</th>
+                    </tr>
+                    <tr>
+                        <td>Trunk-Based</td>
+                        <td>Baja</td>
+                        <td>Alta</td>
+                        <td>Equipos maduros</td>
+                    </tr>
+                    <tr>
+                        <td>Feature Flow</td>
+                        <td>Media</td>
+                        <td>Media-Alta</td>
+                        <td>La mayoría de equipos</td>
+                    </tr>
+                    <tr>
+                        <td>Gitflow</td>
+                        <td>Alta</td>
+                        <td>Muy alta</td>
+                        <td>Grandes empresas</td>
+                    </tr>
+                    <tr>
+                        <td>Release Híbrido</td>
+                        <td>Media</td>
+                        <td>Alta</td>
+                        <td>Productos versionados</td>
+                    </tr>
+                </table>
+
+                <h2>4️⃣ Merge Strategies (Uso diario)</h2>
+
+                <p>Cuando haces PR puedes:</p>
+
+                <p><strong>🔹 Squash Merge (recomendado)</strong></p>
+
+                <p>1 commit limpio.<br>
+                Historia clara.<br>
+                Ideal para Feature Flow.</p>
+
+                <p><strong>🔹 Merge Commit</strong></p>
+
+                <p>Conserva todos los commits.<br>
+                Más ruidoso.</p>
+
+                <p><strong>🔹 Rebase</strong></p>
+
+                <p>Historia lineal.<br>
+                Requiere disciplina.</p>
+
+                <p><strong>👑 Recomendación práctica</strong></p>
+
+                <p>Equipos pequeños/medios → Squash merge.<br>
+                Equipos grandes → depende del histórico requerido.</p>
+
+                <h2>5️⃣ Protección de main (mínimo profesional)</h2>
+
+                <p>Un senior nunca deja main abierta.</p>
+
+                <p>Configura:</p>
+
+                <ul>
+                    <li>✅ CI obligatorio</li>
+                    <li>✅ Tests deben pasar</li>
+                    <li>✅ 1 aprobación mínima</li>
+                    <li>✅ No push directo</li>
+                    <li>✅ Lint obligatorio</li>
+                </ul>
+
+                <p><strong>Sin esto, cualquier flow fracasa.</strong></p>
+
+                <h2>6️⃣ Hotfix explicado bien</h2>
+
+                <p><strong>Escenario moderno (Feature Flow):</strong></p>
+
+                <p>Producción está en main.<br>
+                Bug crítico →<br>
+                Crear rama:</p>
+
+                <pre><code>hotfix/INC-19-fix-login</code></pre>
+
+                <p>PR a main<br>
+                CI<br>
+                Merge<br>
+                Deploy inmediato</p>
+
+                <p><strong>Si usas release branch:</strong></p>
+
+                <p>PR a release/x.y<br>
+                Luego back-merge a main</p>
+
+                <p><strong>Nunca olvides sincronizar.</strong></p>
+
+                <h2>7️⃣ Errores Típicos (Aprende antes de sufrirlos)</h2>
+
+                <ul>
+                    <li>❌ PRs gigantes</li>
+                    <li>❌ main sin protección</li>
+                    <li>❌ CI lento</li>
+                    <li>❌ No usar feature flags</li>
+                    <li>❌ No etiquetar versiones</li>
+                    <li>❌ No definir naming conventions</li>
+                </ul>
+
+                <h2>8️⃣ Cómo responder en entrevista</h2>
+
+                <p><strong>Si usas Feature Flow:</strong></p>
+
+                <p>"Trabajamos con un modelo tipo GitHub Flow. Usamos ramas feature cortas, PRs pequeños, CI obligatorio y mantenemos main siempre deployable."</p>
+
+                <p><strong>Si usas Trunk-Based:</strong></p>
+
+                <p>"Integramos frecuentemente al trunk con PRs pequeños y feature flags para mantener main estable."</p>
+
+                <p><strong>Si usas Gitflow:</strong></p>
+
+                <p>"Usamos Gitflow por la necesidad de gestionar releases formales y múltiples streams de desarrollo."</p>
+
+                <h2>9️⃣ Ejercicio práctico</h2>
+
+                <p>Reflexiona:</p>
+
+                <ul>
+                    <li>¿Qué flow usa tu equipo actual?</li>
+                    <li>¿Por qué?</li>
+                    <li>¿Está justificado?</li>
+                    <li>¿Podría simplificarse?</li>
+                    <li>¿Está main protegida?</li>
+                    <li>¿Cuánto tarda el CI?</li>
+                </ul>
+
+                <h2>🔟 Regla de Oro</h2>
+
+                <p>En software, la complejidad es un coste.<br>
+                No hay medalla por usar el modelo más complejo.</p>
+
+                <p><strong>Usa lo más simple que funcione para tu escala.</strong></p>
+
+                <h2>🎯 Recomendación Final (Guía rápida)</h2>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>Tamaño equipo</th>
+                        <th>Recomendación</th>
+                    </tr>
+                    <tr>
+                        <td>1–5 personas</td>
+                        <td>Feature Flow</td>
+                    </tr>
+                    <tr>
+                        <td>5–20 personas</td>
+                        <td>Feature Flow con buenas protecciones</td>
+                    </tr>
+                    <tr>
+                        <td>20+ personas</td>
+                        <td>Release Híbrido o Gitflow</td>
+                    </tr>
+                    <tr>
+                        <td>Equipos ultra DevOps</td>
+                        <td>Trunk-Based</td>
+                    </tr>
+                </table>
+
+                <h2>📚 Recursos</h2>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/699651fc-80bc-838c-97e7-60ce368d089d" target="_blank">Patrones de Control de Versiones & Git Flows - Dragos</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Volver Atrás</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Volver al Inicio →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>
