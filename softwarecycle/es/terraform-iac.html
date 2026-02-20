@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infrastructure as Code con Terraform | Ciclo de Software</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-terraform-iac">
+                <h1>🌍 4.0 Infrastructure as Code con Terraform</h1>
+                <p><strong>De "hacer clic en la consola" a "infraestructura profesional versionada"</strong></p>
+
+                <h2>1️⃣ El problema real (por qué esto existe)</h2>
+
+                <p>Imagina que trabajas en una empresa con:</p>
+
+                <ul>
+                    <li>40 microservicios</li>
+                    <li>3 entornos (dev, staging, prod)</li>
+                    <li>2 regiones</li>
+                    <li>15 developers</li>
+                </ul>
+
+                <p>Si cada persona entra en AWS y hace:</p>
+
+                <ul>
+                    <li>Launch instance</li>
+                    <li>Crear Security Group</li>
+                    <li>Abrir puertos</li>
+                    <li>Crear base de datos</li>
+                    <li>Configurar red</li>
+                </ul>
+
+                <p>👉 En 3 meses nadie sabe cómo está montada la infraestructura.<br>
+                👉 En 6 meses tienes inconsistencias.<br>
+                👉 En 1 año tienes un desastre.</p>
+
+                <p><strong>Infraestructura manual no escala.</strong></p>
+
+                <h2>2️⃣ La solución: Infrastructure as Code (IaC)</h2>
+
+                <p>Infrastructure as Code significa:</p>
+
+                <p><strong>"Declarar la infraestructura en código, versionarla con Git y dejar que una herramienta la cree y la mantenga."</strong></p>
+
+                <p>En vez de:</p>
+
+                <pre><code>Click → click → click</code></pre>
+
+                <p>Haces:</p>
+
+                <pre><code>resource "aws_instance" "app_server" {
+  ami           = "ami-123456"
+  instance_type = "t2.micro"
+}</code></pre>
+
+                <p>Y Terraform crea eso por ti.</p>
+
+                <h2>3️⃣ Imperativo vs Declarativo (concepto clave)</h2>
+
+                <h3>🔴 Imperativo (scripts bash)</h3>
+
+                <pre><code>create vpc
+create subnet
+create security group
+create ec2</code></pre>
+
+                <p>Tú defines paso a paso.</p>
+
+                <h3>🟢 Declarativo (Terraform)</h3>
+
+                <pre><code>resource "aws_instance" "app" {
+  ...
+}</code></pre>
+
+                <p>Tú solo dices:</p>
+
+                <p><strong>"Este es el resultado final que quiero."</strong></p>
+
+                <p>Terraform:</p>
+
+                <ul>
+                    <li>Calcula dependencias</li>
+                    <li>Detecta diferencias</li>
+                    <li>Ejecuta en el orden correcto</li>
+                </ul>
+
+                <p>Esto es <strong>idempotente</strong>:<br>
+                Si ya existe, no lo recrea innecesariamente.</p>
+
+                <h2>4️⃣ Qué es Terraform realmente</h2>
+
+                <p>Terraform es:</p>
+
+                <ul>
+                    <li>Un motor de comparación</li>
+                    <li>Un gestor de estado</li>
+                    <li>Un ejecutor de cambios</li>
+                </ul>
+
+                <p>Hace esto:</p>
+
+                <ul>
+                    <li>Lee tus archivos .tf</li>
+                    <li>Lee el estado actual del cloud</li>
+                    <li>Calcula diferencias</li>
+                    <li>Te muestra un plan</li>
+                    <li>Aplica cambios</li>
+                </ul>
+
+                <h2>5️⃣ El concepto MÁS importante: el STATE</h2>
+
+                <p>Terraform guarda un archivo llamado state.</p>
+
+                <p>Ese archivo contiene:</p>
+
+                <ul>
+                    <li>Qué recursos creó</li>
+                    <li>Sus IDs reales en AWS</li>
+                    <li>Sus relaciones</li>
+                </ul>
+
+                <p>Sin state, Terraform no sabe qué existe.</p>
+
+                <h3>🚨 Problema real en empresas</h3>
+
+                <p>Si dos personas hacen terraform apply al mismo tiempo:</p>
+
+                <p>👉 Puedes romper producción.</p>
+
+                <p>Por eso en empresas usamos:</p>
+
+                <ul>
+                    <li>Remote State</li>
+                </ul>
+
+                <p>Ejemplo típico en AWS:</p>
+
+                <ul>
+                    <li>State guardado en S3</li>
+                    <li>Locking con DynamoDB</li>
+                </ul>
+
+                <p>Esto evita:</p>
+
+                <ul>
+                    <li>Corrupción del state</li>
+                    <li>Cambios simultáneos</li>
+                </ul>
+
+                <h2>6️⃣ Flujo profesional real (no desde tu portátil)</h2>
+
+                <p>En empresa NO se hace:</p>
+
+                <pre><code>terraform apply en local</code></pre>
+
+                <p>Se hace:</p>
+
+                <ul>
+                    <li>Dev crea branch</li>
+                    <li>Hace cambios en .tf</li>
+                    <li>PR dispara pipeline</li>
+                    <li>Pipeline ejecuta:
+                        <ul>
+                            <li>terraform fmt</li>
+                            <li>terraform validate</li>
+                            <li>terraform plan</li>
+                        </ul>
+                    </li>
+                    <li>Se revisa el plan</li>
+                    <li>Merge a main</li>
+                    <li>Pipeline hace terraform apply</li>
+                </ul>
+
+                <p>👉 Infraestructura como código revisada por PR<br>
+                👉 Auditoría<br>
+                👉 Seguridad</p>
+
+                <h2>7️⃣ Estructura básica de un proyecto Terraform</h2>
+
+                <pre><code>/terraform
+  ├── main.tf
+  ├── variables.tf
+  ├── outputs.tf
+  ├── providers.tf
+  ├── terraform.tfvars</code></pre>
+
+                <h2>8️⃣ Ejemplo práctico mínimo (Security Group)</h2>
+
+                <h3>providers.tf</h3>
+
+                <pre><code>terraform {
+  required_version = ">= 1.5.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = var.aws_region
+}</code></pre>
+
+                <h3>variables.tf</h3>
+
+                <pre><code>variable "aws_region" {
+  type = string
+}
+
+variable "app_port" {
+  type    = number
+  default = 3000
+}</code></pre>
+
+                <h3>main.tf</h3>
+
+                <pre><code>resource "aws_security_group" "app_sg" {
+  name = "app-security-group"
+
+  ingress {
+    from_port   = var.app_port
+    to_port     = var.app_port
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}</code></pre>
+
+                <h3>outputs.tf</h3>
+
+                <pre><code>output "security_group_id" {
+  value = aws_security_group.app_sg.id
+}</code></pre>
+
+                <h2>9️⃣ Comandos básicos</h2>
+
+                <pre><code>terraform init
+terraform fmt
+terraform validate
+terraform plan
+terraform apply
+terraform destroy</code></pre>
+
+                <h3>Qué hace cada uno</h3>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>Comando</th>
+                        <th>Qué hace</th>
+                    </tr>
+                    <tr>
+                        <td>init</td>
+                        <td>Descarga providers</td>
+                    </tr>
+                    <tr>
+                        <td>fmt</td>
+                        <td>Formatea código</td>
+                    </tr>
+                    <tr>
+                        <td>validate</td>
+                        <td>Valida sintaxis</td>
+                    </tr>
+                    <tr>
+                        <td>plan</td>
+                        <td>Muestra cambios</td>
+                    </tr>
+                    <tr>
+                        <td>apply</td>
+                        <td>Aplica cambios</td>
+                    </tr>
+                    <tr>
+                        <td>destroy</td>
+                        <td>Elimina todo</td>
+                    </tr>
+                </table>
+
+                <h2>🔟 Variables y entornos</h2>
+
+                <p>En empresa nunca hardcodeamos valores.</p>
+
+                <p>Ejemplo:</p>
+
+                <pre><code>environments/
+   dev/
+   staging/
+   prod/</code></pre>
+
+                <p>Cada entorno tiene:</p>
+
+                <ul>
+                    <li>State separado</li>
+                    <li>Variables distintas</li>
+                    <li>Cuenta distinta idealmente</li>
+                </ul>
+
+                <h2>1️⃣1️⃣ Seguridad (muy importante)</h2>
+
+                <p><strong>❌ Nunca:</strong></p>
+
+                <ul>
+                    <li>Hardcodear passwords</li>
+                    <li>Subir secrets a Git</li>
+                </ul>
+
+                <p><strong>✔ Usar:</strong></p>
+
+                <ul>
+                    <li>AWS Secrets Manager</li>
+                    <li>Variables de entorno en CI</li>
+                    <li>Roles IAM con permisos mínimos</li>
+                </ul>
+
+                <h2>1️⃣2️⃣ Terraform vs CloudFormation vs CDK</h2>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>Herramienta</th>
+                        <th>Uso típico</th>
+                    </tr>
+                    <tr>
+                        <td>Terraform</td>
+                        <td>Multi-cloud</td>
+                    </tr>
+                    <tr>
+                        <td>CloudFormation</td>
+                        <td>AWS puro</td>
+                    </tr>
+                    <tr>
+                        <td>CDK</td>
+                        <td>Infra con TypeScript</td>
+                    </tr>
+                    <tr>
+                        <td>CDKTF</td>
+                        <td>Terraform + código</td>
+                    </tr>
+                </table>
+
+                <p>👉 Aprende Terraform primero.<br>
+                👉 Luego CDK si trabajas 100% AWS.</p>
+
+                <h2>1️⃣3️⃣ Conceptos avanzados que debes conocer</h2>
+
+                <h3>Drift</h3>
+
+                <p>Si alguien cambia algo manualmente en AWS:</p>
+
+                <p>Terraform lo detecta en el siguiente plan.</p>
+
+                <h3>Import</h3>
+
+                <p>Si ya existe infraestructura:</p>
+
+                <pre><code>terraform import</code></pre>
+
+                <p>La traes al state.</p>
+
+                <h3>Módulos</h3>
+
+                <p>Cuando tienes patrones repetidos:</p>
+
+                <ul>
+                    <li>Módulo de EC2</li>
+                    <li>Módulo de RDS</li>
+                    <li>Módulo de VPC</li>
+                </ul>
+
+                <p>Así no duplicas código.</p>
+
+                <h2>1️⃣4️⃣ ¿Cuándo usar Terraform y cuándo no?</h2>
+
+                <h3>✅ Ideal para:</h3>
+
+                <ul>
+                    <li>Empresas medianas/grandes</li>
+                    <li>Multi-entorno</li>
+                    <li>Multi-cloud</li>
+                    <li>Infra crítica</li>
+                </ul>
+
+                <h3>❌ Overkill para:</h3>
+
+                <ul>
+                    <li>Startup de 2 personas</li>
+                    <li>1 servidor pequeño</li>
+                    <li>Proyecto temporal</li>
+                </ul>
+
+                <h2>1️⃣5️⃣ Mental Model Final</h2>
+
+                <p>Terraform es:</p>
+
+                <p><strong>"Git para tu infraestructura."</strong></p>
+
+                <p>Puedes:</p>
+
+                <ul>
+                    <li>Ver cambios</li>
+                    <li>Revertir</li>
+                    <li>Reproducir infraestructura</li>
+                    <li>Auditar todo</li>
+                </ul>
+
+                <h2>1️⃣6️⃣ Si sabes esto como Full Stack</h2>
+
+                <p>Y además sabes:</p>
+
+                <ul>
+                    <li>CI/CD</li>
+                    <li>Docker</li>
+                    <li>Cloud</li>
+                    <li>Networking básico</li>
+                    <li>Seguridad básica</li>
+                </ul>
+
+                <p><strong>Ya no eres solo desarrollador.</strong></p>
+
+                <p>Eres un ingeniero de producto completo.</p>
+
+                <h2>🎯 Puntos Clave</h2>
+
+                <ul>
+                    <li>✔ IaC previene caos de infraestructura manual</li>
+                    <li>✔ Terraform es declarativo, no imperativo</li>
+                    <li>✔ El state es todo (protégelo)</li>
+                    <li>✔ Siempre usa remote state en producción</li>
+                    <li>✔ Locking con DynamoDB previene conflictos</li>
+                    <li>✔ Usa Git workflows para cambios de infraestructura</li>
+                    <li>✔ Nunca hardcodees secrets</li>
+                    <li>✔ Modules previene duplicación de código</li>
+                    <li>✔ Idempotencia es clave</li>
+                    <li>✔ terraform plan antes de terraform apply</li>
+                </ul>
+
+                <h2>📚 Recursos</h2>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/699865c5-0d04-838c-bfc3-891c218e842e" target="_blank">Infrastructure as Code con Terraform - Dragos</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Volver Atrás</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Volver al Inicio →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>
