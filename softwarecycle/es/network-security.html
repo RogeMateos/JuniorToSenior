@@ -10,424 +10,414 @@
     <div class="container">
         <main class="main-content">
             <section id="section-network-security">
-                <h1>⌨️☁️ Fundamentos de Seguridad de Red en AWS</h1>
-                <p><strong>Guía práctica paso a paso para desarrolladores</strong></p>
+                <h1>⌨️☁️ 1.7 Fundamentos de Seguridad de Red en AWS</h1>
+                <p><strong>Cómo pensar la seguridad en la nube (como un senior)</strong></p>
 
-                <h2>1️⃣ El Modelo Mental Correcto</h2>
+                <h2>1️⃣ El problema real que estamos resolviendo</h2>
 
-                <p>Antes de tocar AWS Console, necesitas entender el mapa.</p>
+                <p>Cuando pasas de desarrollar código a desplegar en cloud, ocurre algo importante:</p>
 
-                <pre><code>Region (Frankfurt)
- ├── Availability Zone A
- │     ├── Subnet Pública
- │     └── Subnet Privada
- ├── Availability Zone B
- │     ├── Subnet Pública
- │     └── Subnet Privada
- └── VPC (tu red privada virtual)</code></pre>
+                <p><strong>Ahora eres responsable de que nadie acceda a cosas que no debería.</strong></p>
 
-                <h3>🧠 ¿Qué es realmente una VPC?</h3>
-
-                <p>Una VPC (Virtual Private Cloud) es:</p>
+                <p><strong>En local todo funciona porque:</strong></p>
 
                 <ul>
-                    <li>Tu red privada virtual dentro de AWS</li>
-                    <li>No es solo "un datacenter virtual"</li>
+                    <li>Todo está en localhost</li>
+                    <li>No hay red pública</li>
+                    <li>No hay atacantes</li>
                 </ul>
 
-                <p>Es:</p>
+                <p><strong>En producción:</strong></p>
 
                 <ul>
-                    <li>Un rango de IPs privado (ej: 10.0.0.0/16)</li>
-                    <li>Con subnets</li>
-                    <li>Con reglas de red</li>
-                    <li>Con routing</li>
-                    <li>Con firewalls</li>
+                    <li>Hay internet</li>
+                    <li>Hay bots escaneando puertos</li>
+                    <li>Hay intentos de fuerza bruta</li>
+                    <li>Hay riesgo de fuga de datos</li>
                 </ul>
 
-                <h2>2️⃣ Subnets: Público vs Privado</h2>
+                <p>Por eso existe la VPC y los mecanismos de red.</p>
 
-                <p>Aquí empieza la seguridad real.</p>
+                <h2>2️⃣ Mental Model: VPC = Tu mini data center virtual</h2>
 
-                <h3>🔵 Public Subnet</h3>
+                <p>Cuando creas una cuenta AWS, obtienes una VPC (Virtual Private Cloud).</p>
 
-                <p>Tiene una route:</p>
-
-                <p><strong>0.0.0.0/0 → Internet Gateway</strong></p>
-
-                <p>Eso significa:<br>
-                "Todo lo que no sea interno, mándalo a internet"</p>
-
-                <p>Pero ojo:</p>
-
-                <p>Para que algo sea accesible desde internet necesita 4 cosas:</p>
-
-                <ul>
-                    <li>Estar en una subnet pública</li>
-                    <li>Tener IP pública</li>
-                    <li>Tener Security Group que permita el puerto</li>
-                    <li>No estar bloqueado por NACL</li>
-                </ul>
-
-                <p>Si falta una → ❌ Timeout</p>
-
-                <h3>🟢 Private Subnet</h3>
-
-                <p>NO tiene ruta directa al Internet Gateway.</p>
-
-                <p>Se usa para:</p>
-
-                <ul>
-                    <li>Servidores backend</li>
-                    <li>Bases de datos</li>
-                    <li>Workers</li>
-                    <li>Servicios internos</li>
-                </ul>
-
-                <p>🔐 <strong>En producción, casi todo vive aquí.</strong></p>
-
-                <h2>3️⃣ Internet Gateway vs NAT Gateway</h2>
-
-                <h3>🌍 Internet Gateway (IGW)</h3>
-
-                <p><strong>Permite:</strong></p>
-
-                <ul>
-                    <li>Entrada desde internet</li>
-                    <li>Salida hacia internet</li>
-                </ul>
-
-                <p>Se usa en subnets públicas.</p>
-
-                <h3>🚪 NAT Gateway</h3>
-
-                <p><strong>Permite:</strong></p>
-
-                <ul>
-                    <li>Salida hacia internet</li>
-                    <li>❌ NO permite entrada desde internet</li>
-                </ul>
-
-                <p>Se usa para:</p>
-
-                <ul>
-                    <li>Instancias en private subnet que necesitan:</li>
-                    <li>npm install</li>
-                    <li>Descargar dependencias</li>
-                    <li>Llamar APIs externas</li>
-                </ul>
-
-                <h3>🎯 Patrón Profesional</h3>
+                <p>Piensa en ella como:</p>
 
                 <pre><code>Internet
    ↓
-ALB / API Gateway (public subnet)
+[ Internet Gateway ]
    ↓
-App Server (private subnet)
-   ↓
-Database (private subnet)
+[ VPC - tu red privada ]
+    ├── Subnet A
+    ├── Subnet B
+    └── Subnet C</code></pre>
 
-Y si la app necesita internet:
-
-App → NAT Gateway → Internet
-
-Nunca:
-
-Internet → Database ❌</code></pre>
-
-                <h2>4️⃣ Security Groups (Lo MÁS importante)</h2>
-
-                <p>Un Security Group es:</p>
-
-                <p><strong>Un firewall stateful asociado a un recurso.</strong></p>
-
-                <p>Stateful significa:<br>
-                Si permites entrada, la respuesta está permitida automáticamente.</p>
-
-                <h3>🧱 Cómo funciona</h3>
-
-                <p>Tiene:</p>
+                <p>Dentro de tu VPC:</p>
 
                 <ul>
-                    <li>Inbound rules</li>
-                    <li>Outbound rules</li>
+                    <li>Tienes IPs privadas</li>
+                    <li>Puedes crear servidores</li>
+                    <li>Puedes crear bases de datos</li>
+                    <li>Puedes segmentar redes</li>
                 </ul>
 
-                <p>Todo lo que no está permitido → se bloquea.</p>
+                <p>Es tu red aislada dentro de AWS.</p>
 
-                <h3>🧪 Ejemplo 1: App Server</h3>
+                <h2>3️⃣ Regiones y Availability Zones</h2>
+
+                <p>Una región (ej: Frankfurt) tiene varias Availability Zones.</p>
+
+                <p>Cada AZ es básicamente un centro de datos diferente.</p>
+
+                <p><strong>¿Por qué importa esto?</strong></p>
+
+                <p>Porque:</p>
+
+                <ul>
+                    <li>Puedes distribuir recursos</li>
+                    <li>Puedes tolerar fallos</li>
+                    <li>Es base para alta disponibilidad</li>
+                </ul>
+
+                <p>Pero en este módulo nos enfocamos en seguridad de red.</p>
+
+                <h2>4️⃣ Subnets: Segmentando tu red</h2>
+
+                <p>Dentro de la VPC creas subnets.</p>
+
+                <p>No existen "subnets públicas" como botón mágico.</p>
+
+                <p>Una subnet es "pública" cuando:</p>
+
+                <ul>
+                    <li>Tiene una route table con:
+                        <ul>
+                            <li>0.0.0.0/0 → Internet Gateway</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <p>Es "privada" cuando:</p>
+
+                <ul>
+                    <li>No tiene ruta directa al Internet Gateway</li>
+                </ul>
+
+                <h2>5️⃣ ¿Qué hace que algo sea realmente público?</h2>
+
+                <p>Muchos juniors creen:</p>
+
+                <p>"Está en AWS, entonces ya es público"</p>
+
+                <p>No.</p>
+
+                <p>Para que un recurso sea accesible desde internet necesita:</p>
+
+                <ul>
+                    <li>Ruta al Internet Gateway</li>
+                    <li>IP pública</li>
+                    <li>Security Group que permita inbound</li>
+                    <li>Servicio escuchando en ese puerto</li>
+                </ul>
+
+                <p>Si uno de esos falla → no es accesible.</p>
+
+                <p>Esto es importantísimo para debugging.</p>
+
+                <h2>6️⃣ Security Groups = Firewall por recurso</h2>
+
+                <p>Este es el concepto más importante.</p>
+
+                <p>Un Security Group (SG) es:</p>
+
+                <p><strong>Un firewall virtual que envuelve un recurso.</strong></p>
+
+                <p>Ejemplo visual:</p>
+
+                <pre><code>[ Internet ]
+     ↓
+[ Security Group ]
+     ↓
+[ EC2 Instance ]</code></pre>
+
+                <p>Si no pasas el SG → no llegas al servidor.</p>
+
+                <h3>🔹 Inbound vs Outbound</h3>
+
+                <p><strong>Inbound</strong> = lo que puede entrar<br>
+                <strong>Outbound</strong> = lo que puede salir</p>
+
+                <p>Ejemplo típico backend:</p>
 
                 <p><strong>Inbound:</strong></p>
 
-                <table class="cheat-sheet-table">
-                    <tr>
-                        <th>Puerto</th>
-                        <th>Protocolo</th>
-                        <th>Origen</th>
-                    </tr>
-                    <tr>
-                        <td>80</td>
-                        <td>TCP</td>
-                        <td>SG-ALB</td>
-                    </tr>
-                    <tr>
-                        <td>443</td>
-                        <td>TCP</td>
-                        <td>SG-ALB</td>
-                    </tr>
-                </table>
+                <ul>
+                    <li>443 desde Load Balancer</li>
+                    <li>22 solo desde tu IP (si usas SSH)</li>
+                </ul>
 
                 <p><strong>Outbound:</strong></p>
 
-                <table class="cheat-sheet-table">
-                    <tr>
-                        <th>Puerto</th>
-                        <th>Destino</th>
-                    </tr>
-                    <tr>
-                        <td>5432</td>
-                        <td>SG-DB</td>
-                    </tr>
-                    <tr>
-                        <td>443</td>
-                        <td>0.0.0.0/0</td>
-                    </tr>
-                </table>
+                <ul>
+                    <li>5432 hacia base de datos</li>
+                    <li>443 hacia internet (npm install, APIs externas)</li>
+                </ul>
 
-                <h3>🧪 Ejemplo 2: Database</h3>
+                <h2>7️⃣ Security Groups son STATEFUL</h2>
 
-                <p><strong>Inbound:</strong></p>
+                <p>Esto es clave y mucha gente lo ignora.</p>
+
+                <p>Si permites inbound:</p>
+
+                <p><strong>La respuesta de vuelta está automáticamente permitida.</strong></p>
+
+                <p>No necesitas abrir el puerto de retorno.</p>
+
+                <h2>8️⃣ NACL vs Security Group (diferencia importante)</h2>
 
                 <table class="cheat-sheet-table">
                     <tr>
-                        <th>Puerto</th>
-                        <th>Origen</th>
-                    </tr>
-                    <tr>
-                        <td>5432</td>
-                        <td>SG-APP</td>
-                    </tr>
-                </table>
-
-                <p><strong>Outbound:</strong><br>
-                Default (normalmente todo permitido)</p>
-
-                <p>🔐 <strong>Nunca abras 5432 a:</strong><br>
-                <strong>0.0.0.0/0 ❌</strong></p>
-
-                <h2>5️⃣ Referencia entre Security Groups (Nivel Senior)</h2>
-
-                <p>Puedes decir:</p>
-
-                <p>"Este SG solo acepta tráfico desde este otro SG"</p>
-
-                <p>Eso es mucho más seguro que usar IPs.</p>
-
-                <p><strong>Ejemplo:</strong></p>
-
-                <p>SG-DB permite 5432 desde SG-APP</p>
-
-                <p>Eso significa:</p>
-
-                <p>Solo servidores con ese SG pueden conectarse.</p>
-
-                <h2>6️⃣ Network ACL vs Security Group</h2>
-
-                <p>Esto suele confundir.</p>
-
-                <table class="cheat-sheet-table">
-                    <tr>
-                        <th></th>
+                        <th>Característica</th>
                         <th>Security Group</th>
                         <th>NACL</th>
                     </tr>
                     <tr>
                         <td>Nivel</td>
-                        <td>Recurso</td>
-                        <td>Subnet</td>
+                        <td>Por recurso</td>
+                        <td>Por subnet</td>
                     </tr>
                     <tr>
-                        <td>Tipo</td>
+                        <td>Estado</td>
                         <td>Stateful</td>
                         <td>Stateless</td>
                     </tr>
                     <tr>
-                        <td>Uso</td>
-                        <td>Más usado</td>
-                        <td>Menos usado</td>
+                        <td>Uso común</td>
+                        <td>La mayoría de proyectos</td>
+                        <td>Control a nivel red</td>
                     </tr>
                 </table>
 
-                <h3>🧠 ¿Cuándo mirar NACL?</h3>
+                <p>En la mayoría de proyectos:</p>
 
-                <p>Cuando:</p>
+                <p>→ Usarás Security Groups.</p>
+
+                <h2>9️⃣ Principio más importante: Least Privilege</h2>
+
+                <p>Nunca abras más de lo necesario.</p>
+
+                <p><strong>Ejemplo incorrecto (muy común en juniors):</strong></p>
+
+                <pre><code>Port 5432
+Source: 0.0.0.0/0</code></pre>
+
+                <p>Eso deja tu base de datos abierta a internet.</p>
+
+                <p><strong>Correcto:</strong></p>
+
+                <pre><code>Port 5432
+Source: Backend-SG</code></pre>
+
+                <p>Eso significa:</p>
+
+                <p>Solo servidores que tengan ese SG pueden conectarse.</p>
+
+                <p>Esto se llama Security Group referencing.</p>
+
+                <p><strong>Es seguridad profesional real.</strong></p>
+
+                <h2>🔟 Arquitectura segura recomendada</h2>
+
+                <p>Patrón estándar profesional:</p>
+
+                <pre><code>Internet
+   ↓
+API Gateway / Load Balancer (público)
+   ↓
+Backend (private subnet)
+   ↓
+Database (private subnet)</code></pre>
+
+                <p><strong>Reglas:</strong></p>
 
                 <ul>
-                    <li>El SG está correcto</li>
-                    <li>Y aún tienes timeout</li>
+                    <li>Solo el API es público</li>
+                    <li>Backend no tiene IP pública</li>
+                    <li>Database jamás es pública</li>
                 </ul>
 
-                <p>Puede ser que NACL esté bloqueando.</p>
+                <h2>1️⃣1️⃣ ¿Cómo sale el backend a internet si es privado?</h2>
 
-                <h2>7️⃣ Least Privilege Principle</h2>
+                <p>Aquí entra:</p>
 
-                <p><strong>Regla de oro:</strong></p>
+                <p><strong>NAT Gateway</strong></p>
 
-                <p>Permitir solo lo estrictamente necesario.</p>
-
-                <p><strong>No:</strong></p>
+                <p>El backend en private subnet:</p>
 
                 <ul>
-                    <li>Abrir todo y luego cerrar</li>
+                    <li>No puede recibir tráfico desde internet</li>
+                    <li>Pero puede salir a internet a través de NAT</li>
                 </ul>
 
-                <p><strong>Sí:</strong></p>
+                <p><strong>¿Por qué importa?</strong></p>
+
+                <p>Porque:</p>
 
                 <ul>
-                    <li>Abrir solo lo que necesito</li>
+                    <li>Necesitas npm install</li>
+                    <li>Necesitas llamar APIs externas</li>
+                    <li>Necesitas descargar actualizaciones</li>
                 </ul>
 
-                <p>Esto aplica a:</p>
+                <p>Pero no quieres que nadie desde fuera inicie conexión hacia ti.</p>
+
+                <h2>1️⃣2️⃣ Ejemplo real: Backend + RDS</h2>
+
+                <p><strong>Database Security Group</strong></p>
+
+                <p>Inbound:</p>
+
+                <pre><code>Port 5432
+Source: Backend-SG</code></pre>
+
+                <p>Outbound:</p>
+
+                <p>mínimo necesario</p>
+
+                <p><strong>Backend Security Group</strong></p>
+
+                <p>Inbound:</p>
+
+                <pre><code>443 desde Load Balancer</code></pre>
+
+                <p>Outbound:</p>
+
+                <pre><code>5432 hacia DB-SG
+443 hacia internet (vía NAT)</code></pre>
+
+                <p><strong>Resultado:</strong></p>
 
                 <ul>
-                    <li>Puertos</li>
-                    <li>Orígenes</li>
-                    <li>Usuarios IAM</li>
-                    <li>Roles</li>
-                    <li>Subnets públicas</li>
+                    <li>DB nunca accesible desde internet</li>
+                    <li>Backend tampoco</li>
+                    <li>Solo el entry point es público</li>
                 </ul>
 
-                <h2>8️⃣ Troubleshooting Real (Mentalidad Senior)</h2>
+                <p>Esto es arquitectura limpia.</p>
 
-                <h3>❓ Tengo timeout conectando a RDS</h3>
+                <h2>1️⃣3️⃣ Cómo debuggear un timeout</h2>
+
+                <p>Esto te salva horas.</p>
+
+                <p>Si no puedes conectar a la DB:</p>
+
+                <p>Primero pregúntate:</p>
+
+                <ul>
+                    <li>¿Es error de password?
+                        <ul>
+                            <li>→ Llegaste a la DB</li>
+                        </ul>
+                    </li>
+                    <li>¿Es timeout?
+                        <ul>
+                            <li>→ No estás pasando el firewall</li>
+                        </ul>
+                    </li>
+                </ul>
 
                 <p><strong>Checklist:</strong></p>
 
                 <ul>
-                    <li>¿RDS está en private subnet?</li>
-                    <li>¿Publicly Accessible está en false? (debería)</li>
-                    <li>¿SG-DB permite 5432 desde SG-APP?</li>
-                    <li>¿Estoy conectando desde dentro de la VPC?</li>
-                    <li>¿Route tables correctas?</li>
-                    <li>¿NACL bloquea?</li>
+                    <li>¿DB SG permite 5432 desde backend SG?</li>
+                    <li>¿Backend realmente usa ese SG?</li>
+                    <li>¿Están en la misma VPC?</li>
+                    <li>¿Hay route correcta?</li>
+                    <li>¿DB es privada (correcto)?</li>
+                    <li>¿Intentas acceder desde fuera?</li>
                 </ul>
 
-                <h3>❓ No puedo hacer npm install en EC2 privada</h3>
+                <p><strong>Regla práctica:</strong></p>
+
+                <p><strong>Timeout = Networking</strong><br>
+                <strong>Auth error = Credenciales</strong></p>
+
+                <h2>1️⃣4️⃣ Seguridad de salida (egress)</h2>
+
+                <p>Muchos dejan:</p>
+
+                <pre><code>Outbound: All traffic 0.0.0.0/0</code></pre>
+
+                <p>En entornos financieros esto no es aceptable.</p>
+
+                <p>Se restringe a:</p>
 
                 <ul>
-                    <li>¿Tiene NAT Gateway?</li>
-                    <li>¿Route table de private subnet apunta a NAT?</li>
+                    <li>Solo 443</li>
+                    <li>Solo destinos específicos</li>
+                    <li>O se fuerza salida vía proxy</li>
                 </ul>
 
-                <p>Si no → no hay salida a internet.</p>
+                <p>Porque también puedes tener:</p>
 
-                <h2>9️⃣ Buenas Prácticas de Producción</h2>
+                <p>→ exfiltración de datos</p>
 
-                <h3>🔐 No abrir SSH (22) al mundo</h3>
+                <p>Seguridad no es solo inbound.</p>
 
-                <p>En vez de eso:</p>
+                <h2>1️⃣5️⃣ Checklist de Producción</h2>
+
+                <p>Antes de ir a producción revisa:</p>
+
+                <p><strong>❌ No hagas:</strong></p>
 
                 <ul>
-                    <li>Usa SSM Session Manager</li>
-                    <li>O Bastion Host controlado</li>
+                    <li>Dejar ninguna base de datos pública</li>
+                    <li>Usar 0.0.0.0/0 en DB</li>
+                    <li>Dejar SSH abierto al mundo</li>
                 </ul>
 
-                <h3>🔐 No hacer DB pública</h3>
-
-                <p>Nunca:</p>
+                <p><strong>✅ Sí haz:</strong></p>
 
                 <ul>
-                    <li>Publicly Accessible: true</li>
+                    <li>Backend en private subnet</li>
+                    <li>NAT configurado si necesita internet</li>
+                    <li>SG referencing entre servicios</li>
+                    <li>Solo entry points públicos</li>
+                    <li>HTTPS obligatorio</li>
+                    <li>Rate limiting en APIs</li>
                 </ul>
 
-                <p>En producción debe ser false.</p>
+                <h2>1️⃣6️⃣ Lo que realmente debes recordar (regla 80/20)</h2>
 
-                <h3>🔐 Solo ALB / API Gateway públicos</h3>
-
-                <p>Nada más debe recibir tráfico directo.</p>
-
-                <h3>🔐 Usar HTTPS siempre</h3>
+                <p>Si solo recuerdas esto, ya estás por delante del 80%:</p>
 
                 <ul>
-                    <li>TLS en ALB</li>
-                    <li>Certificados ACM</li>
-                    <li>No exponer HTTP en producción</li>
+                    <li>VPC es tu red aislada</li>
+                    <li>Subnets segmentan red</li>
+                    <li>Security Groups son firewalls por recurso</li>
+                    <li>Solo lo necesario es público</li>
+                    <li>Bases de datos nunca públicas</li>
+                    <li>Timeout casi siempre es Security Group</li>
                 </ul>
 
-                <h3>🔐 Añadir protección avanzada</h3>
+                <h2>🎯 Mentalidad Senior</h2>
 
-                <p>Opcional pero profesional:</p>
+                <p>Un senior no piensa:</p>
 
-                <ul>
-                    <li>AWS WAF</li>
-                    <li>Rate limiting</li>
-                    <li>CloudFront</li>
-                    <li>Shield (si es enterprise)</li>
-                </ul>
+                <p>"¿Cómo hago que funcione?"</p>
 
-                <h2>🔟 Arquitectura Final Recomendada</h2>
+                <p>Un senior piensa:</p>
 
-                <pre><code>               Internet
-                   ↓
-        CloudFront (opcional)
-                   ↓
-            ALB / API Gateway
-              (Public Subnet)
-                   ↓
-            App Servers
-            (Private Subnet)
-                   ↓
-             RDS Database
-            (Private Subnet)
-                   ↑
-            NAT Gateway
-         (solo para salida)</code></pre>
+                <p>"¿Cómo hago que funcione sin exponer nada innecesariamente?"</p>
 
-                <h2>11️⃣ Regla Mental que Debes Recordar</h2>
-
-                <p>Cuando algo falla:</p>
-
-                <p><strong>Es red hasta que se demuestre lo contrario.</strong></p>
-
-                <p>Y cuando es red:</p>
-
-                <ul>
-                    <li>Route table</li>
-                    <li>Security Group</li>
-                    <li>NACL</li>
-                    <li>IP pública</li>
-                    <li>NAT/IGW</li>
-                </ul>
-
-                <h2>🎯 El 20% que te da el 80% del conocimiento</h2>
-
-                <p>Si entiendes:</p>
-
-                <ul>
-                    <li>VPC</li>
-                    <li>Subnets públicas vs privadas</li>
-                    <li>Route tables</li>
-                    <li>IGW vs NAT</li>
-                    <li>Security Groups</li>
-                    <li>Least Privilege</li>
-                </ul>
-
-                <p><strong>Ya estás por encima del 80% de desarrolladores que "solo deployan sin entender".</strong></p>
-
-                <h2>🧠 Mentalidad Final</h2>
-
-                <p>Cloud no es abrir servidores.</p>
-
-                <p>Cloud es:</p>
-
-                <ul>
-                    <li>Diseñar redes seguras y mínimamente expuestas</li>
-                </ul>
+                <p><strong>La seguridad no es un añadido.</strong><br>
+                <strong>Es arquitectura.</strong></p>
 
                 <h2>📚 Recursos</h2>
 
                 <ul>
-                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/699657e3-2d50-8390-a772-e0694de4acb5" target="_blank">Fundamentos de Seguridad de Red en AWS - Dragos</a></li>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/69985c33-1ca0-8394-aa41-9fb69a2b8daa" target="_blank">Fundamentos de Seguridad de Red en AWS - Dragos</a></li>
                 </ul>
 
                 <div class="navigation-buttons">
