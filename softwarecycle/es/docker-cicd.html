@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Containers en CI/CD | Ciclo de Software</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-docker-cicd">
+                <h1>📦 2.1 Containers en CI/CD</h1>
+                <p><strong>Tutorial Completo: CI/CD con Docker y Orquestación Moderna</strong></p>
+
+                <h2>1️⃣ El Problema que Docker vino a Resolver</h2>
+
+                <p>Antes de Docker, desplegar aplicaciones era complicado:</p>
+
+                <ul>
+                    <li>Cada tecnología requería instalación manual (Java, Node, Python…)</li>
+                    <li>Cada servidor era distinto</li>
+                    <li>"Works on my machine" era constante</li>
+                    <li>Rollback era lento</li>
+                    <li>Escalar requería intervención manual</li>
+                </ul>
+
+                <p>🔴 <strong>Resultado: deploys frágiles, lentos y con alto riesgo.</strong></p>
+
+                <h2>2️⃣ Qué es CI/CD (Bien Entendido)</h2>
+
+                <h3>🔹 CI – Continuous Integration</h3>
+
+                <p>Cada vez que haces push:</p>
+
+                <ul>
+                    <li>Se ejecutan tests</li>
+                    <li>Se construye la aplicación</li>
+                    <li>Se genera un artefacto listo para desplegar</li>
+                </ul>
+
+                <p>Objetivo: siempre tener una versión confiable.</p>
+
+                <h3>🔹 CD – Continuous Delivery / Deployment</h3>
+
+                <p>Ese artefacto:</p>
+
+                <ul>
+                    <li>Se puede promover a staging</li>
+                    <li>Se puede desplegar a producción</li>
+                    <li>Se puede revertir fácilmente</li>
+                </ul>
+
+                <p><strong>Diferencia:</strong></p>
+
+                <p><strong>Delivery</strong> → requiere aprobación manual<br>
+                <strong>Deployment</strong> → automático hasta producción</p>
+
+                <h2>3️⃣ Docker: El Nuevo Estándar de Entrega</h2>
+
+                <p>Docker introduce un contrato simple:</p>
+
+                <p><strong>"Entrégame una imagen Docker y yo la ejecuto."</strong></p>
+
+                <p>La imagen contiene:</p>
+
+                <ul>
+                    <li>Código</li>
+                    <li>Runtime</li>
+                    <li>Dependencias</li>
+                    <li>Configuración base</li>
+                </ul>
+
+                <p>No debe contener:</p>
+
+                <ul>
+                    <li>Secrets</li>
+                    <li>Configuración específica de entorno</li>
+                    <li>Datos persistentes</li>
+                </ul>
+
+                <h3>🧠 Qué garantiza Docker</h3>
+
+                <ul>
+                    <li>✔ Portabilidad</li>
+                    <li>✔ Aislamiento</li>
+                    <li>✔ Entorno reproducible</li>
+                    <li>✔ Independencia del sistema base</li>
+                </ul>
+
+                <h3>❌ Qué NO garantiza</h3>
+
+                <ul>
+                    <li>✘ Escalabilidad automática</li>
+                    <li>✘ Alta disponibilidad</li>
+                    <li>✘ Monitoreo</li>
+                    <li>✘ Seguridad por defecto</li>
+                </ul>
+
+                <h2>4️⃣ El Build Pipeline Moderno</h2>
+
+                <p>Pipeline típico real:</p>
+
+                <pre><code>Push código
+     ↓
+Ejecutar tests
+     ↓
+Build Docker image
+     ↓
+Scan de vulnerabilidades
+     ↓
+Push al Docker Registry
+     ↓
+🎯 Imagen Docker versionada lista</code></pre>
+
+                <h3>Versionado Correcto</h3>
+
+                <p><strong>❌ No usar:</strong></p>
+
+                <pre><code>app:latest</code></pre>
+
+                <p><strong>✅ Sí usar:</strong></p>
+
+                <pre><code>app:1.4.7
+app:git-sha-9382jd</code></pre>
+
+                <p>Mejor aún: usar digest inmutable.</p>
+
+                <h2>5️⃣ Docker Registry (Artifact Repository)</h2>
+
+                <p>Es el almacén de imágenes.</p>
+
+                <p>Ejemplos:</p>
+
+                <ul>
+                    <li>Docker Hub</li>
+                    <li>AWS ECR</li>
+                    <li>Azure Container Registry</li>
+                    <li>Google Artifact Registry</li>
+                </ul>
+
+                <p><strong>Ventajas:</strong></p>
+
+                <ul>
+                    <li>✔ Historial de versiones</li>
+                    <li>✔ Rollback inmediato</li>
+                    <li>✔ Separación build / release</li>
+                </ul>
+
+                <h2>6️⃣ Rollback Profesional (Cómo Funciona de Verdad)</h2>
+
+                <p>Escenario:</p>
+
+                <p>Se despliega app:1.4.7.<br>
+                Hay un bug crítico.</p>
+
+                <p>Rollback = decir al sistema:</p>
+
+                <p><strong>"Despliega app:1.4.6"</strong></p>
+
+                <p>No se reconstruye nada.</p>
+
+                <p>🔥 <strong>Esta es una ventaja enorme del modelo desacoplado.</strong></p>
+
+                <h2>7️⃣ Por Qué No Usar Solo docker run</h2>
+
+                <p>Podrías hacer:</p>
+
+                <pre><code>docker run app:1.4.7</code></pre>
+
+                <p>Pero producción requiere:</p>
+
+                <ul>
+                    <li>Alta disponibilidad</li>
+                    <li>Balanceo de carga</li>
+                    <li>Autoscaling</li>
+                    <li>Health checks</li>
+                    <li>Zero downtime deployments</li>
+                </ul>
+
+                <p>Necesitamos orquestación.</p>
+
+                <h2>8️⃣ Orquestadores Modernos</h2>
+
+                <h3>🔹 AWS ECS</h3>
+
+                <p>Más simple, ideal para empezar.</p>
+
+                <h3>🔹 Kubernetes</h3>
+
+                <p>Más potente, más complejo.</p>
+
+                <h3>🔹 Azure Container Apps / AKS</h3>
+
+                <p>Alternativas cloud-native.</p>
+
+                <h2>9️⃣ Qué Hace Realmente un Orquestador</h2>
+
+                <p>Modelo mental:</p>
+
+                <p><strong>"Mantén 3 instancias activas."</strong></p>
+
+                <p>El sistema:</p>
+
+                <ul>
+                    <li>Reemplaza instancias que fallan</li>
+                    <li>Escala según tráfico</li>
+                    <li>Solo envía tráfico a instancias sanas</li>
+                    <li>Gestiona load balancers</li>
+                    <li>Permite despliegues graduales</li>
+                </ul>
+
+                <h2>🔟 Estrategias de Deployment</h2>
+
+                <h3>Rolling Deployment</h3>
+
+                <p>Reemplaza instancias poco a poco.</p>
+
+                <h3>Blue/Green</h3>
+
+                <p>Dos entornos.<br>
+                Se cambia tráfico cuando el nuevo está sano.</p>
+
+                <h3>Canary</h3>
+
+                <p>Se expone gradualmente a un porcentaje de usuarios.</p>
+
+                <h2>1️⃣1️⃣ Seguridad en Contenedores</h2>
+
+                <p>Buenas prácticas mínimas:</p>
+
+                <ul>
+                    <li>No ejecutar como root</li>
+                    <li>Escanear imágenes</li>
+                    <li>No incluir secrets en la imagen</li>
+                    <li>Usar Secret Manager</li>
+                    <li>Reducir tamaño de imagen</li>
+                </ul>
+
+                <h2>1️⃣2️⃣ Principio Clave: Imagen Inmutable</h2>
+
+                <p>La imagen es la misma en:</p>
+
+                <ul>
+                    <li>Dev</li>
+                    <li>Staging</li>
+                    <li>Production</li>
+                </ul>
+
+                <p>Lo que cambia:</p>
+
+                <ul>
+                    <li>Variables de entorno</li>
+                    <li>Secrets</li>
+                    <li>Recursos</li>
+                    <li>Número de réplicas</li>
+                </ul>
+
+                <p><strong>Nunca recompiles para cada entorno.</strong></p>
+
+                <h2>1️⃣3️⃣ Multi-Stage Builds</h2>
+
+                <p>Separar:</p>
+
+                <ul>
+                    <li>Stage 1 → build</li>
+                    <li>Stage 2 → runtime limpio</li>
+                </ul>
+
+                <p>Ventajas:</p>
+
+                <ul>
+                    <li>✔ Imagen más pequeña</li>
+                    <li>✔ Menor superficie de ataque</li>
+                    <li>✔ Mejor rendimiento</li>
+                </ul>
+
+                <h2>1️⃣4️⃣ Observabilidad</h2>
+
+                <p>En producción necesitas:</p>
+
+                <ul>
+                    <li>Logs centralizados</li>
+                    <li>Métricas (CPU, memoria, latencia)</li>
+                    <li>Alertas</li>
+                    <li>Health endpoints</li>
+                </ul>
+
+                <p><strong>Sin monitoreo no hay DevOps real.</strong></p>
+
+                <h2>1️⃣5️⃣ Flujo Completo Real</h2>
+
+                <pre><code>1️⃣ Developer push
+2️⃣ Tests
+3️⃣ Build image
+4️⃣ Scan
+5️⃣ Push registry
+6️⃣ Deploy staging
+7️⃣ Smoke tests
+8️⃣ Promote prod
+9️⃣ Monitor
+🔁 Rollback si necesario</code></pre>
+
+                <h2>1️⃣6️⃣ Por Qué Las Empresas Usan Este Modelo</h2>
+
+                <ul>
+                    <li>✔ Estandarización</li>
+                    <li>✔ Escalabilidad</li>
+                    <li>✔ Velocidad</li>
+                    <li>✔ Rollback rápido</li>
+                    <li>✔ Menos errores manuales</li>
+                    <li>✔ Seguridad mejorada</li>
+                    <li>✔ Independencia tecnológica</li>
+                </ul>
+
+                <h2>1️⃣7️⃣ Resumen Mental</h2>
+
+                <pre><code>Docker = empaquetado estándar
+Registry = almacenamiento versionado
+CI = construir artefacto confiable
+CD = promover artefacto
+Orquestador = ejecutar y escalar en producción</code></pre>
+
+                <h2>1️⃣8️⃣ Qué Debes Saber Como Fullstack Moderno</h2>
+
+                <p>Debes poder:</p>
+
+                <ul>
+                    <li>Entender cómo se construye una imagen</li>
+                    <li>Saber cómo se versiona</li>
+                    <li>Entender rollback</li>
+                    <li>Leer logs de contenedores</li>
+                    <li>Comprender health checks</li>
+                    <li>Entender el pipeline completo</li>
+                </ul>
+
+                <p><strong>No necesitas ser DevOps puro, pero sí autónomo.</strong></p>
+
+                <h2>1️⃣9️⃣ Mentalidad Senior</h2>
+
+                <p>Un junior pregunta: "¿Cómo despliega?"</p>
+
+                <p>Un senior pregunta: "¿Cómo despliega seguro, rápido y reversible?"</p>
+
+                <p><strong>CI/CD con contenedores es la respuesta.</strong></p>
+
+                <h2>2️⃣0️⃣ Siguiente Nivel</h2>
+
+                <p>Una vez que domines esto:</p>
+
+                <ul>
+                    <li>Aprende Kubernetes para escenarios complejos</li>
+                    <li>Aprende Infrastructure as Code (Terraform)</li>
+                    <li>Aprende monitoreo avanzado (Prometheus, Grafana)</li>
+                    <li>Aprende GitOps (Flux, ArgoCD)</li>
+                </ul>
+
+                <h2>🎯 Conclusión</h2>
+
+                <p>Los contenedores cambiaron cómo desplegamos.</p>
+
+                <p>Combinados con CI/CD y orquestación, proporcionan:</p>
+
+                <ul>
+                    <li>Confiabilidad</li>
+                    <li>Velocidad</li>
+                    <li>Escalabilidad</li>
+                    <li>Reversibilidad</li>
+                </ul>
+
+                <p><strong>Este es el software delivery moderno.</strong></p>
+
+                <h2>📚 Recursos</h2>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/69985ed9-fb7c-8391-a6bd-ef4c672f580a" target="_blank">CI/CD con Docker y Orquestación Moderna - Dragos</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Volver Atrás</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Volver al Inicio →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>
