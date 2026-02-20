@@ -1,13 +1,13 @@
 /**
- * FRONTEND MASTERY - Aplicación principal
- * Funcionalidad compartida para navegación multi-página y UI del curso
+ * FRONTEND MASTERY - Main Application
+ * Shared functionality for multi-page navigation and course UI
  */
 
 // ============================================================
-// VARIABLES GLOBALES
+// GLOBAL VARIABLES
 // ============================================================
 
-// Mapeo central de secciones -> archivo HTML
+// Central mapping of sections -> HTML file
 const SECTION_ROUTES = {
   "section-core-skill": "01-core-skill.html",
   "section-frameworks": "02-frameworks.html",
@@ -34,29 +34,29 @@ const SECTION_ROUTES = {
 };
 
 // ============================================================
-// MÓDULO: MANEJO DE IDIOMAS
+// MODULE: LANGUAGE HANDLING
 // ============================================================
 
 /**
- * Cambia el idioma de la aplicación
- * @param {string} lang - Código de idioma ('es' o 'en')
+ * Changes the application language
+ * @param {string} lang - Language code ('es' or 'en')
  */
 function setLanguage(lang) {
-  // Guardar preferencia de idioma
+  // Save language preference
   localStorage.setItem("preferredLanguage", lang);
 
-  // Obtener URL actual
+  // Get current URL
   const currentUrl = window.location.pathname;
 
-  // Navegar a la versión correcta del idioma
+  // Navigate to the correct language version
   if (lang === "es") {
     if (currentUrl.includes("/en/")) {
       window.location.href = currentUrl.replace("/en/", "/es/");
     } else if (currentUrl.includes("/es/")) {
-      // Ya estamos en español
+      // Already in Spanish
       return;
     } else {
-      // En raíz o en otra ubicación
+      // At root or another location
       window.location.href =
         "./frontend-mastery/es/sections/01-core-skill.html";
     }
@@ -64,10 +64,10 @@ function setLanguage(lang) {
     if (currentUrl.includes("/es/")) {
       window.location.href = currentUrl.replace("/es/", "/en/");
     } else if (currentUrl.includes("/en/")) {
-      // Ya estamos en inglés
+      // Already in English
       return;
     } else {
-      // En raíz o en otra ubicación
+      // At root or another location
       window.location.href =
         "./frontend-mastery/en/sections/01-core-skill.html";
     }
@@ -75,18 +75,18 @@ function setLanguage(lang) {
 }
 
 // ============================================================
-// MÓDULO: NAVEGACIÓN
+// MODULE: NAVIGATION
 // ============================================================
 
 /**
- * Navega a una sección específica (para páginas monolíticas)
- * @param {string} sectionId - ID de la sección a navegar
+ * Navigates to a specific section (for monolithic pages)
+ * @param {string} sectionId - ID of the section to navigate to
  */
 function navigateToSection(sectionId) {
   const route = SECTION_ROUTES[sectionId];
   const currentPath = window.location.pathname;
 
-  // Arquitectura actual: navegación multi-página por archivos HTML.
+  // Current architecture: multi-page navigation via HTML files
   if (route && (currentPath.includes("/es/") || currentPath.includes("/en/"))) {
     const targetPath = currentPath.includes("/sections/")
       ? route
@@ -95,7 +95,7 @@ function navigateToSection(sectionId) {
     return;
   }
 
-  // Fallback: navegación por ancla en página actual.
+  // Fallback: navigate via anchor on current page
   const section = document.getElementById(sectionId);
   if (section) {
     smoothScroll(sectionId);
@@ -103,12 +103,12 @@ function navigateToSection(sectionId) {
 }
 
 // ============================================================
-// MÓDULO: INTERFAZ DE USUARIO
+// MODULE: USER INTERFACE
 // ============================================================
 
 /**
- * Alterna la apertura/cierre de bloques de entrevista
- * @param {HTMLElement} element - Elemento del bloque de entrevista
+ * Toggles opening/closing of interview blocks
+ * @param {HTMLElement} element - Interview block element
  */
 function toggleInterview(element) {
   element.classList.toggle("open");
@@ -120,8 +120,8 @@ function toggleInterview(element) {
 }
 
 /**
- * Scroll suave a un elemento
- * @param {string} targetId - ID del elemento
+ * Smooth scroll to an element
+ * @param {string} targetId - Element ID
  */
 function smoothScroll(targetId) {
   const element = document.getElementById(targetId);
@@ -131,8 +131,8 @@ function smoothScroll(targetId) {
 }
 
 /**
- * Copiar código al clipboard
- * @param {HTMLElement} codeBlock - Bloque de código
+ * Copy code to clipboard
+ * @param {HTMLElement} codeBlock - Code block
  */
 function copyCode(codeBlock, buttonElement) {
   const code = codeBlock.querySelector("code")?.textContent;
@@ -141,7 +141,7 @@ function copyCode(codeBlock, buttonElement) {
       const btn = buttonElement || codeBlock.querySelector(".btn-copy");
       if (!btn) return;
       const originalText = btn.textContent;
-      btn.textContent = "✓ Copiado";
+      btn.textContent = "✓ Copied";
       setTimeout(() => {
         btn.textContent = originalText;
       }, 2000);
@@ -150,17 +150,17 @@ function copyCode(codeBlock, buttonElement) {
 }
 
 // ============================================================
-// INICIALIZACIÓN
+// INITIALIZATION
 // ============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Restaurar idioma guardado (si existe en DOM)
+  // Restore saved language (if exists in DOM)
   const savedLanguage = localStorage.getItem("preferredLanguage") || "es";
   if (document.querySelector("[data-lang-es]")) {
     setLanguage(savedLanguage);
   }
 
-  // Toggle menú móvil
+  // Toggle mobile menu
   const menuToggle = document.getElementById("menu-toggle");
   const sidebar = document.getElementById("sidebar");
 
@@ -179,7 +179,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Inicializar bloques de entrevista
+  // Initialize interview blocks
   const interviewBlocks = document.querySelectorAll(".interview-block");
   interviewBlocks.forEach((block) => {
     block.addEventListener("click", function () {
@@ -187,16 +187,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Agregar botones de copiar a bloques de código
+  // Add copy buttons to code blocks
   document.querySelectorAll(".code-block").forEach((block) => {
     const copyBtn = document.createElement("button");
     copyBtn.className = "btn btn-copy";
-    copyBtn.textContent = "Copiar";
+    copyBtn.textContent = "Copy";
     copyBtn.onclick = (e) => copyCode(block, e.currentTarget);
     block.insertBefore(copyBtn, block.firstChild);
   });
 
-  // Scroll suave para links internos
+  // Smooth scroll for internal links
   document.querySelectorAll('a[href^="#"]').forEach((link) => {
     link.addEventListener("click", function (e) {
       const href = this.getAttribute("href");
@@ -209,7 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ============================================================
-// EXPORTAR FUNCIONES (para módulos)
+// EXPORT FUNCTIONS (for modules)
 // ============================================================
 
 if (typeof module !== "undefined" && module.exports) {
@@ -223,17 +223,17 @@ if (typeof module !== "undefined" && module.exports) {
 }
 
 // ============================================================
-// INYECCIÓN DE SIDEBAR Y NAVEGACIÓN EN SECCIONES
+// SIDEBAR AND NAVIGATION INJECTION IN SECTIONS
 // ============================================================
 
 /**
- * Inyecta sidebar y navegación en páginas de secciones
+ * Injects sidebar and navigation into section pages
  */
 function injectSidebarAndNav() {
-  // Solo inyectar si no existe ya contenido en el sidebar
+  // Only inject if there's no content in the sidebar yet
   const sidebarElement = document.getElementById("sidebar");
   if (sidebarElement && sidebarElement.children.length > 0) {
-    return; // Ya tiene contenido inyectado
+    return; // Already has injected content
   }
 
   const currentUrl = window.location.pathname;
@@ -245,10 +245,10 @@ function injectSidebarAndNav() {
   const isFrontendMastery = currentUrl.includes("/frontend-mastery/");
 
   if (!isSection && !isSoftwareCycle && !isSoftwareArchitecture && !isFullStack && !isFrontendMastery) {
-    return; // No estamos en una sección
+    return; // Not in a section
   }
 
-  // Crear botón burger para mobile si no existe
+  // Create burger button for mobile if it doesn't exist
   if (!document.getElementById("menu-toggle")) {
     const menuToggleBtn = document.createElement("button");
     menuToggleBtn.id = "menu-toggle";
@@ -258,7 +258,7 @@ function injectSidebarAndNav() {
     document.body.insertAdjacentElement("afterbegin", menuToggleBtn);
   }
 
-  // Crear el sidebar con acordeón
+  // Create the sidebar with accordion
   const sidebarHTML = `
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">Frontend Mastery</div>
@@ -266,7 +266,7 @@ function injectSidebarAndNav() {
             <ul>
                 <li><a href="../../../index.html" class="nav-link">← ${isSpanish ? 'Volver al inicio' : 'Back to home'}</a></li>
 
-                <!-- SECCIÓN 1: LA HABILIDAD CLAVE -->
+                <!-- SECTION 1: THE CORE SKILL -->
                 <li class="nav-accordion">
                     <div class="nav-accordion-header" data-accordion="section1">
                         <span>${isSpanish ? 'La Habilidad Clave' : 'The Core Skill'}</span>
@@ -277,7 +277,7 @@ function injectSidebarAndNav() {
                     </ul>
                 </li>
 
-                <!-- SECCIÓN 2: ¿POR QUÉ FRAMEWORKS? -->
+                <!-- SECTION 2: WHY FRAMEWORKS? -->
                 <li class="nav-accordion">
                     <div class="nav-accordion-header" data-accordion="section2">
                         <span>${isSpanish ? '1. ¿Por qué Frameworks?' : '1. Why Frameworks?'}</span>
@@ -288,7 +288,7 @@ function injectSidebarAndNav() {
                     </ul>
                 </li>
 
-                <!-- SECCIÓN 3: MODELOS MENTALES Y STATE MANAGEMENT -->
+                <!-- SECTION 3: MENTAL MODELS & STATE MANAGEMENT -->
                 <li class="nav-accordion">
                     <div class="nav-accordion-header" data-accordion="section3">
                         <span>${isSpanish ? '2. Modelos Mentales & State' : '2. Mental Models & State'}</span>
@@ -307,7 +307,7 @@ function injectSidebarAndNav() {
                     </ul>
                 </li>
 
-                <!-- SECCIÓN 4: RESUMEN -->
+                <!-- SECTION 4: SUMMARY -->
                 <li class="nav-accordion">
                     <div class="nav-accordion-header" data-accordion="section4">
                         <span>${isSpanish ? '3. Resumen' : '3. Summary'}</span>
@@ -318,7 +318,7 @@ function injectSidebarAndNav() {
                     </ul>
                 </li>
 
-                <!-- SECCIÓN 5: WEB PERFORMANCE -->
+                <!-- SECTION 5: WEB PERFORMANCE -->
                 <li class="nav-accordion">
                     <div class="nav-accordion-header" data-accordion="section5">
                         <span>${isSpanish ? '3. Web Performance & Scalability' : '3. Web Performance & Scalability'}</span>
@@ -337,7 +337,7 @@ function injectSidebarAndNav() {
                     </ul>
                 </li>
 
-                <!-- SECCIÓN 6: FULLSTACK -->
+                <!-- SECTION 6: FULLSTACK -->
                 <li class="nav-accordion">
                     <div class="nav-accordion-header" data-accordion="section6">
                         <span>${isSpanish ? '4. FullStack' : '4. FullStack'}</span>
@@ -363,7 +363,7 @@ function injectSidebarAndNav() {
                     </ul>
                 </li>
 
-                <!-- SECCIÓN 7: SOFTWARE LIFECYCLE -->
+                <!-- SECTION 7: SOFTWARE LIFECYCLE -->
                 <li class="nav-accordion">
                     <div class="nav-accordion-header" data-accordion="section7">
                         <span>${isSpanish ? '⚙️ 7.0 Software Lifecycle' : '⚙️ 7.0 Software Lifecycle'}</span>
@@ -389,7 +389,7 @@ function injectSidebarAndNav() {
                     </ul>
                 </li>
 
-                <!-- SECCIÓN 8: SOFTWARE ARCHITECTURE -->
+                <!-- SECTION 8: SOFTWARE ARCHITECTURE -->
                 <li class="nav-accordion">
                     <div class="nav-accordion-header" data-accordion="section8">
                         <span>${isSpanish ? '🏗️ 8.0 Software Architecture' : '🏗️ 8.0 Software Architecture'}</span>
@@ -411,17 +411,17 @@ function injectSidebarAndNav() {
     </aside>
     `;
 
-  // Inyectar sidebar: usar el existente si hay, sino crear uno nuevo
+  // Inject sidebar: use existing if available, otherwise create new
   const existingSidebar = document.getElementById("sidebar");
   if (existingSidebar && existingSidebar.children.length === 0) {
-    // Si existe pero está vacío, llenar con el contenido
+    // If exists but empty, fill with content
     existingSidebar.innerHTML = sidebarHTML.replace(/<aside[^>]*>|<\/aside>/g, '').replace(/<\/aside>/, '');
   } else if (!existingSidebar) {
-    // Si no existe, crear uno nuevo
+    // If doesn't exist, create new
     document.body.insertAdjacentHTML("afterbegin", sidebarHTML);
   }
 
-  // Configurar evento para accordion headers
+  // Configure event for accordion headers
   setTimeout(() => {
     const accordionHeaders = document.querySelectorAll(".nav-accordion-header");
     accordionHeaders.forEach((header) => {
@@ -430,17 +430,17 @@ function injectSidebarAndNav() {
         const content = document.getElementById(accordionId + "-content");
 
         if (content) {
-          // Toggle clase active en el header
+          // Toggle active class on header
           this.classList.toggle("active");
 
-          // Toggle clase active en el content
+          // Toggle active class on content
           content.classList.toggle("active");
         }
       });
     });
   }, 0);
 
-  // Agregar event listener a nav links
+  // Add event listener to nav links
   document.querySelectorAll(".nav-link").forEach((link) => {
     link.addEventListener("click", () => {
       const sidebar = document.getElementById("sidebar");
@@ -450,7 +450,7 @@ function injectSidebarAndNav() {
     });
   });
 
-  // Conectar botón burger con sidebar en secciones inyectadas
+  // Connect burger button with sidebar in injected sections
   const menuToggle = document.getElementById("menu-toggle");
   const sidebar = document.getElementById("sidebar");
   if (menuToggle && sidebar) {
@@ -464,8 +464,8 @@ function injectSidebarAndNav() {
 }
 
 /**
- * Garantiza que siempre exista un switcher de idioma visible
- * en cualquier página de frontend-mastery (ES/EN).
+ * Ensures a visible language switcher always exists
+ * on any frontend-mastery page (ES/EN)
  */
 function ensureGlobalLanguageSwitcher() {
   const currentUrl = window.location.pathname;
@@ -477,7 +477,7 @@ function ensureGlobalLanguageSwitcher() {
     return;
   }
 
-  // Si ya existe el flotante, no duplicar
+  // If floating switcher already exists, don't duplicate
   if (document.querySelector(".language-switcher--floating")) {
     return;
   }
@@ -502,12 +502,12 @@ function ensureGlobalLanguageSwitcher() {
   document.body.appendChild(switcher);
 }
 
-// Ejecutar cuando el DOM esté listo
+// Run when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
   injectSidebarAndNav();
   ensureGlobalLanguageSwitcher();
 });
 
-// Ejecutar también inmediatamente en caso de que el script se cargue después
+// Also run immediately in case script loads after
 injectSidebarAndNav();
 ensureGlobalLanguageSwitcher();
