@@ -378,6 +378,7 @@ function injectSidebarAndNav() {
                         <li><a href="${isSpanish ? '../../../../softwarecycle/es/linux-servers.html' : '../../../../softwarecycle/en/linux-servers.html'}" class="nav-link">${isSpanish ? '⌨️ Introduction to Linux Servers' : '⌨️ Introduction to Linux Servers'}</a></li>
                         <li><a href="${isSpanish ? '../../../../softwarecycle/es/cloud-providers.html' : '../../../../softwarecycle/en/cloud-providers.html'}" class="nav-link">${isSpanish ? '⌨️☁️ Cloud Providers: AWS, Azure & GCP' : '⌨️☁️ Cloud Providers: AWS, Azure & GCP'}</a></li>
                         <li><a href="${isSpanish ? '../../../../softwarecycle/es/network-security.html' : '../../../../softwarecycle/en/network-security.html'}" class="nav-link">${isSpanish ? '⌨️☁️ 1.7 Fundamentos de Seguridad de Red en AWS' : '⌨️☁️ 1.7 Network Security Fundamentals in AWS'}</a></li>
+                        <li><a href="${isSpanish ? '../../../../softwarecycle/es/docker-containers.html' : '../../../../softwarecycle/en/docker-containers.html'}" class="nav-link">${isSpanish ? '🐳 2.0 Introducción a Containers con Docker' : '🐳 2.0 Introduction to Containers with Docker'}</a></li>
                     </ul>
                 </li>
             </ul>

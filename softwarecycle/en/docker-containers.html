@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction to Containers with Docker | Software Lifecycle</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-docker-containers">
+                <h1>🐳 2.0 Introduction to Containers with Docker</h1>
+                <p><strong>Complete Guide for Developers — From "It Works on My Machine" to Production</strong></p>
+
+                <h2>1️⃣ Why Do Containers Exist?</h2>
+
+                <p>Before Docker, the classic problem was:</p>
+
+                <p><strong>"It works on my machine."</strong></p>
+
+                <p>Each environment had:</p>
+
+                <ul>
+                    <li>Different Node versions</li>
+                    <li>Different libraries</li>
+                    <li>Inconsistent configurations</li>
+                    <li>Missing dependencies</li>
+                </ul>
+
+                <p>Moving an application between:</p>
+
+                <ul>
+                    <li>Laptop</li>
+                    <li>Server</li>
+                    <li>CI pipeline</li>
+                    <li>Cloud</li>
+                </ul>
+
+                <p>was painful.</p>
+
+                <h3>🔍 The Solution: Package Everything</h3>
+
+                <p>A container allows you to package:</p>
+
+                <ul>
+                    <li>Code</li>
+                    <li>Runtime (Node, Python, Java…)</li>
+                    <li>Dependencies</li>
+                    <li>Base system (Linux)</li>
+                    <li>Configuration</li>
+                </ul>
+
+                <p>All within one executable package.</p>
+
+                <h2>2️⃣ What is Really a Container?</h2>
+
+                <p>Here's where most explanations get it wrong.</p>
+
+                <p><strong>❌ It's NOT a complete virtual machine.</strong></p>
+
+                <p><strong>VM:</strong></p>
+
+                <ul>
+                    <li>Virtualizes hardware</li>
+                    <li>Has its own kernel</li>
+                    <li>It's heavy</li>
+                </ul>
+
+                <p><strong>Container:</strong></p>
+
+                <ul>
+                    <li>Shares the host's kernel</li>
+                    <li>Isolates processes via namespaces</li>
+                    <li>Controls resources with cgroups</li>
+                    <li>It's lightweight and fast</li>
+                </ul>
+
+                <p>👉 <strong>A container is an isolated process with its own packaged filesystem.</strong></p>
+
+                <h2>3️⃣ The 5 Fundamental Pieces</h2>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>Component</th>
+                        <th>What it is</th>
+                    </tr>
+                    <tr>
+                        <td>1. Docker Engine</td>
+                        <td>The program that runs containers</td>
+                    </tr>
+                    <tr>
+                        <td>2. Dockerfile</td>
+                        <td>The recipe</td>
+                    </tr>
+                    <tr>
+                        <td>3. Docker Image</td>
+                        <td>The built result</td>
+                    </tr>
+                    <tr>
+                        <td>4. Container</td>
+                        <td>A running instance of an image</td>
+                    </tr>
+                    <tr>
+                        <td>5. Registry</td>
+                        <td>Where images are stored (Docker Hub, AWS ECR, etc)</td>
+                    </tr>
+                </table>
+
+                <h2>4️⃣ The Correct Mental Flow</h2>
+
+                <pre><code>Dockerfile → build → Image → run → Container</code></pre>
+
+                <h2>5️⃣ Hands-On — Run Something Without Installing</h2>
+
+                <p>Install Docker Desktop.</p>
+
+                <p>Then:</p>
+
+                <pre><code>docker pull wordpress
+docker run -p 8080:80 wordpress</code></pre>
+
+                <p>Open:</p>
+
+                <pre><code>http://localhost:8080</code></pre>
+
+                <p>You just ran WordPress without installing PHP.</p>
+
+                <h2>6️⃣ Understanding Ports (Common Junior Mistake)</h2>
+
+                <pre><code>-p 8080:80</code></pre>
+
+                <p>Means:</p>
+
+                <p><strong>Host port 8080 → Container port 80</strong></p>
+
+                <p>The container listens on 80 internally.</p>
+
+                <p>Your machine exposes it on 8080.</p>
+
+                <h2>7️⃣ Persistence — The Real Problem</h2>
+
+                <p>If you delete the container:</p>
+
+                <pre><code>docker rm &lt;id&gt;</code></pre>
+
+                <p>You lose all data.</p>
+
+                <p><strong>Solution: Volumes</strong></p>
+
+                <pre><code>docker run -p 8080:80 -v wordpress_data:/var/www/html wordpress</code></pre>
+
+                <p>Now the data survives container deletion.</p>
+
+                <h2>8️⃣ Create Your Own Image (Node.js)</h2>
+
+                <p>Typical structure:</p>
+
+                <pre><code>app/
+ ├── package.json
+ ├── src/
+ └── Dockerfile</code></pre>
+
+                <h2>9️⃣ Basic Dockerfile (NOT Recommended for Production)</h2>
+
+                <pre><code>FROM node:20
+WORKDIR /app
+COPY . .
+RUN npm install
+CMD ["node", "server.js"]</code></pre>
+
+                <p>It works, but it's wrong in production.</p>
+
+                <h2>🔟 Professional Dockerfile (Multi-Stage Build)</h2>
+
+                <pre><code># -------- Stage 1: Build --------
+FROM node:20-alpine AS build
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+# -------- Stage 2: Runtime --------
+FROM node:20-alpine
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+COPY --from=build /app/package*.json ./
+RUN npm ci --omit=dev
+
+COPY --from=build /app/dist ./dist
+
+EXPOSE 3000
+CMD ["node", "dist/server.js"]</code></pre>
+
+                <p><strong>Why is this better?</strong></p>
+
+                <ul>
+                    <li>✔ Multi-stage: Development dependencies don't reach runtime</li>
+                    <li>✔ npm ci: Deterministic installation (CI-friendly)</li>
+                    <li>✔ Smaller image: Less attack surface</li>
+                </ul>
+
+                <h2>1️⃣1️⃣ .dockerignore (Very Important)</h2>
+
+                <p>Prevents sending junk to the build context.</p>
+
+                <pre><code>node_modules
+.git
+.env
+dist
+*.log</code></pre>
+
+                <p>If you don't:</p>
+
+                <ul>
+                    <li>Slow builds</li>
+                    <li>Huge images</li>
+                    <li>Risk of leaking secrets</li>
+                </ul>
+
+                <h2>1️⃣2️⃣ Layers and Cache (Key for CI/CD)</h2>
+
+                <p>Each Dockerfile instruction creates a layer.</p>
+
+                <p>If you change:</p>
+
+                <pre><code>COPY package.json</code></pre>
+
+                <p>The next layer is invalidated.</p>
+
+                <p>That's why we copy first:</p>
+
+                <pre><code>COPY package*.json ./
+RUN npm ci</code></pre>
+
+                <p>And then the code.</p>
+
+                <p>This way, code changes don't rebuild dependencies.</p>
+
+                <h2>1️⃣3️⃣ Environment Variables</h2>
+
+                <p>Example:</p>
+
+                <pre><code>docker run -p 3000:3000 \
+  -e DATABASE_URL="postgres://..." \
+  myapp:1.0</code></pre>
+
+                <p>⚠ Important:</p>
+
+                <p><strong>Variables ≠ Secrets.</strong></p>
+
+                <p>In production, use:</p>
+
+                <ul>
+                    <li>AWS Secrets Manager</li>
+                    <li>SSM Parameter Store</li>
+                    <li>Kubernetes Secrets</li>
+                </ul>
+
+                <h2>1️⃣4️⃣ Essential Commands</h2>
+
+                <p><strong>See containers:</strong></p>
+
+                <pre><code>docker ps</code></pre>
+
+                <p><strong>See logs:</strong></p>
+
+                <pre><code>docker logs -f &lt;id&gt;</code></pre>
+
+                <p><strong>Enter inside:</strong></p>
+
+                <pre><code>docker exec -it &lt;id&gt; sh</code></pre>
+
+                <p><strong>Stop:</strong></p>
+
+                <pre><code>docker stop &lt;id&gt;</code></pre>
+
+                <p><strong>Delete:</strong></p>
+
+                <pre><code>docker rm &lt;id&gt;</code></pre>
+
+                <h2>1️⃣5️⃣ Real Debug (How a Senior Thinks)</h2>
+
+                <p>When something fails:</p>
+
+                <ol>
+                    <li>Check logs</li>
+                    <li>Verify ports</li>
+                    <li>Verify environment variables</li>
+                    <li>Enter the container</li>
+                    <li>Check if the process is running</li>
+                </ol>
+
+                <h2>1️⃣6️⃣ Docker in CI/CD</h2>
+
+                <p>Typical pipeline:</p>
+
+                <ol>
+                    <li>Build image</li>
+                    <li>Tag with commit SHA</li>
+                    <li>Push to registry</li>
+                    <li>Cloud (ECS/K8s) pulls and scales</li>
+                </ol>
+
+                <p>Example:</p>
+
+                <pre><code>docker build -t myapp:abc123 .
+docker tag myapp:abc123 123456.dkr.ecr.eu-west-1.amazonaws.com/myapp:abc123
+docker push ...</code></pre>
+
+                <h2>1️⃣7️⃣ Why Companies Use Containers</h2>
+
+                <ul>
+                    <li>✔ <strong>Portability:</strong> Runs identically everywhere</li>
+                    <li>✔ <strong>Scalability:</strong> ECS/K8s can launch multiple instances</li>
+                    <li>✔ <strong>Reproducibility:</strong> Same artifact in staging and prod</li>
+                    <li>✔ <strong>Isolation:</strong> One service doesn't break another</li>
+                </ul>
+
+                <h2>1️⃣8️⃣ What a Senior Knows (And a Junior Doesn't)</h2>
+
+                <ul>
+                    <li>Don't run as root</li>
+                    <li>Minimize image size</li>
+                    <li>Use healthchecks</li>
+                    <li>Separate build from runtime</li>
+                    <li>Never put secrets in the image</li>
+                    <li>Tag with SHA, not just "latest"</li>
+                    <li>Use multi-stage builds</li>
+                    <li>Keep images small</li>
+                </ul>
+
+                <h2>1️⃣9️⃣ Practical Exercises</h2>
+
+                <ul>
+                    <li>Run WordPress without volume and observe data loss</li>
+                    <li>Add volume and compare</li>
+                    <li>Break an environment variable and debug</li>
+                    <li>Measure image size before and after multi-stage</li>
+                    <li>Change only code and observe cache</li>
+                </ul>
+
+                <h2>2️⃣0️⃣ Final Mental Model</h2>
+
+                <p>A container is:</p>
+
+                <p><strong>An isolated process that executes an image built from a Dockerfile and can scale horizontally in the cloud.</strong></p>
+
+                <h2>🎯 Conclusion</h2>
+
+                <p>If you understand:</p>
+
+                <ul>
+                    <li>Dockerfile</li>
+                    <li>Image</li>
+                    <li>Container</li>
+                    <li>Volumes</li>
+                    <li>Environment variables</li>
+                    <li>Layers</li>
+                    <li>Multi-stage builds</li>
+                    <li>CI/CD flow</li>
+                </ul>
+
+                <p>You're ready to deploy to:</p>
+
+                <ul>
+                    <li>ECS</li>
+                    <li>Kubernetes</li>
+                    <li>Azure Container Apps</li>
+                </ul>
+
+                <h2>📚 Resources</h2>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/69985dca-16bc-8392-80fc-549a1dede94b" target="_blank">Docker Containers Guide - Dragos</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Back</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Home →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>
