@@ -381,6 +381,7 @@ function injectSidebarAndNav() {
                         <li><a href="${isSpanish ? '../../../../softwarecycle/es/docker-containers.html' : '../../../../softwarecycle/en/docker-containers.html'}" class="nav-link">${isSpanish ? '🐳 2.0 Introducción a Containers con Docker' : '🐳 2.0 Introduction to Containers with Docker'}</a></li>
                         <li><a href="${isSpanish ? '../../../../softwarecycle/es/docker-cicd.html' : '../../../../softwarecycle/en/docker-cicd.html'}" class="nav-link">${isSpanish ? '📦 2.1 Containers en CI/CD' : '📦 2.1 Containers in CI/CD'}</a></li>
                         <li><a href="${isSpanish ? '../../../../softwarecycle/es/serverless-lambda.html' : '../../../../softwarecycle/en/serverless-lambda.html'}" class="nav-link">${isSpanish ? '⚡️ 3.0 Serverless con AWS Lambda' : '⚡️ 3.0 Serverless with AWS Lambda'}</a></li>
+                        <li><a href="${isSpanish ? '../../../../softwarecycle/es/lambda-cold-start.html' : '../../../../softwarecycle/en/lambda-cold-start.html'}" class="nav-link">${isSpanish ? '❄️ 3.1 Lambda Cold Start' : '❄️ 3.1 Lambda Cold Start'}</a></li>
                     </ul>
                 </li>
             </ul>

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lambda Cold Start | Ciclo de Software</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-lambda-cold-start">
+                <h1>❄️ 3.1 Lambda Cold Start</h1>
+                <p><strong>Arquitectura Serverless con AWS Lambda: Ventajas, Cold Starts y Decisiones Reales</strong></p>
+
+                <h2>1️⃣ Arquitectura mínima serverless</h2>
+
+                <p>Arquitectura típica:</p>
+
+                <pre><code>Cliente → API Gateway → Lambda → Base de datos</code></pre>
+
+                <h3>🔹 Componentes</h3>
+
+                <p><strong>🛡 API Gateway</strong></p>
+
+                <ul>
+                    <li>Expone endpoint público</li>
+                    <li>Throttling (protección contra abuso)</li>
+                    <li>Autenticación (JWT, Cognito, etc.)</li>
+                    <li>Rate limiting</li>
+                    <li>Validación de requests</li>
+                </ul>
+
+                <p><strong>⚙ Lambda</strong></p>
+
+                <ul>
+                    <li>Ejecuta tu código (Node.js, Python, etc.)</li>
+                    <li>Escala automáticamente</li>
+                    <li>Pagas por ejecución (no servidor fijo)</li>
+                </ul>
+
+                <p><strong>🗄 Base de datos</strong></p>
+
+                <p>Puede ser:</p>
+
+                <ul>
+                    <li>DynamoDB (serverless)</li>
+                    <li>RDS (relacional)</li>
+                    <li>Redis</li>
+                    <li>Otro servicio gestionado</li>
+                </ul>
+
+                <h2>2️⃣ ¿Qué es un Cold Start?</h2>
+
+                <p>Un cold start ocurre cuando:</p>
+
+                <ul>
+                    <li>Tu Lambda no ha recibido tráfico durante un tiempo</li>
+                    <li>AWS ha apagado el entorno de ejecución</li>
+                    <li>Llega una nueva petición</li>
+                </ul>
+
+                <p>AWS debe:</p>
+
+                <ul>
+                    <li>Crear entorno</li>
+                    <li>Cargar runtime</li>
+                    <li>Descargar tu código</li>
+                    <li>Ejecutar código de inicialización</li>
+                </ul>
+
+                <p>👉 <strong>Ese proceso añade latencia extra (500ms – 2s o más).</strong></p>
+
+                <h2>3️⃣ Qué compone realmente un Cold Start</h2>
+
+                <p>Error común: pensar que es solo "descargar código". No.</p>
+
+                <p>Un cold start incluye:</p>
+
+                <ul>
+                    <li>🏗 Provisionar el entorno</li>
+                    <li>🧩 Cargar runtime (Node, Python…)</li>
+                    <li>📦 Cargar dependencias</li>
+                    <li>🚀 Ejecutar código fuera del handler</li>
+                    <li>🌐 Conectar VPC (si aplica)</li>
+                </ul>
+
+                <p>Como senior debes entender:</p>
+
+                <ul>
+                    <li>Algunas cosas dependen de AWS</li>
+                    <li>Otras dependen completamente de ti</li>
+                </ul>
+
+                <h2>4️⃣ ¿Por qué el Cold Start es un problema real?</h2>
+
+                <p>No afecta tanto al promedio.</p>
+
+                <p>Afecta a:</p>
+
+                <ul>
+                    <li>p95</li>
+                    <li>p99</li>
+                    <li>Experiencia del usuario</li>
+                    <li>Timeouts</li>
+                    <li>Retries innecesarios</li>
+                </ul>
+
+                <p><strong>Ejemplo práctico:</strong></p>
+
+                <p>Usuario entra tras 10 minutos sin tráfico<br>
+                Primera request tarda 1.8s<br>
+                Usuario percibe lentitud<br>
+                Métrica global parece buena, pero UX mala</p>
+
+                <p>Esto es ingeniería real, no marketing.</p>
+
+                <h2>5️⃣ Qué empeora el Cold Start</h2>
+
+                <p>Errores comunes de junior:</p>
+
+                <ul>
+                    <li>📦 Bundle enorme (5–10MB)</li>
+                    <li>🔁 Mucho código ejecutándose fuera del handler</li>
+                    <li>🗄 Conexión a base de datos mal gestionada</li>
+                    <li>🌐 Lambda dentro de VPC sin necesidad</li>
+                    <li>🧱 Librerías pesadas innecesarias</li>
+                    <li>🔐 Validaciones JWT mal implementadas</li>
+                </ul>
+
+                <h2>6️⃣ Cómo Mitigar el Cold Start</h2>
+
+                <h3>✅ 1. Hacer la función ligera</h3>
+
+                <p>Buenas prácticas:</p>
+
+                <ul>
+                    <li>Usar esbuild / bundling optimizado</li>
+                    <li>Eliminar dependencias innecesarias</li>
+                    <li>Lazy loading</li>
+                    <li>Minimizar código global</li>
+                </ul>
+
+                <p><strong>Mentalidad senior:</strong></p>
+
+                <p>El cold start debe hacer lo mínimo indispensable.</p>
+
+                <h3>⚠ 2. Warmup con EventBridge (cron)</h3>
+
+                <p>Se programa un evento cada minuto que llama la Lambda.</p>
+
+                <p><strong>Pros:</strong></p>
+
+                <ul>
+                    <li>Reduce probabilidad de enfriamiento</li>
+                </ul>
+
+                <p><strong>Cons:</strong></p>
+
+                <ul>
+                    <li>No garantiza nada</li>
+                    <li>Más complejidad</li>
+                    <li>Más coste</li>
+                    <li>Más moving pieces</li>
+                    <li>Mala solución si tienes muchas Lambdas</li>
+                </ul>
+
+                <p><strong>Como senior:</strong></p>
+
+                <p>Es un hack, no una solución arquitectónica limpia.</p>
+
+                <h3>💰 3. Provisioned Concurrency (solución oficial)</h3>
+
+                <p>Mantiene instancias pre-calentadas.</p>
+
+                <p><strong>Ventajas:</strong></p>
+
+                <ul>
+                    <li>Reduce cold start significativamente</li>
+                    <li>Ideal para endpoints críticos</li>
+                </ul>
+
+                <p><strong>Desventaja importante:</strong></p>
+
+                <ul>
+                    <li>Pagas continuamente</li>
+                    <li>Ya no es "casi gratis sin tráfico"</li>
+                </ul>
+
+                <p>Aquí es donde muchos proyectos dejan de ser realmente "serverless barato".</p>
+
+                <h2>7️⃣ Coste Real vs Marketing</h2>
+
+                <p>Lambda es genial cuando:</p>
+
+                <ul>
+                    <li>Hay tráfico irregular</li>
+                    <li>Eventos asíncronos</li>
+                    <li>Procesamiento puntual</li>
+                    <li>Integraciones con otros servicios AWS</li>
+                </ul>
+
+                <p>Lambda puede no ser ideal cuando:</p>
+
+                <ul>
+                    <li>Tráfico constante alto</li>
+                    <li>API ultra sensible a latencia</li>
+                    <li>Mucha conexión a RDS tradicional</li>
+                    <li>Necesitas control fino del runtime</li>
+                </ul>
+
+                <p>A veces:</p>
+
+                <ul>
+                    <li>ECS/Fargate</li>
+                    <li>EC2</li>
+                    <li>Contenedores</li>
+                </ul>
+
+                <p>pueden ser más simples y más baratos a largo plazo.</p>
+
+                <h2>8️⃣ Ejemplo mental: anti-patrón vs patrón correcto</h2>
+
+                <h3>❌ Anti-patrón</h3>
+
+                <pre><code>Importas 15 librerías pesadas
+Inicializas cliente DB en cada request
+Cargas secrets dinámicamente siempre
+Bundle gigante
+
+Resultado:
+Cold start lento + rendimiento pobre</code></pre>
+
+                <h3>✅ Patrón correcto</h3>
+
+                <pre><code>Bundle pequeño
+Cliente DB inicializado una vez (reutilizable)
+Trabajo mínimo en init
+Métricas configuradas
+
+Resultado:
+Cold start reducido + rendimiento estable</code></pre>
+
+                <h2>9️⃣ Observabilidad (clave que muchos olvidan)</h2>
+
+                <p>Debes medir:</p>
+
+                <ul>
+                    <li>Init Duration</li>
+                    <li>Duration</li>
+                    <li>Throttles</li>
+                    <li>Concurrent Executions</li>
+                    <li>p95 / p99</li>
+                </ul>
+
+                <p>Herramientas:</p>
+
+                <ul>
+                    <li>CloudWatch Logs</li>
+                    <li>X-Ray</li>
+                    <li>Métricas personalizadas</li>
+                </ul>
+
+                <p><strong>Como senior:</strong></p>
+
+                <p>Nunca optimizas lo que no mides.</p>
+
+                <h2>🔟 Checklist Final de Ingeniería</h2>
+
+                <p>Antes de lanzar a producción:</p>
+
+                <ul>
+                    <li>☑ Bundle optimizado</li>
+                    <li>☑ Código fuera del handler mínimo</li>
+                    <li>☑ Lambda en VPC solo si necesario</li>
+                    <li>☑ Conexión DB bien gestionada</li>
+                    <li>☑ Métricas activas</li>
+                    <li>☑ p95 medido</li>
+                    <li>☑ Provisioned concurrency solo si justificado</li>
+                    <li>☑ Coste estimado con tráfico realista</li>
+                </ul>
+
+                <h2>1️⃣1️⃣ Decisiones Clave como Ingeniero Senior</h2>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>Decisión</th>
+                        <th>Enfoque Junior</th>
+                        <th>Enfoque Senior</th>
+                    </tr>
+                    <tr>
+                        <td>¿Usar Lambda?</td>
+                        <td>"Es cool y nuevo"</td>
+                        <td>Basado en características de carga</td>
+                    </tr>
+                    <tr>
+                        <td>Cold start</td>
+                        <td>"AWS lo maneja"</td>
+                        <td>Medir, optimizar, mitigar si es necesario</td>
+                    </tr>
+                    <tr>
+                        <td>Coste</td>
+                        <td>"Es por uso"</td>
+                        <td>Comparar vs alternativas, calcular coste real</td>
+                    </tr>
+                    <tr>
+                        <td>Observabilidad</td>
+                        <td>"Logs son suficientes"</td>
+                        <td>Logs estructurados, métricas, tracing, alertas</td>
+                    </tr>
+                </table>
+
+                <h2>1️⃣2️⃣ La Verdad Sobre Serverless</h2>
+
+                <p>Lambda no es magia.<br>
+                Lambda no es siempre más barato.<br>
+                Lambda no es siempre mejor.</p>
+
+                <p>Lambda es excelente para:</p>
+
+                <ul>
+                    <li>Arquitecturas event-driven</li>
+                    <li>Tráfico irregular</li>
+                    <li>Equipos pequeños que quieren menos operación</li>
+                </ul>
+
+                <p>Pero como ingeniero senior piensa en:</p>
+
+                <ul>
+                    <li>Latencia real</li>
+                    <li>Coste real</li>
+                    <li>Complejidad real</li>
+                    <li>Escalabilidad real</li>
+                    <li>Experiencia del usuario</li>
+                </ul>
+
+                <h2>1️⃣3️⃣ Cuándo Elegir Qué</h2>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>Escenario</th>
+                        <th>Mejor Opción</th>
+                        <th>Por Qué</th>
+                    </tr>
+                    <tr>
+                        <td>API con tráfico irregular</td>
+                        <td>Lambda + API Gateway</td>
+                        <td>Escala bajo demanda, paga por uso</td>
+                    </tr>
+                    <tr>
+                        <td>Tráfico constante alto</td>
+                        <td>ECS/Fargate o EC2</td>
+                        <td>Coste fijo, mejor para carga base</td>
+                    </tr>
+                    <tr>
+                        <td>Procesamiento de eventos</td>
+                        <td>Lambda + SQS/SNS</td>
+                        <td>Modelo async natural</td>
+                    </tr>
+                    <tr>
+                        <td>API crítica con baja latencia</td>
+                        <td>ECS/Fargate o EC2</td>
+                        <td>Evita riesgo de cold start</td>
+                    </tr>
+                </table>
+
+                <h2>🎯 Conclusión</h2>
+
+                <p>Los cold starts son reales, pero gestionables.</p>
+
+                <p>La clave es:</p>
+
+                <ul>
+                    <li>✔ Entender qué los causa</li>
+                    <li>✔ Medirlos</li>
+                    <li>✔ Optimizar cuando sea necesario</li>
+                    <li>✔ Tomar decisiones conscientes de trade-offs</li>
+                    <li>✔ Nunca elegir arquitectura por hype</li>
+                </ul>
+
+                <p><strong>Esto es ingeniería senior.</strong></p>
+
+                <h2>📚 Recursos</h2>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/6998648f-2cdc-8387-b119-c6245393bab6" target="_blank">Arquitectura Serverless con AWS Lambda: Cold Starts - Dragos</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Volver Atrás</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Volver al Inicio →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>
