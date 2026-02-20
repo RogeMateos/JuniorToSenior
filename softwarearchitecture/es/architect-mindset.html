@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Architect Mindset | Software Architecture</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-architect-mindset">
+                <h1>📍 Empieza Aquí: The Architect Mindset</h1>
+                <p><strong>De spaghetti code a sistemas escalables y bien diseñados</strong></p>
+
+                <h2>1️⃣ Antes de empezar: qué es realmente arquitectura</h2>
+
+                <p>Cuando eres junior piensas:</p>
+
+                <p><strong>"Arquitectura = microservicios, Kubernetes, diagramas bonitos."</strong></p>
+
+                <p>No.</p>
+
+                <p>Arquitectura es esto:</p>
+
+                <p><strong>Tomar decisiones estructurales para cumplir objetivos de calidad bajo restricciones reales.</strong></p>
+
+                <p>No se trata de herramientas.<br>
+                Se trata de decisiones.</p>
+
+                <h2>2️⃣ El problema: cómo nace el spaghetti</h2>
+
+                <p>Cuando una empresa empieza, todo es simple:</p>
+
+                <ul>
+                    <li>1 frontend</li>
+                    <li>1 backend</li>
+                    <li>1 base de datos</li>
+                    <li>1 deploy</li>
+                </ul>
+
+                <p>Pero luego llegan:</p>
+
+                <ul>
+                    <li>Más usuarios</li>
+                    <li>Más features</li>
+                    <li>Más equipos</li>
+                    <li>Más integraciones</li>
+                    <li>Más presión</li>
+                </ul>
+
+                <p>Y empiezan a aparecer síntomas:</p>
+
+                <h3>🚨 Síntomas de spaghetti architecture</h3>
+
+                <ul>
+                    <li>Cambios pequeños rompen cosas inesperadas</li>
+                    <li>Deploys lentos y peligrosos</li>
+                    <li>Código muy acoplado</li>
+                    <li>Nadie sabe quién es dueño de qué</li>
+                    <li>Escalar significa "hacer el servidor más grande"</li>
+                </ul>
+
+                <p><strong>Esto no es un problema de código.<br>
+                Es un problema de estructura del sistema.</strong></p>
+
+                <h2>3️⃣ La analogía de Barcelona</h2>
+
+                <p>Barcelona tiene una zona diseñada en cuadrícula perfecta.</p>
+
+                <p>Calles ordenadas.<br>
+                Fácil de navegar.<br>
+                Escalable.</p>
+
+                <p>Eso es arquitectura.</p>
+
+                <p>Spaghetti code es una ciudad medieval con calles caóticas.</p>
+
+                <p><strong>La arquitectura no elimina la complejidad.<br>
+                La organiza.</strong></p>
+
+                <h2>4️⃣ Principio central: Trade-offs</h2>
+
+                <p>Nunca existe la mejor arquitectura.</p>
+
+                <p>Solo existe la más adecuada al contexto.</p>
+
+                <p>Ejemplos:</p>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>Decisión</th>
+                        <th>Ventaja</th>
+                        <th>Coste</th>
+                    </tr>
+                    <tr>
+                        <td>Microservicios</td>
+                        <td>Escala organizacional</td>
+                        <td>Más complejidad operativa</td>
+                    </tr>
+                    <tr>
+                        <td>Monolito</td>
+                        <td>Simple de operar</td>
+                        <td>Escala limitada</td>
+                    </tr>
+                    <tr>
+                        <td>Event-driven</td>
+                        <td>Desacopla</td>
+                        <td>Debug más complejo</td>
+                    </tr>
+                    <tr>
+                        <td>API Gateway</td>
+                        <td>Centraliza seguridad</td>
+                        <td>Punto crítico</td>
+                    </tr>
+                </table>
+
+                <p><strong>Si no puedes explicar el trade-off, no estás diseñando.<br>
+                Estás copiando moda.</strong></p>
+
+                <h2>5️⃣ Why over How</h2>
+
+                <p>Un junior pregunta:</p>
+
+                <p><strong>"¿Cómo implemento un API Gateway?"</strong></p>
+
+                <p>Un arquitecto pregunta:</p>
+
+                <p><strong>"¿Por qué necesito uno?"</strong></p>
+
+                <p>La arquitectura empieza siempre por el WHY.</p>
+
+                <h2>6️⃣ El framework práctico para diseñar sistemas</h2>
+
+                <p>Aquí te doy una estructura real que puedes usar en entrevistas y en trabajo real.</p>
+
+                <h3>🔹 Paso 1 — Entiende el contexto</h3>
+
+                <ul>
+                    <li>¿Cuántos usuarios?</li>
+                    <li>¿Cuánto tráfico?</li>
+                    <li>¿Cuántos developers?</li>
+                    <li>¿Regulación?</li>
+                    <li>¿Presupuesto?</li>
+                    <li>¿Time-to-market?</li>
+                </ul>
+
+                <h3>🔹 Paso 2 — Define los Drivers (lo más importante)</h3>
+
+                <p>Elige 3–5 prioridades:</p>
+
+                <ul>
+                    <li>Alta disponibilidad (99.9%)</li>
+                    <li>Latencia &lt; 200ms</li>
+                    <li>Deploy diario</li>
+                    <li>Bajo coste</li>
+                    <li>Alta seguridad</li>
+                    <li>Escalabilidad horizontal</li>
+                </ul>
+
+                <p>La arquitectura existe para proteger estos drivers.</p>
+
+                <h3>🔹 Paso 3 — Define restricciones</h3>
+
+                <ul>
+                    <li>Cloud obligatorio</li>
+                    <li>Legacy que no se puede tocar</li>
+                    <li>Equipo sin experiencia DevOps</li>
+                    <li>Compliance legal</li>
+                </ul>
+
+                <h3>🔹 Paso 4 — Elige una base simple</h3>
+
+                <p>Empieza SIEMPRE simple.</p>
+
+                <p><strong>🟢 Opción inicial recomendada:</strong></p>
+
+                <p>Monolito modular bien estructurado.</p>
+
+                <p>Separación clara:</p>
+
+                <ul>
+                    <li>Capa de dominio</li>
+                    <li>Capa de aplicación</li>
+                    <li>Capa de infraestructura</li>
+                </ul>
+
+                <p>Eso ya es arquitectura.</p>
+
+                <h2>7️⃣ Evolución natural de un sistema</h2>
+
+                <p>No empiezas con microservicios.</p>
+
+                <p>Evolucionas hacia ellos si hay dolor real.</p>
+
+                <h3>Fase 1 — Monolito modular</h3>
+
+                <ul>
+                    <li>Deploy único</li>
+                    <li>Código organizado</li>
+                    <li>Ownership claro</li>
+                </ul>
+
+                <h3>Fase 2 — Extraer servicios específicos</h3>
+
+                <p>Cuando algo duele:</p>
+
+                <ul>
+                    <li>Autenticación</li>
+                    <li>Pagos</li>
+                    <li>Notificaciones</li>
+                    <li>Reporting pesado</li>
+                </ul>
+
+                <p>Extraes solo lo necesario.</p>
+
+                <h3>Fase 3 — Introducir eventos</h3>
+
+                <p>Cuando necesitas desacoplar:</p>
+
+                <ul>
+                    <li>Emails async</li>
+                    <li>Procesos largos</li>
+                    <li>Integraciones externas</li>
+                </ul>
+
+                <p>Aquí aparece el Event Bus.</p>
+
+                <h3>Fase 4 — API Gateway / BFF</h3>
+
+                <p>Cuando tienes:</p>
+
+                <ul>
+                    <li>Web</li>
+                    <li>Mobile</li>
+                    <li>Partners</li>
+                </ul>
+
+                <p>Ahí sí tiene sentido.</p>
+
+                <h2>8️⃣ Componentes arquitectónicos explicados simple</h2>
+
+                <h3>🔸 Load Balancer</h3>
+
+                <p>Distribuye tráfico entre instancias.</p>
+
+                <p><strong>Necesario cuando:</strong> Escalas horizontalmente.</p>
+
+                <h3>🔸 API Gateway</h3>
+
+                <p>Centraliza:</p>
+
+                <ul>
+                    <li>Auth</li>
+                    <li>Rate limiting</li>
+                    <li>Routing</li>
+                </ul>
+
+                <p><strong>Útil cuando:</strong> Hay múltiples clientes.</p>
+
+                <h3>🔸 BFF (Backend For Frontend)</h3>
+
+                <p>Cada frontend tiene su backend optimizado.</p>
+
+                <p><strong>Útil cuando:</strong> Web y mobile tienen necesidades diferentes.</p>
+
+                <h3>🔸 Event Bus</h3>
+
+                <p>Permite comunicación asíncrona entre servicios.</p>
+
+                <p>Excelente para desacoplar.<br>
+                Pero requiere:</p>
+
+                <ul>
+                    <li>Observabilidad</li>
+                    <li>Manejo de errores</li>
+                    <li>Idempotencia</li>
+                </ul>
+
+                <h3>🔸 Microservicios</h3>
+
+                <p>No son un objetivo.</p>
+
+                <p>Son una consecuencia cuando:</p>
+
+                <ul>
+                    <li>Equipos crecen</li>
+                    <li>Dominio complejo</li>
+                    <li>Necesitas escalar partes independientes</li>
+                </ul>
+
+                <h2>9️⃣ Complejidad nunca desaparece</h2>
+
+                <p>Esto es clave:</p>
+
+                <p><strong>La complejidad no se elimina.<br>
+                Solo se mueve.</strong></p>
+
+                <p>En un monolito está en el código.<br>
+                En microservicios está en:</p>
+
+                <ul>
+                    <li>Red</li>
+                    <li>DevOps</li>
+                    <li>Observabilidad</li>
+                    <li>Consistencia</li>
+                </ul>
+
+                <p><strong>Siempre pagas algo.</strong></p>
+
+                <h2>🔟 Arquitectura en entrevistas (system design)</h2>
+
+                <p>Te evaluarán por:</p>
+
+                <ul>
+                    <li>Hacer preguntas primero</li>
+                    <li>Identificar drivers</li>
+                    <li>Pensar en fallos</li>
+                    <li>Justificar trade-offs</li>
+                    <li>Proponer evolución incremental</li>
+                </ul>
+
+                <p><strong>NO por dibujar Kubernetes.</strong></p>
+
+                <h2>1️⃣1️⃣ Ejercicio práctico</h2>
+
+                <h3>Caso:</h3>
+
+                <p>App de seguros.</p>
+
+                <p>Ahora tiene:</p>
+
+                <ul>
+                    <li>1 backend</li>
+                    <li>1 frontend</li>
+                    <li>50k usuarios</li>
+                </ul>
+
+                <p>Quiere:</p>
+
+                <ul>
+                    <li>App mobile</li>
+                    <li>Partners API</li>
+                    <li>Más tráfico</li>
+                </ul>
+
+                <h3>Preguntas que deberías hacer:</h3>
+
+                <ul>
+                    <li>¿SLA requerido?</li>
+                    <li>¿Regulación?</li>
+                    <li>¿Volumen esperado?</li>
+                    <li>¿Tamaño equipo?</li>
+                    <li>¿Presupuesto?</li>
+                </ul>
+
+                <h3>Propuesta razonable:</h3>
+
+                <ul>
+                    <li>Monolito modular</li>
+                    <li>Añadir API Gateway</li>
+                    <li>Introducir BFF para mobile</li>
+                    <li>Extraer notificaciones como servicio</li>
+                    <li>Event bus para procesos async</li>
+                </ul>
+
+                <p><strong>Eso es pensamiento arquitectónico.</strong></p>
+
+                <h2>1️⃣2️⃣ Lo más importante que debes recordar</h2>
+
+                <p>Arquitectura es extensión de coding skills.</p>
+
+                <ul>
+                    <li>Empieza simple</li>
+                    <li>Optimiza por drivers reales</li>
+                    <li>Piensa en evolución</li>
+                    <li>Justifica siempre trade-offs</li>
+                    <li>No copies hype</li>
+                </ul>
+
+                <h2>🎯 Mentalidad final</h2>
+
+                <p>Un arquitecto no deja de programar.</p>
+
+                <p>Un arquitecto:</p>
+
+                <ul>
+                    <li>Entiende el código</li>
+                    <li>Entiende el sistema</li>
+                    <li>Entiende el negocio</li>
+                    <li>Toma decisiones bajo incertidumbre</li>
+                </ul>
+
+                <p>Y siempre pregunta:</p>
+
+                <p><strong>"¿Qué problema estoy resolviendo realmente?"</strong></p>
+
+                <h2>📚 Recursos</h2>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/69986f0a-8820-8384-a35b-8d937a8ece67" target="_blank">The Architect Mindset - Dragos</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Volver Atrás</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Volver al Inicio →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>

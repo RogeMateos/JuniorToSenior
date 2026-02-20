@@ -239,9 +239,10 @@ function injectSidebarAndNav() {
   const isSpanish = currentUrl.includes("/es/");
   const isSection = currentUrl.includes("/sections/");
   const isSoftwareCycle = currentUrl.includes("/softwarecycle/");
+  const isSoftwareArchitecture = currentUrl.includes("/softwarearchitecture/");
   const isFullStack = currentUrl.includes("/fullstack/");
 
-  if (!isSection && !isSoftwareCycle) {
+  if (!isSection && !isSoftwareCycle && !isSoftwareArchitecture) {
     return; // No estamos en una sección
   }
 
@@ -383,6 +384,18 @@ function injectSidebarAndNav() {
                         <li><a href="${isSpanish ? '../../../../softwarecycle/es/serverless-lambda.html' : '../../../../softwarecycle/en/serverless-lambda.html'}" class="nav-link">${isSpanish ? '⚡️ 3.0 Serverless con AWS Lambda' : '⚡️ 3.0 Serverless with AWS Lambda'}</a></li>
                         <li><a href="${isSpanish ? '../../../../softwarecycle/es/lambda-cold-start.html' : '../../../../softwarecycle/en/lambda-cold-start.html'}" class="nav-link">${isSpanish ? '❄️ 3.1 Lambda Cold Start' : '❄️ 3.1 Lambda Cold Start'}</a></li>
                         <li><a href="${isSpanish ? '../../../../softwarecycle/es/terraform-iac.html' : '../../../../softwarecycle/en/terraform-iac.html'}" class="nav-link">${isSpanish ? '🌍 4.0 Infrastructure as Code con Terraform' : '🌍 4.0 Infrastructure as Code with Terraform'}</a></li>
+                    </ul>
+                </li>
+
+                <!-- SECCIÓN 8: SOFTWARE ARCHITECTURE -->
+                <li class="nav-accordion">
+                    <div class="nav-accordion-header" data-accordion="section8">
+                        <span>${isSpanish ? '🏗️ 8.0 Software Architecture' : '🏗️ 8.0 Software Architecture'}</span>
+                        <span class="nav-accordion-icon">▶</span>
+                    </div>
+                    <ul class="nav-accordion-content" id="section8-content">
+                        <li><a href="${isSpanish ? '../../../../softwarearchitecture/es/architect-mindset.html' : '../../../../softwarearchitecture/en/architect-mindset.html'}" class="nav-link">${isSpanish ? '📍 Empieza Aquí: The Architect Mindset' : '📍 Start Here: The Architect Mindset'}</a></li>
+                        <li><a href="${isSpanish ? '../../../../softwarearchitecture/es/layered-architecture.html' : '../../../../softwarearchitecture/en/layered-architecture.html'}" class="nav-link">${isSpanish ? '🥞 1.1 La Arquitectura en Capas - MVC' : '🥞 1.1 The Layered Architecture - MVC'}</a></li>
                     </ul>
                 </li>
             </ul>

@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Layered Architecture - MVC | Software Architecture</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-layered-architecture">
+                <h1>🥞 1.1 The Layered Architecture - MVC</h1>
+                <p><strong>From Spaghetti Code to Clean, Organized Systems</strong></p>
+
+                <h2>🎯 Tutorial Goals</h2>
+
+                <p>By the end, you'll understand:</p>
+
+                <ul>
+                    <li>Why code becomes "spaghetti"</li>
+                    <li>How to apply SRP (Single Responsibility Principle)</li>
+                    <li>How to organize a system into clear layers</li>
+                    <li>The difference between Layer and Tier</li>
+                    <li>How to apply this in a real project (Node + SPA)</li>
+                    <li>What mistakes to avoid</li>
+                    <li>When to use it and when not to</li>
+                </ul>
+
+                <h2>1️⃣ The Problem: Spaghetti Code</h2>
+
+                <p>When you start a small project, everything seems easy:</p>
+
+                <pre><code>app.post("/comment", async (req, res) => {
+  const user = await db.getUser(req.body.userId)
+
+  if (!user) return res.status(404).send("User not found")
+
+  if (!req.body.text || req.body.text.length > 500) {
+    return res.status(400).send("Invalid comment")
+  }
+
+  await db.insertComment({
+    userId: user.id,
+    text: req.body.text
+  })
+
+  res.send("OK")
+})</code></pre>
+
+                <p>At first, it works.</p>
+
+                <p>But then you add:</p>
+
+                <ul>
+                    <li>Auth</li>
+                    <li>Logging</li>
+                    <li>Validations</li>
+                    <li>Metrics</li>
+                    <li>Emails</li>
+                    <li>New rules</li>
+                </ul>
+
+                <p>And everything still lives in the same place.</p>
+
+                <p><strong>Result:</strong></p>
+
+                <p>If you pull one thread… the whole bowl unravels 🍝</p>
+
+                <h3>Real Problems:</h3>
+
+                <ul>
+                    <li>High coupling</li>
+                    <li>Hard to test</li>
+                    <li>Hard to extend</li>
+                    <li>Slow onboarding</li>
+                    <li>Small changes break unexpected things</li>
+                </ul>
+
+                <h2>2️⃣ First Principle: SRP (Single Responsibility)</h2>
+
+                <p>Each piece of code should change for only one reason.</p>
+
+                <p>Ask yourself:</p>
+
+                <ul>
+                    <li>Who should change this?</li>
+                    <li>UI?</li>
+                    <li>Business rule?</li>
+                    <li>Database?</li>
+                </ul>
+
+                <p>If the answer is "multiple people", you have a problem.</p>
+
+                <h2>3️⃣ The Classic Solution: Layered Architecture</h2>
+
+                <p>We divide the system into 3 logical layers:</p>
+
+                <pre><code>┌──────────────────────┐
+│ Presentation Layer   │
+├──────────────────────┤
+│ Application/Domain   │
+├──────────────────────┤
+│ Persistence Layer    │
+└──────────────────────┘</code></pre>
+
+                <p>Each with a clear responsibility.</p>
+
+                <h2>4️⃣ Presentation Layer</h2>
+
+                <p>Responsible for:</p>
+
+                <ul>
+                    <li>HTTP</li>
+                    <li>REST</li>
+                    <li>GraphQL</li>
+                    <li>UI</li>
+                    <li>Serialization</li>
+                    <li>Status codes</li>
+                </ul>
+
+                <p><strong>Should NOT contain:</strong></p>
+
+                <ul>
+                    <li>Complex business rules</li>
+                    <li>Persistence logic</li>
+                </ul>
+
+                <p><strong>Example:</strong></p>
+
+                <pre><code>app.post("/comment", async (req, res) => {
+  const result = await createCommentUseCase.execute({
+    userId: req.body.userId,
+    text: req.body.text
+  })
+
+  if (result.error) {
+    return res.status(400).json(result.error)
+  }
+
+  res.json(result.data)
+})</code></pre>
+
+                <p>Notice something important:</p>
+
+                <p>👉 <strong>The controller is now dumb.</strong></p>
+
+                <p>That's good.</p>
+
+                <h2>5️⃣ Application Layer (Use Cases)</h2>
+
+                <p>This is where the system flow lives.</p>
+
+                <p><strong>Example:</strong></p>
+
+                <pre><code>class CreateCommentUseCase {
+  constructor(private commentRepo: CommentRepository) {}
+
+  async execute(input: CreateCommentInput) {
+    const comment = Comment.create(input.text, input.userId)
+
+    await this.commentRepo.save(comment)
+
+    return { data: comment.toDTO() }
+  }
+}</code></pre>
+
+                <p><strong>Responsibility:</strong></p>
+
+                <ul>
+                    <li>Orchestrate</li>
+                    <li>Coordinate repos</li>
+                    <li>Apply rules</li>
+                    <li>Build response</li>
+                </ul>
+
+                <p><strong>Should NOT know about:</strong></p>
+
+                <ul>
+                    <li>Express</li>
+                    <li>Postgres</li>
+                    <li>Prisma</li>
+                    <li>Axios</li>
+                </ul>
+
+                <h2>6️⃣ Domain Layer (Pure Rules)</h2>
+
+                <p>This is where the real rules live.</p>
+
+                <pre><code>class Comment {
+  private constructor(
+    public readonly text: string,
+    public readonly userId: string
+  ) {}
+
+  static create(text: string, userId: string) {
+    if (!text || text.length > 500) {
+      throw new Error("Invalid comment")
+    }
+
+    return new Comment(text, userId)
+  }
+
+  toDTO() {
+    return {
+      text: this.text,
+      userId: this.userId
+    }
+  }
+}</code></pre>
+
+                <p><strong>Important:</strong></p>
+
+                <ul>
+                    <li>No external dependencies</li>
+                    <li>No frameworks</li>
+                    <li>No database</li>
+                    <li>100% testable</li>
+                </ul>
+
+                <p>This is the heart of the system.</p>
+
+                <h2>7️⃣ Persistence Layer</h2>
+
+                <p>Responsible for:</p>
+
+                <ul>
+                    <li>Saving data</li>
+                    <li>Reading data</li>
+                    <li>Implementing interfaces</li>
+                </ul>
+
+                <p><strong>First, define the contract in domain:</strong></p>
+
+                <pre><code>interface CommentRepository {
+  save(comment: Comment): Promise<void>
+}</code></pre>
+
+                <p><strong>Then implement in infrastructure:</strong></p>
+
+                <pre><code>class PostgresCommentRepository implements CommentRepository {
+  async save(comment: Comment) {
+    await prisma.comment.create({
+      data: {
+        text: comment.text,
+        userId: comment.userId
+      }
+    })
+  }
+}</code></pre>
+
+                <p><strong>Key architectural insight:</strong></p>
+
+                <p>The domain defines the interface.<br>
+                The infrastructure implements it.</p>
+
+                <p>This is Dependency Inversion (SOLID).</p>
+
+                <h2>8️⃣ The Dependency Rule (Very Important)</h2>
+
+                <p>Dependencies always point inward:</p>
+
+                <pre><code>Presentation → Application → Domain
+Infrastructure → Domain (implements interfaces)</code></pre>
+
+                <p><strong>❌ Domain should NOT import Express</strong><br>
+                <strong>❌ Domain should NOT import Prisma</strong><br>
+                <strong>❌ Domain should NOT import Axios</strong></p>
+
+                <p>If that happens, you're breaking the architecture.</p>
+
+                <h2>9️⃣ Layer vs Tier (Classic Confusion)</h2>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>Concept</th>
+                        <th>Definition</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Layer</strong></td>
+                        <td>Logical responsibility in the code</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tier</strong></td>
+                        <td>Physical deployment location</td>
+                    </tr>
+                </table>
+
+                <p><strong>Examples:</strong></p>
+
+                <h3>Monolith (1 Tier)</h3>
+
+                <pre><code>[Server]
+  - Presentation
+  - Application
+  - Domain
+  - DB connection
+
+All in one process.</code></pre>
+
+                <h3>2-Tier</h3>
+
+                <pre><code>Client  →  Server
+               → Database</code></pre>
+
+                <h3>Modern SPA (3-Tier)</h3>
+
+                <pre><code>Browser (SPA)
+     ↓
+API Server
+     ↓
+Database Server</code></pre>
+
+                <p>Here:</p>
+
+                <ul>
+                    <li>Presentation layer lives in frontend</li>
+                    <li>Application + Domain in backend</li>
+                    <li>Persistence in DB tier</li>
+                </ul>
+
+                <p><strong>Layer ≠ Tier.</strong></p>
+
+                <h2>🔟 Recommended Folder Structure</h2>
+
+                <p>Example Node + TypeScript:</p>
+
+                <pre><code>src/
+ ├── presentation/
+ │     └── comment.controller.ts
+ │
+ ├── application/
+ │     └── create-comment.usecase.ts
+ │
+ ├── domain/
+ │     ├── comment.entity.ts
+ │     └── comment.repository.ts
+ │
+ └── infrastructure/
+       └── postgres-comment.repository.ts</code></pre>
+
+                <p>Simple. Clear. Scalable.</p>
+
+                <h2>1️⃣1️⃣ Real Advantages</h2>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>Benefit</th>
+                        <th>Why It Matters</th>
+                    </tr>
+                    <tr>
+                        <td>✅ Testability</td>
+                        <td>Test domain without database</td>
+                    </tr>
+                    <tr>
+                        <td>✅ Fast onboarding</td>
+                        <td>New devs know where to look</td>
+                    </tr>
+                    <tr>
+                        <td>✅ Scalability</td>
+                        <td>Adding features is predictable</td>
+                    </tr>
+                    <tr>
+                        <td>✅ Low coupling</td>
+                        <td>Switching Postgres to Mongo doesn't break domain</td>
+                    </tr>
+                </table>
+
+                <h2>1️⃣2️⃣ Common Mistakes</h2>
+
+                <ul>
+                    <li>Separating by folders but importing everything criss-cross</li>
+                    <li>Gigantic controllers</li>
+                    <li>Entities that know about Prisma</li>
+                    <li>Returning DB models directly to frontend</li>
+                    <li>Over-engineering simple CRUD</li>
+                </ul>
+
+                <h2>1️⃣3️⃣ When to Use It</h2>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>✔ Use When</th>
+                        <th>❌ Skip When</th>
+                    </tr>
+                    <tr>
+                        <td>Real business rules</td>
+                        <td>Small script</td>
+                    </tr>
+                    <tr>
+                        <td>System will grow</td>
+                        <td>Extremely simple MVP</td>
+                    </tr>
+                    <tr>
+                        <td>Medium/large teams</td>
+                        <td>Trivial CRUD (temporary)</td>
+                    </tr>
+                    <tr>
+                        <td>Complex domains</td>
+                        <td></td>
+                    </tr>
+                </table>
+
+                <h2>1️⃣4️⃣ How to Migrate from Spaghetti (Without Rewriting)</h2>
+
+                <ol>
+                    <li>Choose one endpoint</li>
+                    <li>Extract logic to a use case</li>
+                    <li>Extract pure rules to domain</li>
+                    <li>Create repository interface</li>
+                    <li>Move DB access to infrastructure</li>
+                    <li>Keep controller minimal</li>
+                </ol>
+
+                <p><strong>Incremental refactoring. No big-bang.</strong></p>
+
+                <h2>1️⃣5️⃣ What Comes Next</h2>
+
+                <p>Layered architecture is the foundation.</p>
+
+                <p>Then you can evolve to:</p>
+
+                <ul>
+                    <li>Hexagonal Architecture</li>
+                    <li>Clean Architecture</li>
+                    <li>CQRS</li>
+                    <li>Microservices</li>
+                </ul>
+
+                <p>But they all start here.</p>
+
+                <h2>1️⃣6️⃣ The Mental Journey</h2>
+
+                <pre><code>Spaghetti
+   ↓
+Clear Layers
+   ↓
+Defined Boundaries
+   ↓
+Scalable System</code></pre>
+
+                <p><strong>The key is not separating folders.</strong></p>
+
+                <p><strong>The key is:</strong></p>
+
+                <ul>
+                    <li>✔ Clear responsibilities</li>
+                    <li>✔ Correct dependencies</li>
+                    <li>✔ Pure domain</li>
+                    <li>✔ Infrastructure as detail</li>
+                </ul>
+
+                <h2>🎯 Key Takeaways</h2>
+
+                <ul>
+                    <li>✔ SRP is the foundation of good architecture</li>
+                    <li>✔ Layers create clear responsibility boundaries</li>
+                    <li>✔ Domain should be framework-agnostic</li>
+                    <li>✔ Dependencies point inward, never outward</li>
+                    <li>✔ Layer is logical, Tier is physical</li>
+                    <li>✔ Presentation stays dumb, Application orchestrates, Domain rules</li>
+                    <li>✔ Testability increases with proper layering</li>
+                    <li>✔ Don't over-engineer simple projects</li>
+                    <li>✔ Refactor incrementally, not all at once</li>
+                    <li>✔ This is the foundation for more advanced patterns</li>
+                </ul>
+
+                <h2>📚 Resources</h2>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/69987140-4578-8392-b936-af2b00cc8ed6" target="_blank">Layered Architecture & MVC - Dragos</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Back</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Home →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>
