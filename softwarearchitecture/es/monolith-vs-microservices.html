@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monolito vs Microservicios | Arquitectura de Software</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-monolith-vs-microservices">
+                <h1>🤔 1.4 Monolito vs Microservicios</h1>
+                <p><strong>Guía Completa (Técnica + Entrevista + Decisión Arquitectónica)</strong></p>
+
+                <h2>1️⃣ Primero: Entiende el Contexto Real</h2>
+
+                <p>Antes de comparar, una advertencia importante:</p>
+
+                <p><strong>No existe arquitectura "mejor". Existe arquitectura adecuada al contexto.</strong></p>
+
+                <p>Durante años hubo una moda:</p>
+
+                <p>👉 "Todo debe ser microservices"</p>
+
+                <p>Hoy muchas empresas están volviendo a:</p>
+
+                <p>👉 Modular Monoliths</p>
+
+                <p><strong>¿Por qué?</strong> Porque distribuir el sistema no es gratis.</p>
+
+                <h2>2️⃣ ¿Qué es Realmente un Monolito?</h2>
+
+                <p>Un monolito es:</p>
+
+                <ul>
+                    <li>Una única aplicación desplegable</li>
+                    <li>Una única pipeline</li>
+                    <li>Normalmente una base de datos compartida</li>
+                    <li>Comunicación interna mediante llamadas a funciones</li>
+                </ul>
+
+                <p><strong>⚠️ Ojo:</strong> Monolito NO significa "código desordenado".</p>
+
+                <p>Un Modular Monolith puede tener:</p>
+
+                <pre><code>/users
+/orders
+/payments
+/catalog</code></pre>
+
+                <p>Pero todo vive en un mismo deployable.</p>
+
+                <h2>3️⃣ ¿Qué son Microservicios Realmente?</h2>
+
+                <p>Microservicios son:</p>
+
+                <ul>
+                    <li>Múltiples aplicaciones independientes</li>
+                    <li>Cada una con su propio deploy</li>
+                    <li>Idealmente cada una con su propia base de datos</li>
+                    <li>Comunicación por red (HTTP, gRPC, eventos)</li>
+                </ul>
+
+                <p><strong>Ejemplo:</strong></p>
+
+                <pre><code>UserService
+OrderService
+PaymentService
+NotificationService</code></pre>
+
+                <p>Ya no son llamadas a función:</p>
+
+                <pre><code>userService.getUser()</code></pre>
+
+                <p>Ahora es:</p>
+
+                <pre><code>HTTP call -> https://user-service/api/user/123</code></pre>
+
+                <p><strong>Y eso cambia TODO.</strong></p>
+
+                <h2>4️⃣ Comparación Profesional (La Tabla Correcta)</h2>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>Factor</th>
+                        <th>Monolito</th>
+                        <th>Microservicios</th>
+                    </tr>
+                    <tr>
+                        <td>Arrancar rápido</td>
+                        <td>✅ Muy fácil</td>
+                        <td>❌ Más complejo</td>
+                    </tr>
+                    <tr>
+                        <td>Coste inicial</td>
+                        <td>✅ Bajo</td>
+                        <td>❌ Alto</td>
+                    </tr>
+                    <tr>
+                        <td>Complejidad operativa</td>
+                        <td>✅ Baja</td>
+                        <td>❌ Alta</td>
+                    </tr>
+                    <tr>
+                        <td>Escalado técnico</td>
+                        <td>⚠️ Limitado</td>
+                        <td>✅ Selectivo</td>
+                    </tr>
+                    <tr>
+                        <td>Escalado organizacional</td>
+                        <td>❌ Difícil con muchos equipos</td>
+                        <td>✅ Excelente</td>
+                    </tr>
+                    <tr>
+                        <td>Latencia</td>
+                        <td>✅ Muy baja</td>
+                        <td>❌ Más alta</td>
+                    </tr>
+                    <tr>
+                        <td>Testing unitario</td>
+                        <td>⚠️ Medio</td>
+                        <td>✅ Fácil (scope pequeño)</td>
+                    </tr>
+                    <tr>
+                        <td>Testing E2E</td>
+                        <td>✅ Más simple</td>
+                        <td>❌ Más complejo</td>
+                    </tr>
+                    <tr>
+                        <td>Infraestructura</td>
+                        <td>✅ Más simple</td>
+                        <td>❌ Más cara</td>
+                    </tr>
+                    <tr>
+                        <td>Resiliencia por dominio</td>
+                        <td>❌ Todo cae junto</td>
+                        <td>✅ Aislamiento</td>
+                    </tr>
+                </table>
+
+                <h2>5️⃣ Coste de Desarrollo (Lo que Realmente Importa)</h2>
+
+                <p>Muchos dicen:</p>
+
+                <p>"Microservicios son más caros"</p>
+
+                <p>Incorrecto.</p>
+
+                <p>La respuesta correcta es:</p>
+
+                <p><strong>Depende de la escala organizacional.</strong></p>
+
+                <h3>👥 Equipo Pequeño (5–10 personas)</h3>
+
+                <p>Monolito gana:</p>
+
+                <ul>
+                    <li>Una pipeline</li>
+                    <li>Un repositorio</li>
+                    <li>Coordinación simple</li>
+                    <li>Cambios rápidos</li>
+                </ul>
+
+                <h3>👥 Organización Grande (50+ personas)</h3>
+
+                <p>Microservicios empiezan a ganar:</p>
+
+                <ul>
+                    <li>Equipos autónomos</li>
+                    <li>Deploy independiente</li>
+                    <li>Ownership claro por dominio</li>
+                </ul>
+
+                <p>👉 <strong>El problema del monolito NO es técnico, es organizacional.</strong></p>
+
+                <h2>6️⃣ Escalabilidad: Técnica vs Organizacional</h2>
+
+                <p>Hay dos tipos de escalabilidad:</p>
+
+                <h3>🔹 1. Escalabilidad Técnica</h3>
+
+                <p>Más tráfico → más CPU / RAM.</p>
+
+                <p>Monolito puede escalar con:</p>
+
+                <ul>
+                    <li>Load balancer</li>
+                    <li>Caching</li>
+                    <li>Replicación</li>
+                </ul>
+
+                <p>Microservicios permiten:</p>
+
+                <ul>
+                    <li>Escalar solo el servicio caliente</li>
+                    <li>Ejemplo: solo SearchService</li>
+                </ul>
+
+                <h3>🔹 2. Escalabilidad Organizacional</h3>
+
+                <p>Más desarrolladores → menos bloqueos.</p>
+
+                <p>Microservicios brillan aquí:</p>
+
+                <ul>
+                    <li>Equipos independientes</li>
+                    <li>Deploy independiente</li>
+                    <li>Roadmaps separados</li>
+                </ul>
+
+                <h2>7️⃣ Performance: La Trampa Clásica</h2>
+
+                <p>Muchos creen:</p>
+
+                <p>"Microservicios escalan mejor = más rápidos"</p>
+
+                <p><strong>Falso.</strong></p>
+
+                <p><strong>En un Monolito:</strong></p>
+
+                <pre><code>calculatePrice()</code></pre>
+
+                <p>Llamada interna → nanosegundos.</p>
+
+                <p><strong>En Microservicios:</strong></p>
+
+                <pre><code>CheckoutService → HTTP → PricingService → HTTP → DiscountService</code></pre>
+
+                <p>Cada salto añade:</p>
+
+                <ul>
+                    <li>Serialización</li>
+                    <li>Red</li>
+                    <li>TLS</li>
+                    <li>Autenticación</li>
+                    <li>Posible fallo</li>
+                    <li>Timeout</li>
+                </ul>
+
+                <p>👉 Más latencia.<br>
+                👉 Más puntos de fallo.</p>
+
+                <p>Microservicios mejoran performance cuando:</p>
+
+                <ul>
+                    <li>Puedes escalar solo partes críticas</li>
+                    <li>Puedes optimizar servicios específicos</li>
+                </ul>
+
+                <p>Pero añaden latencia por red.</p>
+
+                <h2>8️⃣ Testabilidad (Análisis Realista)</h2>
+
+                <p>Dividámoslo correctamente:</p>
+
+                <h3>Unit Testing</h3>
+
+                <p>Microservicios ganan.<br>
+                Scope pequeño.</p>
+
+                <h3>Contract Testing</h3>
+
+                <p>Microservicios lo necesitan obligatoriamente.</p>
+
+                <h3>End-to-End Testing</h3>
+
+                <p>Microservicios pierden.<br>
+                Necesitas levantar múltiples servicios.</p>
+
+                <h2>9️⃣ El "Microservice Tax" 💸</h2>
+
+                <p>Distribuir tiene coste.</p>
+
+                <p>Cuando pasas de:</p>
+
+                <pre><code>function call</code></pre>
+
+                <p>A:</p>
+
+                <pre><code>network call</code></pre>
+
+                <p>Aparecen:</p>
+
+                <ul>
+                    <li>Retries</li>
+                    <li>Circuit breakers</li>
+                    <li>Timeouts</li>
+                    <li>Service discovery</li>
+                    <li>Autenticación entre servicios</li>
+                    <li>Observabilidad distribuida</li>
+                    <li>Logging centralizado</li>
+                    <li>Tracing distribuido (Datadog, etc.)</li>
+                </ul>
+
+                <p>Nada de eso lo necesitabas en el monolito.</p>
+
+                <h2>🔟 Las 8 Falacias de la Computación Distribuida</h2>
+
+                <p>No necesitas memorizar las 8.</p>
+
+                <p>Memoriza 3:</p>
+
+                <ul>
+                    <li><strong>The network is reliable</strong> → No lo es.</li>
+                    <li><strong>Latency is zero</strong> → No lo es.</li>
+                    <li><strong>Bandwidth is infinite</strong> → No lo es.</li>
+                </ul>
+
+                <p><strong>Si mencionas esto en entrevista → nivel senior automático.</strong></p>
+
+                <h2>1️⃣1️⃣ El Problema MÁS GRANDE: Los Datos</h2>
+
+                <p>Este es el punto que más rompe equipos.</p>
+
+                <h3>Monolito</h3>
+
+                <ul>
+                    <li>1 base de datos</li>
+                    <li>Transacciones simples</li>
+                </ul>
+
+                <h3>Microservicios</h3>
+
+                <ul>
+                    <li>Cada servicio es dueño de sus datos</li>
+                    <li>Aparece:
+                        <ul>
+                            <li>Eventual consistency</li>
+                            <li>Sagas</li>
+                            <li>Outbox pattern</li>
+                            <li>Idempotencia</li>
+                            <li>Messaging</li>
+                            <li>Read models</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <p>Muchos proyectos fracasan por:</p>
+
+                <p>❌ Microservicios + Base de datos compartida</p>
+
+                <p>Eso es lo peor de ambos mundos.</p>
+
+                <h2>1️⃣2️⃣ Anti-Patterns Comunes</h2>
+
+                <ul>
+                    <li>❌ Dividir por capas técnicas (UserControllerService, UserRepositoryService…)</li>
+                    <li>❌ Chatty services (muchas llamadas pequeñas entre servicios)</li>
+                    <li>❌ Microservicios demasiado pronto (sin entender el dominio)</li>
+                </ul>
+
+                <h2>1️⃣3️⃣ Reglas Prácticas de Decisión</h2>
+
+                <h3>Empieza con Modular Monolith si:</h3>
+
+                <ul>
+                    <li>Equipo pequeño</li>
+                    <li>Dominio cambiante</li>
+                    <li>Necesitas velocidad</li>
+                    <li>No tienes observabilidad madura</li>
+                </ul>
+
+                <h3>Considera Microservicios si:</h3>
+
+                <ul>
+                    <li>Múltiples equipos bloqueándose</li>
+                    <li>Hotspots claros</li>
+                    <li>Necesitas despliegue independiente</li>
+                    <li>El dominio está bien definido</li>
+                    <li>Puedes pagar el "tax"</li>
+                </ul>
+
+                <h2>1️⃣4️⃣ La Estrategia Correcta</h2>
+
+                <p>La mejor estrategia moderna es:</p>
+
+                <p><strong>Empieza con Modular Monolith</strong><br>
+                ↓<br>
+                <strong>Observa el dolor</strong><br>
+                ↓<br>
+                <strong>Extrae servicios cuando el dolor es real</strong></p>
+
+                <p>Patrón recomendado:</p>
+
+                <p><strong>Strangler Fig Pattern</strong></p>
+
+                <h2>1️⃣5️⃣ Respuesta Perfecta de Entrevista (45 segundos)</h2>
+
+                <p><strong>"Depende del contexto. Para arrancar rápido y con un equipo pequeño, prefiero un modular monolith porque reduce complejidad operativa y latencia. Cuando la organización crece, los microservicios ayudan a escalar equipos y permitir despliegues independientes. El tradeoff es el microservice tax: más latencia, más complejidad operativa y mayor coste de observabilidad. Normalmente empiezo monolito, identifico límites de dominio claros y extraigo servicios cuando el dolor organizacional o técnico lo justifica."</strong></p>
+
+                <h2>1️⃣6️⃣ La Comparación Real de Costes</h2>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>Tipo de Coste</th>
+                        <th>Monolito</th>
+                        <th>Microservicios</th>
+                    </tr>
+                    <tr>
+                        <td>Complejidad de código</td>
+                        <td>⭐⭐</td>
+                        <td>⭐⭐⭐</td>
+                    </tr>
+                    <tr>
+                        <td>Complejidad operacional</td>
+                        <td>⭐</td>
+                        <td>⭐⭐⭐⭐⭐</td>
+                    </tr>
+                    <tr>
+                        <td>Coste infraestructura</td>
+                        <td>⭐⭐</td>
+                        <td>⭐⭐⭐⭐</td>
+                    </tr>
+                    <tr>
+                        <td>Coordinación de equipos</td>
+                        <td>⭐⭐⭐⭐</td>
+                        <td>⭐</td>
+                    </tr>
+                    <tr>
+                        <td>Herramientas observabilidad</td>
+                        <td>⭐</td>
+                        <td>⭐⭐⭐⭐⭐</td>
+                    </tr>
+                </table>
+
+                <h2>1️⃣7️⃣ Puntos Clave</h2>
+
+                <ul>
+                    <li>✔ Monolito ≠ Código malo (puede estar bien organizado)</li>
+                    <li>✔ Microservicios = Herramienta organizacional, no solo técnica</li>
+                    <li>✔ Red añade latencia (3 órdenes de magnitud más lenta)</li>
+                    <li>✔ Transacciones ACID se vuelven consistencia eventual</li>
+                    <li>✔ Observabilidad es obligatoria para microservicios</li>
+                    <li>✔ ¿Equipo pequeño? Elige monolito. ¿Equipo grande? Elige microservicios.</li>
+                    <li>✔ Las Falacias de Computación Distribuida se aplican a todo</li>
+                    <li>✔ No distribuyas a menos que el dolor lo justifique</li>
+                    <li>✔ Strangler Fig Pattern es más seguro que big-bang migration</li>
+                    <li>✔ Un monolito bien diseñado supera un sistema distribuido mal hecho</li>
+                </ul>
+
+                <h2>🎯 Conclusión Final</h2>
+
+                <p>No se trata de:</p>
+
+                <p><strong>Monolito vs Microservicios</strong></p>
+
+                <p>Se trata de:</p>
+
+                <p><strong>¿Vale la pena pagar el coste de distribuir?</strong></p>
+
+                <p>Porque distribuir:</p>
+
+                <ul>
+                    <li>No es gratis</li>
+                    <li>No simplifica</li>
+                    <li>No mejora automáticamente rendimiento</li>
+                    <li>No mejora automáticamente escalabilidad</li>
+                </ul>
+
+                <p>Pero sí:</p>
+
+                <ul>
+                    <li>Mejora autonomía de equipos</li>
+                    <li>Permite despliegue independiente</li>
+                    <li>Permite escalado selectivo</li>
+                </ul>
+
+                <p><strong>Toma la decisión basada en dolor organizacional real, no en hype.</strong></p>
+
+                <h2>📚 Recursos</h2>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/69988581-3c14-8391-a843-7c34b142ba95" target="_blank">Monolito vs Microservicios - Dragos</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Volver Atrás</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Volver al Inicio →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>

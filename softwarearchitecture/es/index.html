@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Software Architecture - Español</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+    <style>
+        .lang-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .lang-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .lang-btn:hover {
+            background: #f0f0f0;
+            border-color: #999;
+        }
+
+        .lang-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+    </style>
+</head>
+<body class="architecture-page">
+    <div class="lang-switcher">
+        <a href="../en/index.html" class="lang-btn">🇬🇧 English</a>
+        <a href="#" class="lang-btn active">🇪🇸 Español</a>
+    </div>
+
+    <div class="container">
+        <aside id="sidebar" class="sidebar"></aside>
+
+        <main class="main-content architecture-section">
+            <h1>🏗️ Camino Software Architecture</h1>
+            <p><strong>Domina Patrones Arquitectónicos, System Design y Sistemas Distribuidos</strong></p>
+
+            <p>Bienvenido a la sección Software Architecture. Esta guía completa cubre todo, desde patrones de arquitectura fundamentales hasta sistemas distribuidos avanzados, microservicios y diseño nativo en la nube.</p>
+
+            <h2>📚 Ruta de Aprendizaje</h2>
+
+            <div class="section-grid">
+                <div class="grid-item">
+                    <h3>🎯 Fundamentos (0-1)</h3>
+                    <p>Mentalidad arquitectónica, arquitectura en capas y patrones fundamentales</p>
+                </div>
+                <div class="grid-item">
+                    <h3>🏭 Sistemas Distribuidos (2-4)</h3>
+                    <p>Microservicios, monolitos, estrategias de escalado y trade-offs arquitectónicos</p>
+                </div>
+                <div class="grid-item">
+                    <h3>🔌 Patrones Avanzados (5-7)</h3>
+                    <p>Arquitectura event-driven, patrones de API gateway y distribución frontend</p>
+                </div>
+            </div>
+
+            <h2>🎯 Comienza a Aprender</h2>
+            <p><a href="architect-mindset.html" class="btn btn-primary">Comienza con la Mentalidad Arquitectónica →</a></p>
+
+            <h2>🔄 Volver al Inicio</h2>
+            <p><a href="../../index.html" class="btn btn-secondary">← Inicio</a></p>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>

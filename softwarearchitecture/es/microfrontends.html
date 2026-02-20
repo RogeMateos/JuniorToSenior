@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microfrontends | Arquitectura de Software</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-microfrontends">
+                <h1>🎨 1.5 Microfrontends</h1>
+                <p><strong>La Evolución del Frontend en Sistemas Distribuidos</strong></p>
+
+                <h2>1️⃣ El Problema Real</h2>
+
+                <p>Imagina esto:</p>
+
+                <ul>
+                    <li>Backend → ya lo dividimos en microservicios ✅</li>
+                    <li>Frontend → sigue siendo una SPA gigante ❌</li>
+                </ul>
+
+                <p>Tienes:</p>
+
+                <ul>
+                    <li>100+ desarrolladores frontend</li>
+                    <li>Deploys constantes</li>
+                    <li>Pull requests infinitos</li>
+                    <li>Conflictos de dependencias</li>
+                    <li>Cambios que rompen otras áreas</li>
+                </ul>
+
+                <p>Aunque esté "bien estructurado", sigue siendo un monolito frontend.</p>
+
+                <p>👉 <strong>Esto crea un cuello de botella organizativo.</strong></p>
+
+                <h2>2️⃣ Qué Son Realmente los Microfrontends</h2>
+
+                <p>Definición simple:</p>
+
+                <p><strong>Microfrontends aplican los principios de microservicios al frontend.</strong></p>
+
+                <p>Es decir:</p>
+
+                <ul>
+                    <li>Dividir la SPA en aplicaciones más pequeñas</li>
+                    <li>Cada una con ownership claro</li>
+                    <li>Deploy independiente</li>
+                    <li>Equipo independiente</li>
+                </ul>
+
+                <h2>3️⃣ ⚠️ Error Común: No es Dividir por Layout</h2>
+
+                <p>Muchos ejemplos muestran:</p>
+
+                <ul>
+                    <li>Header</li>
+                    <li>Sidebar</li>
+                    <li>Content</li>
+                </ul>
+
+                <p>Eso sirve como visualización, pero no es la forma ideal de cortar.</p>
+
+                <p><strong>❌ Dividir por layout<br>
+                ✅ Dividir por dominio/feature</strong></p>
+
+                <p><strong>Ejemplo correcto:</strong></p>
+
+                <ul>
+                    <li>Checkout</li>
+                    <li>Account</li>
+                    <li>Search</li>
+                    <li>Product</li>
+                </ul>
+
+                <p>Cada uno es un dominio del negocio.</p>
+
+                <h2>4️⃣ El Modelo Mental Correcto</h2>
+
+                <p>Piensa en tu web como un mosaico.</p>
+
+                <p>Cada "tile":</p>
+
+                <ul>
+                    <li>Tiene su código</li>
+                    <li>Tiene su backend</li>
+                    <li>Tiene su pipeline</li>
+                    <li>Tiene su equipo</li>
+                </ul>
+
+                <p>Pero hay algo que une todo…</p>
+
+                <h2>5️⃣ El Shell (La Plataforma)</h2>
+
+                <p>El Shell NO es solo un contenedor visual.</p>
+
+                <p><strong>Es la plataforma del frontend.</strong></p>
+
+                <p>Debe encargarse de:</p>
+
+                <ul>
+                    <li>Bootstrap de aplicaciones remotas</li>
+                    <li>Routing global</li>
+                    <li>Autenticación</li>
+                    <li>Estado global mínimo</li>
+                    <li>Design system</li>
+                    <li>Logging y monitorización</li>
+                    <li>Feature flags</li>
+                </ul>
+
+                <p><strong>⚠️ Si no defines claramente qué hace el Shell, el sistema se vuelve caos.</strong></p>
+
+                <h2>6️⃣ Arquitectura Completa</h2>
+
+                <p>Ahora el sistema queda así:</p>
+
+                <p><strong>Backend distribuido</strong></p>
+
+                <p>Microservicios.</p>
+
+                <p><strong>Frontend distribuido</strong></p>
+
+                <p>Microfrontends.</p>
+
+                <p><strong>Equipos</strong></p>
+
+                <p>Equipos end-to-end:</p>
+
+                <pre><code>Team Checkout → FE + BFF + microservicios + DB
+
+Team Account → FE + backend propio
+
+Team Search → FE + backend propio</code></pre>
+
+                <p>Esto permite:</p>
+
+                <ul>
+                    <li>Deploy independiente</li>
+                    <li>Ownership real</li>
+                    <li>Trabajo en paralelo</li>
+                </ul>
+
+                <h2>7️⃣ Formas de Implementarlo</h2>
+
+                <p>Microfrontend no es una tecnología.<br>
+                <strong>Es un patrón.</strong></p>
+
+                <p>Existen varios estilos:</p>
+
+                <h3>🔹 1. Runtime Composition</h3>
+
+                <p><strong>Ejemplos:</strong></p>
+
+                <ul>
+                    <li>Single-SPA</li>
+                    <li>Webpack Module Federation</li>
+                    <li>Import Maps</li>
+                </ul>
+
+                <p><strong>Ventajas:</strong></p>
+
+                <ul>
+                    <li>Deploy independiente real</li>
+                    <li>Integración dinámica</li>
+                </ul>
+
+                <p><strong>Desventajas:</strong></p>
+
+                <ul>
+                    <li>Mucha complejidad</li>
+                    <li>Problemas de dependencias compartidas</li>
+                </ul>
+
+                <h3>🔹 2. Build-Time Composition</h3>
+
+                <p><strong>Ejemplos:</strong></p>
+
+                <ul>
+                    <li>Monorepo</li>
+                    <li>Paquetes NPM internos</li>
+                    <li>Micro-apps ensambladas en build</li>
+                </ul>
+
+                <p><strong>Ventajas:</strong></p>
+
+                <ul>
+                    <li>Más simple</li>
+                    <li>Menos problemas de runtime</li>
+                </ul>
+
+                <p><strong>Desventajas:</strong></p>
+
+                <ul>
+                    <li>No hay independencia total de deploy</li>
+                </ul>
+
+                <h3>🔹 3. Server-Side Composition</h3>
+
+                <p><strong>Ejemplos:</strong></p>
+
+                <ul>
+                    <li>SSR distribuido</li>
+                    <li>Fragmentos ensamblados en servidor</li>
+                </ul>
+
+                <p><strong>Ventajas:</strong></p>
+
+                <ul>
+                    <li>SEO y rendimiento potencialmente mejores</li>
+                </ul>
+
+                <p><strong>Desventajas:</strong></p>
+
+                <ul>
+                    <li>Cache complejo</li>
+                    <li>Coordinación difícil</li>
+                </ul>
+
+                <h2>8️⃣ Los Problemas Reales (Y Cómo Se Resuelven)</h2>
+
+                <p>Aquí es donde un senior marca la diferencia.</p>
+
+                <h3>🧠 1. Estado Compartido</h3>
+
+                <p><strong>Problema:</strong></p>
+
+                <p>Auth, idioma, usuario</p>
+
+                <p><strong>Solución madura:</strong></p>
+
+                <p>NO compartir Redux gigante.</p>
+
+                <p>Sí crear un contrato mínimo:</p>
+
+                <pre><code>auth.getToken()
+i18n.getLocale()
+eventBus.emit()</code></pre>
+
+                <h3>🧭 2. Routing</h3>
+
+                <p><strong>Problema:</strong></p>
+
+                <p>¿Quién controla /checkout/address?</p>
+
+                <p><strong>Solución:</strong></p>
+
+                <p>Shell controla:</p>
+
+                <pre><code>/checkout/*</code></pre>
+
+                <p>Checkout MFE controla:</p>
+
+                <pre><code>subrutas internas</code></pre>
+
+                <p>Routing jerárquico.</p>
+
+                <h3>🎨 3. Consistencia Visual</h3>
+
+                <p>Gran problema.</p>
+
+                <p><strong>Soluciones:</strong></p>
+
+                <ul>
+                    <li>Design tokens compartidos</li>
+                    <li>Librería UI común</li>
+                    <li>CSS Modules / aislamiento</li>
+                    <li>Política clara de estilos globales</li>
+                </ul>
+
+                <p>Sin esto → cada microfrontend parece un sitio distinto.</p>
+
+                <h3>📦 4. Dependencias Compartidas</h3>
+
+                <p><strong>Ejemplo clásico:</strong></p>
+
+                <p>Dos versiones de React cargadas.</p>
+
+                <p><strong>Solución con Module Federation:</strong></p>
+
+                <ul>
+                    <li>React como singleton compartido</li>
+                    <li>Política de versiones estricta</li>
+                </ul>
+
+                <h3>💥 5. Fallos Distribuidos</h3>
+
+                <p><strong>¿Qué pasa si Search falla?</strong></p>
+
+                <p><strong>Soluciones:</strong></p>
+
+                <ul>
+                    <li>Error boundaries por microfrontend</li>
+                    <li>Fallback UI</li>
+                    <li>Timeout controlado</li>
+                    <li>Circuit breaker</li>
+                </ul>
+
+                <h3>🧪 6. Testing</h3>
+
+                <p><strong>Estrategia madura:</strong></p>
+
+                <ul>
+                    <li>Unit tests por MFE</li>
+                    <li>Contract tests Shell ↔ MFE</li>
+                    <li>Pocos E2E críticos</li>
+                </ul>
+
+                <h3>🚀 7. SSR + Microfrontends</h3>
+
+                <p>Muy complejo.</p>
+
+                <p>Necesitas:</p>
+
+                <ul>
+                    <li>Coordinación de data fetching</li>
+                    <li>Streaming</li>
+                    <li>Control de hidratación</li>
+                </ul>
+
+                <p>Solo recomendado si tienes equipo senior fuerte.</p>
+
+                <h2>9️⃣ Ventajas Reales</h2>
+
+                <p>No son técnicas principalmente.</p>
+
+                <p><strong>Son organizativas:</strong></p>
+
+                <ul>
+                    <li>Escalar equipos</li>
+                    <li>Autonomía</li>
+                    <li>Deploy independiente</li>
+                    <li>Paralelización del trabajo</li>
+                </ul>
+
+                <h2>🔟 Coste Real</h2>
+
+                <p>Complejidad:</p>
+
+                <ul>
+                    <li>Infraestructura</li>
+                    <li>Versionado</li>
+                    <li>Coordinación</li>
+                    <li>Performance</li>
+                    <li>Observabilidad</li>
+                </ul>
+
+                <p><strong>Microfrontends no simplifican el sistema.</strong></p>
+
+                <p><strong>Lo hacen más complejo.</strong></p>
+
+                <p>Pero permiten escalar organizaciones.</p>
+
+                <h2>1️⃣1️⃣ ¿Cuándo Tiene Sentido?</h2>
+
+                <h3>Sí:</h3>
+
+                <ul>
+                    <li>50+ desarrolladores frontend</li>
+                    <li>Dominios bien definidos</li>
+                    <li>Necesidad real de deploy independiente</li>
+                    <li>Organización madura</li>
+                </ul>
+
+                <h3>No:</h3>
+
+                <ul>
+                    <li>Startup pequeña</li>
+                    <li>Producto en constante cambio</li>
+                    <li>Sin design system</li>
+                    <li>Sin equipo plataforma</li>
+                </ul>
+
+                <h2>1️⃣2️⃣ Regla Senior</h2>
+
+                <p>Antes de hacer microfrontends, pregúntate:</p>
+
+                <ul>
+                    <li>¿Mi frontend está bien modularizado?</li>
+                    <li>¿Tengo arquitectura por dominio?</li>
+                    <li>¿Tengo design system sólido?</li>
+                    <li>¿Tengo CI/CD maduro?</li>
+                    <li>¿Tengo BFFs claros?</li>
+                </ul>
+
+                <p>Si no puedes responder sí a la mayoría…</p>
+
+                <p><strong>No necesitas microfrontends.<br>
+                Necesitas mejor arquitectura interna primero.</strong></p>
+
+                <h2>1️⃣3️⃣ Camino de Evolución</h2>
+
+                <pre><code>Monolito backend + frontend
+    ↓
+Microservicios
+    ↓
+SPA gigante
+    ↓
+Microfrontends + microservicios
+    ↓
+Sistema completamente distribuido</code></pre>
+
+                <p>Es una arquitectura poderosa.<br>
+                Pero es un monstruo.</p>
+
+                <p><strong>Solo úsala cuando el problema sea organizativo y de escala real.</strong></p>
+
+                <h2>1️⃣4️⃣ Cómo Explicarlo en una Entrevista</h2>
+
+                <p><strong>"Microfrontends aplican el principio de microservicios al frontend. Permiten que equipos trabajen de forma independiente en dominios específicos con deploy separado. La principal ventaja es organizativa, no técnica. Introducen mucha complejidad en estado compartido, routing, consistencia visual y dependencias, por lo que solo tiene sentido en organizaciones grandes con madurez técnica."</strong></p>
+
+                <h2>🎯 Puntos Clave</h2>
+
+                <ul>
+                    <li>✔ Microfrontends = Herramienta organizacional, no solo técnica</li>
+                    <li>✔ Dividir por dominio de negocio, no por layout de UI</li>
+                    <li>✔ El Shell es la plataforma, no solo un contenedor</li>
+                    <li>✔ Runtime composition es más flexible pero más compleja</li>
+                    <li>✔ Estado compartido debe ser mínimo y bien definido</li>
+                    <li>✔ Consistencia visual requiere design tokens y políticas</li>
+                    <li>✔ Testear por contrato, no solo E2E</li>
+                    <li>✔ SSR + microfrontends es avanzado y riesgoso</li>
+                    <li>✔ No uses a menos que tengas 50+ devs frontend</li>
+                    <li>✔ Un monolito bien diseñado supera un sistema microfrontend caótico</li>
+                </ul>
+
+                <h2>📚 Recursos</h2>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/699886b9-6990-838c-bfef-4a7295dcd8cb" target="_blank">Microfrontends - Dragos</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Volver Atrás</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Volver al Inicio →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>

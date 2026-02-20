@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Oriented Architecture | Software Architecture</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-service-oriented">
+                <h1>🪆 1.2 Service Oriented Architecture</h1>
+                <p><strong>From MVC to Modular Monolith with Service Layer (And How This Prepares You for Microservices)</strong></p>
+
+                <h2>1️⃣ The Real Problem: When Code Starts Growing</h2>
+
+                <p>Imagine you start a small backend:</p>
+
+                <pre><code>app.js
+controllers/
+models/
+routes/</code></pre>
+
+                <p>Everything works. You add features. More endpoints. More rules.</p>
+
+                <p>And suddenly:</p>
+
+                <ul>
+                    <li>Controllers with business logic</li>
+                    <li>Direct calls between modules</li>
+                    <li>Code duplication</li>
+                    <li>Auth mixed with domain logic</li>
+                    <li>Cache copied in 3 places</li>
+                </ul>
+
+                <p>Welcome to Spaghetti 2.0.</p>
+
+                <h2>2️⃣ First Step: Layers (MVC / Layered Architecture)</h2>
+
+                <p>The first natural improvement is separating by layers:</p>
+
+                <ul>
+                    <li>Presentation (Controllers)</li>
+                    <li>Application / Domain (Services / Use Cases)</li>
+                    <li>Persistence (Repositories / Models)</li>
+                    <li>Database</li>
+                </ul>
+
+                <p>Per module:</p>
+
+                <pre><code>modules/
+  movies/
+    MovieController.ts
+    MovieService.ts
+    MovieRepository.ts
+    Movie.ts</code></pre>
+
+                <h3>🎯 What do we achieve?</h3>
+
+                <ul>
+                    <li>Separation of concerns</li>
+                    <li>More testable code</li>
+                    <li>Less coupling</li>
+                </ul>
+
+                <p>But it's still not enough.</p>
+
+                <h2>3️⃣ The Next Problem: Cross-Cutting Concerns</h2>
+
+                <p>Things start appearing that don't fit MVC:</p>
+
+                <ul>
+                    <li>Authentication</li>
+                    <li>Logging</li>
+                    <li>Configuration</li>
+                    <li>Cache</li>
+                    <li>Email</li>
+                    <li>Encryption</li>
+                    <li>External integrations (Stripe, Auth0, etc.)</li>
+                </ul>
+
+                <p>This isn't view, isn't model, isn't controller.</p>
+
+                <p>Here the next natural step is born:</p>
+
+                <h2>4️⃣ Introducing the Service Layer (Internal Services)</h2>
+
+                <h3>💡 Key Idea</h3>
+
+                <p>A service:</p>
+
+                <ul>
+                    <li>Encapsulates logic</li>
+                    <li>Exposes a minimal API</li>
+                    <li>Hides implementation</li>
+                    <li>Can be used by multiple modules</li>
+                </ul>
+
+                <p>Think of it like electricity or internet in a house.</p>
+
+                <p>You only see the outlet.<br>
+                You don't see the power plant.</p>
+
+                <h2>5️⃣ Types of Services (VERY Important to Separate)</h2>
+
+                <p>This is where your architecture improves significantly.</p>
+
+                <h3>🟢 1) Domain Services (Business Services)</h3>
+
+                <p>Contain domain rules.</p>
+
+                <p><strong>Examples:</strong></p>
+
+                <ul>
+                    <li>PaymentService</li>
+                    <li>MovieService</li>
+                    <li>OrderService</li>
+                </ul>
+
+                <p><strong>Example:</strong></p>
+
+                <pre><code>export class MovieService {
+  constructor(private movieRepo: MovieRepository) {}
+
+  async assignActor(movieId: string, actorId: string) {
+    const movie = await this.movieRepo.getById(movieId);
+    if (!movie) throw new Error("Movie not found");
+
+    movie.assignActor(actorId);
+    await this.movieRepo.save(movie);
+  }
+}</code></pre>
+
+                <h3>🔵 2) Infrastructure / Shared Services</h3>
+
+                <p>Cross-cutting services:</p>
+
+                <ul>
+                    <li>Cache</li>
+                    <li>Logger</li>
+                    <li>Config</li>
+                    <li>Email</li>
+                    <li>Auth Client</li>
+                </ul>
+
+                <p><strong>Example:</strong></p>
+
+                <pre><code>export interface Cache {
+  get<T>(key: string): Promise<T | null>;
+  set<T>(key: string, value: T, ttl?: number): Promise<void>;
+}
+
+export class MemoryCache implements Cache {
+  private store = new Map<string, unknown>();
+
+  async get<T>(key: string): Promise<T | null> {
+    return this.store.get(key) as T ?? null;
+  }
+
+  async set<T>(key: string, value: T): Promise<void> {
+    this.store.set(key, value);
+  }
+}</code></pre>
+
+                <p><strong>🎯 Advantage:</strong><br>
+                If tomorrow you change MemoryCache to Redis, the domain doesn't notice.</p>
+
+                <h2>6️⃣ Modular Monolith: The Correct Structure</h2>
+
+                <p>Now we combine everything:</p>
+
+                <pre><code>src/
+  modules/
+    movies/
+      MovieController.ts
+      MovieService.ts
+      MovieRepository.ts
+      domain/
+        Movie.ts
+    actors/
+      ActorController.ts
+      ActorService.ts
+  shared/
+    services/
+      cache/
+      logger/
+      config/
+      auth/
+    db/</code></pre>
+
+                <h3>🧠 Key Concept</h3>
+
+                <p>Each module owns its domain.</p>
+
+                <p>Modules don't access internals of other modules.</p>
+
+                <p>They communicate through services.</p>
+
+                <h2>7️⃣ Golden Rules to Prevent Spaghetti Return</h2>
+
+                <p>Here comes the senior part.</p>
+
+                <h3>📜 Rule 1: Controllers Don't Contain Business Logic</h3>
+
+                <p><strong>❌ Bad:</strong></p>
+
+                <pre><code>router.post("/order", async (req, res) => {
+  // payment logic here 😱
+});</code></pre>
+
+                <p><strong>✅ Good:</strong></p>
+
+                <pre><code>router.post("/order", async (req, res) => {
+  await orderService.createOrder(req.body);
+});</code></pre>
+
+                <h3>📜 Rule 2: Services Don't Know HTTP</h3>
+
+                <p>A Service should NOT use:</p>
+
+                <ul>
+                    <li>req</li>
+                    <li>res</li>
+                    <li>status codes</li>
+                </ul>
+
+                <p>That's the presentation layer's responsibility.</p>
+
+                <h3>📜 Rule 3: Dependencies Flow Downward</h3>
+
+                <pre><code>Controller → Service → Repository
+
+Never backwards.</code></pre>
+
+                <h3>📜 Rule 4: Shared Services Don't Depend on Domain</h3>
+
+                <p>Cache, Logger, Config should NOT import MovieService.</p>
+
+                <p>If that happens, you're breaking architecture.</p>
+
+                <h3>📜 Rule 5: Avoid Cycles</h3>
+
+                <p>If:</p>
+
+                <pre><code>MovieService → ActorService
+ActorService → MovieService</code></pre>
+
+                <p>We have a problem.</p>
+
+                <p><strong>Solutions:</strong></p>
+
+                <ul>
+                    <li>Extract common logic</li>
+                    <li>Create a contract</li>
+                    <li>Use events</li>
+                </ul>
+
+                <h2>8️⃣ Applying SOLID and DRY Correctly</h2>
+
+                <h3>🔹 DRY</h3>
+
+                <p>If you repeat validation or payment logic, extract it to a service.</p>
+
+                <h3>🔹 Interface Segregation</h3>
+
+                <p>Don't expose unnecessary methods.</p>
+
+                <p><strong>❌ Bad:</strong></p>
+
+                <pre><code>class DatabaseService {
+  connect()
+  disconnect()
+  rawQuery()
+  dropAllTables()
+}</code></pre>
+
+                <p><strong>✅ Good:</strong></p>
+
+                <p>Expose only what's needed.</p>
+
+                <h3>🔹 Dependency Inversion</h3>
+
+                <p>Depend on interfaces, not implementations.</p>
+
+                <pre><code>constructor(private cache: Cache)</code></pre>
+
+                <p>Not:</p>
+
+                <pre><code>constructor(private cache: MemoryCache)</code></pre>
+
+                <h2>9️⃣ Where Do Use Cases Fit In?</h2>
+
+                <p>Even more professional level:</p>
+
+                <pre><code>Controller → UseCase → Services → Repositories</code></pre>
+
+                <p><strong>Example:</strong></p>
+
+                <pre><code>export class CreatePayment {
+  constructor(private paymentService: PaymentService) {}
+
+  async execute(input: PaymentDTO) {
+    return this.paymentService.create(input);
+  }
+}</code></pre>
+
+                <p><strong>Advantages:</strong></p>
+
+                <ul>
+                    <li>Ultra testable</li>
+                    <li>Perfect separation</li>
+                    <li>Scales better</li>
+                </ul>
+
+                <h2>🔟 Testing: Where Architecture Shows</h2>
+
+                <p>With this structure you can:</p>
+
+                <ul>
+                    <li>Mock repositories</li>
+                    <li>Mock cache</li>
+                    <li>Test services without database</li>
+                    <li>Test controllers with integration</li>
+                </ul>
+
+                <p><strong>Example:</strong></p>
+
+                <pre><code>it("assigns actor to movie", async () => {
+  const mockRepo = { getById: jest.fn(), save: jest.fn() };
+  const service = new MovieService(mockRepo as any);
+
+  await service.assignActor("1", "2");
+
+  expect(mockRepo.save).toHaveBeenCalled();
+});</code></pre>
+
+                <h2>1️⃣1️⃣ When to Move to Microservices?</h2>
+
+                <p>A senior question.</p>
+
+                <p><strong>NOT when:</strong></p>
+
+                <ul>
+                    <li>Code grows</li>
+                    <li>You feel like it</li>
+                    <li>You saw it on YouTube</li>
+                </ul>
+
+                <p><strong>YES when:</strong></p>
+
+                <ul>
+                    <li>Teams are separated by domain</li>
+                    <li>You need independent deployment</li>
+                    <li>You need independent scaling</li>
+                    <li>Boundaries are very clear</li>
+                </ul>
+
+                <p>Microservices is basically:</p>
+
+                <p>👉 Pull those Domain Services out of the monolith<br>
+                👉 Deploy them separately<br>
+                👉 Add network, resilience, observability</p>
+
+                <p>But if your monolith is poorly designed, your microservices will be a distributed disaster.</p>
+
+                <h2>1️⃣2️⃣ Mental Summary for Interviews</h2>
+
+                <p><strong>"I start with MVC to organize. As the system grows, I extract cross-cutting and business logic to a Service Layer, applying DRY and SOLID. I keep modules independent, dependencies flowing downward, and contracts clear. This lets me scale the monolith cleanly and prepares me for a future migration to microservices if context requires it."</strong></p>
+
+                <h2>1️⃣3️⃣ Architecture vs Implementation</h2>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>Aspect</th>
+                        <th>MVC</th>
+                        <th>Service Layer</th>
+                        <th>Microservices</th>
+                    </tr>
+                    <tr>
+                        <td>Code organization</td>
+                        <td>By function (C/M/V)</td>
+                        <td>By domain + services</td>
+                        <td>By bounded context</td>
+                    </tr>
+                    <tr>
+                        <td>Deployment</td>
+                        <td>Single monolith</td>
+                        <td>Single monolith</td>
+                        <td>Independent services</td>
+                    </tr>
+                    <tr>
+                        <td>Dependency direction</td>
+                        <td>Model is core</td>
+                        <td>Domain + Shared services</td>
+                        <td>Services + messaging</td>
+                    </tr>
+                    <tr>
+                        <td>Testing</td>
+                        <td>More integration</td>
+                        <td>Unit + integration</td>
+                        <td>Contract testing</td>
+                    </tr>
+                </table>
+
+                <h2>1️⃣4️⃣ Common Mistakes</h2>
+
+                <ul>
+                    <li>❌ Creating too many services too early</li>
+                    <li>❌ Services that do everything (God Services)</li>
+                    <li>❌ Circular dependencies between services</li>
+                    <li>❌ Controllers that still contain business logic</li>
+                    <li>❌ Shared services depending on domain services</li>
+                    <li>❌ Not having clear contracts/interfaces</li>
+                    <li>❌ Mixing synchronous and asynchronous calls without strategy</li>
+                </ul>
+
+                <h2>1️⃣5️⃣ The Evolution Path</h2>
+
+                <pre><code>Simple CRUD
+   ↓
+MVC with layers
+   ↓
+Service Layer (current)
+   ↓
+Domain-Driven Design
+   ↓
+Event-Driven Architecture
+   ↓
+Microservices (if needed)</code></pre>
+
+                <p>You don't skip steps. You build on foundations.</p>
+
+                <h2>🎯 Key Takeaways</h2>
+
+                <ul>
+                    <li>✔ Service Layer solves the "where do I put this logic" problem</li>
+                    <li>✔ Separate Domain Services from Infrastructure Services</li>
+                    <li>✔ Controllers stay thin, Services are where logic lives</li>
+                    <li>✔ Dependencies always flow downward</li>
+                    <li>✔ Shared services are utilities, not business logic</li>
+                    <li>✔ Each module owns its domain and contracts</li>
+                    <li>✔ Use interfaces for Dependency Inversion</li>
+                    <li>✔ This structure makes testing natural</li>
+                    <li>✔ Good monolith architecture = better microservices later</li>
+                    <li>✔ Don't prematurely jump to microservices</li>
+                </ul>
+
+                <h2>📚 Resources</h2>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/69988338-cd84-8390-bce9-c80059e8f901" target="_blank">Service Oriented Architecture - Dragos</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Back</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Home →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>

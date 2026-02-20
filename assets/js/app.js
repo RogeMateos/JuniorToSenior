@@ -230,9 +230,10 @@ if (typeof module !== "undefined" && module.exports) {
  * Inyecta sidebar y navegación en páginas de secciones
  */
 function injectSidebarAndNav() {
-  // Solo inyectar si no existe ya el sidebar
-  if (document.getElementById("sidebar")) {
-    return;
+  // Solo inyectar si no existe ya contenido en el sidebar
+  const sidebarElement = document.getElementById("sidebar");
+  if (sidebarElement && sidebarElement.children.length > 0) {
+    return; // Ya tiene contenido inyectado
   }
 
   const currentUrl = window.location.pathname;
@@ -241,8 +242,9 @@ function injectSidebarAndNav() {
   const isSoftwareCycle = currentUrl.includes("/softwarecycle/");
   const isSoftwareArchitecture = currentUrl.includes("/softwarearchitecture/");
   const isFullStack = currentUrl.includes("/fullstack/");
+  const isFrontendMastery = currentUrl.includes("/frontend-mastery/");
 
-  if (!isSection && !isSoftwareCycle && !isSoftwareArchitecture) {
+  if (!isSection && !isSoftwareCycle && !isSoftwareArchitecture && !isFullStack && !isFrontendMastery) {
     return; // No estamos en una sección
   }
 
@@ -396,6 +398,12 @@ function injectSidebarAndNav() {
                     <ul class="nav-accordion-content" id="section8-content">
                         <li><a href="${isSpanish ? '../../../../softwarearchitecture/es/architect-mindset.html' : '../../../../softwarearchitecture/en/architect-mindset.html'}" class="nav-link">${isSpanish ? '📍 Empieza Aquí: The Architect Mindset' : '📍 Start Here: The Architect Mindset'}</a></li>
                         <li><a href="${isSpanish ? '../../../../softwarearchitecture/es/layered-architecture.html' : '../../../../softwarearchitecture/en/layered-architecture.html'}" class="nav-link">${isSpanish ? '🥞 1.1 La Arquitectura en Capas - MVC' : '🥞 1.1 The Layered Architecture - MVC'}</a></li>
+                        <li><a href="${isSpanish ? '../../../../softwarearchitecture/es/service-oriented.html' : '../../../../softwarearchitecture/en/service-oriented.html'}" class="nav-link">${isSpanish ? '🪆 1.2 Service Oriented Architecture' : '🪆 1.2 Service Oriented Architecture'}</a></li>
+                        <li><a href="${isSpanish ? '../../../../softwarearchitecture/es/microservices-distributed.html' : '../../../../softwarearchitecture/en/microservices-distributed.html'}" class="nav-link">${isSpanish ? '🎛️ 1.3 Microservices & Distributed Systems' : '🎛️ 1.3 Microservices & Distributed Systems'}</a></li>
+                        <li><a href="${isSpanish ? '../../../../softwarearchitecture/es/monolith-vs-microservices.html' : '../../../../softwarearchitecture/en/monolith-vs-microservices.html'}" class="nav-link">${isSpanish ? '🤔 1.4 Monolito vs Microservicios' : '🤔 1.4 Monolith vs Microservices'}</a></li>
+                        <li><a href="${isSpanish ? '../../../../softwarearchitecture/es/microfrontends.html' : '../../../../softwarearchitecture/en/microfrontends.html'}" class="nav-link">${isSpanish ? '🎨 1.5 Microfrontends' : '🎨 1.5 Microfrontends'}</a></li>
+                        <li><a href="${isSpanish ? '../../../../softwarearchitecture/es/event-driven.html' : '../../../../softwarearchitecture/en/event-driven.html'}" class="nav-link">${isSpanish ? '🔔 1.6 Event Driven Architectures' : '🔔 1.6 Event Driven Architecture'}</a></li>
+                        <li><a href="${isSpanish ? '../../../../softwarearchitecture/es/api-gateway.html' : '../../../../softwarearchitecture/en/api-gateway.html'}" class="nav-link">${isSpanish ? '⛩️ 1.7 The API Gateway Pattern' : '⛩️ 1.7 The API Gateway Pattern'}</a></li>
                     </ul>
                 </li>
             </ul>
@@ -403,8 +411,15 @@ function injectSidebarAndNav() {
     </aside>
     `;
 
-  // Inyectar sidebar al inicio del body
-  document.body.insertAdjacentHTML("afterbegin", sidebarHTML);
+  // Inyectar sidebar: usar el existente si hay, sino crear uno nuevo
+  const existingSidebar = document.getElementById("sidebar");
+  if (existingSidebar && existingSidebar.children.length === 0) {
+    // Si existe pero está vacío, llenar con el contenido
+    existingSidebar.innerHTML = sidebarHTML.replace(/<aside[^>]*>|<\/aside>/g, '').replace(/<\/aside>/, '');
+  } else if (!existingSidebar) {
+    // Si no existe, crear uno nuevo
+    document.body.insertAdjacentHTML("afterbegin", sidebarHTML);
+  }
 
   // Configurar evento para accordion headers
   setTimeout(() => {

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El API Gateway Pattern | Arquitectura de Software</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-api-gateway">
+                <h1>⛩️ 1.7 The API Gateway Pattern</h1>
+                <p><strong>Centralizando Seguridad y Puntos de Entrada en Microservicios</strong></p>
+
+                <h2>1️⃣ El Problema Real Que Estamos Resolviendo</h2>
+
+                <p>Cuando pasas de monolito a microservicios ocurre esto:</p>
+
+                <pre><code>Frontend → Payments
+Frontend → Accounts
+Frontend → Orders
+Frontend → Notifications
+Frontend → Inventory
+...</code></pre>
+
+                <p><strong>Problemas reales:</strong></p>
+
+                <ul>
+                    <li>🔓 Cada servicio expuesto a internet</li>
+                    <li>🔁 Repetición de seguridad en todos lados</li>
+                    <li>🔥 Demasiados puntos de fallo</li>
+                    <li>📦 Acoplamiento fuerte entre frontend y servicios</li>
+                    <li>🚨 Superficie de ataque enorme</li>
+                </ul>
+
+                <p>En sistemas grandes esto es insostenible.</p>
+
+                <h2>2️⃣ La Analogía Correcta: La Ciudad Amurallada</h2>
+
+                <p>Imagina:</p>
+
+                <ul>
+                    <li>🧱 VPC = murallas</li>
+                    <li>🏠 Microservicios = edificios dentro</li>
+                    <li>🚪 API Gateway = única puerta</li>
+                </ul>
+
+                <p><strong>Nadie entra directamente a un edificio.<br>
+                Todos pasan por la puerta.</strong></p>
+
+                <h2>3️⃣ ¿Qué Es Realmente un API Gateway?</h2>
+
+                <p>Un API Gateway es un reverse proxy especializado en tráfico API que actúa como single entry point.</p>
+
+                <p>No es:</p>
+
+                <ul>
+                    <li>Solo un router</li>
+                    <li>Solo un load balancer</li>
+                    <li>Solo seguridad</li>
+                </ul>
+
+                <p><strong>Es un controlador central de tráfico API.</strong></p>
+
+                <h2>4️⃣ Responsabilidades Reales de un API Gateway</h2>
+
+                <h3>🔐 1. TLS Termination</h3>
+
+                <ul>
+                    <li>Maneja HTTPS</li>
+                    <li>Hace el TLS handshake</li>
+                    <li>Descarga esa responsabilidad de los microservicios</li>
+                </ul>
+
+                <h3>🛡 2. Authentication</h3>
+
+                <ul>
+                    <li>JWT validation</li>
+                    <li>OAuth 2.0</li>
+                    <li>API Keys</li>
+                </ul>
+
+                <h3>🧩 3. Cross-Cutting Concerns</h3>
+
+                <ul>
+                    <li>CORS</li>
+                    <li>HTTP caching</li>
+                    <li>Header manipulation</li>
+                    <li>Rate limiting</li>
+                    <li>IP filtering</li>
+                    <li>Logging</li>
+                    <li>Metrics</li>
+                    <li>Request transformation</li>
+                </ul>
+
+                <h3>🔀 4. Routing</h3>
+
+                <pre><code>/payments → payments-service
+/accounts → accounts-service
+/orders   → orders-service</code></pre>
+
+                <p>El frontend solo conoce:</p>
+
+                <pre><code>api.mycompany.com</code></pre>
+
+                <h2>5️⃣ Arquitectura Antes y Después</h2>
+
+                <h3>❌ Sin API Gateway</h3>
+
+                <pre><code>Internet
+   ↓
+Payments
+Accounts
+Orders
+Inventory</code></pre>
+
+                <p>Demasiados puntos expuestos.</p>
+
+                <h3>✅ Con API Gateway</h3>
+
+                <pre><code>Internet
+   ↓
+API Gateway
+   ↓
+VPC Privada
+   ↓
+Microservicios</code></pre>
+
+                <p>Ahora:</p>
+
+                <ul>
+                    <li>Solo un endpoint público</li>
+                    <li>Servicios privados</li>
+                    <li>Menor superficie de ataque</li>
+                </ul>
+
+                <h2>6️⃣ Integración con VPC (Arquitectura Cloud Real)</h2>
+
+                <p>En AWS:</p>
+
+                <pre><code>Internet
+   ↓
+AWS API Gateway (público)
+   ↓
+VPC Privada
+   ↓
+Lambda / ECS / EC2</code></pre>
+
+                <p>Incluso puedes usar HTTP interno dentro de la VPC si está completamente aislada.</p>
+
+                <h2>7️⃣ Beneficios Clave (Modo Entrevista Senior)</h2>
+
+                <h3>✅ Centralización de Seguridad</h3>
+
+                <p>Una sola configuración.<br>
+                Un solo lugar para TLS y auth.</p>
+
+                <h3>✅ Reducción de Duplicación</h3>
+
+                <p>No repites CORS o validaciones en 15 servicios.</p>
+
+                <h3>✅ Abstracción</h3>
+
+                <p>Puedes cambiar:</p>
+
+                <ul>
+                    <li>Tecnología interna</li>
+                    <li>Versiones</li>
+                    <li>Infraestructura</li>
+                </ul>
+
+                <p>Sin romper el frontend.</p>
+
+                <h3>✅ Escalabilidad</h3>
+
+                <p>API Gateway escala automáticamente.<br>
+                AWS ofrece 1 millón de requests gratis.<br>
+                Maneja spikes de tráfico mejor que tus servicios.</p>
+
+                <h2>8️⃣ El Gran Riesgo: Single Point of Failure</h2>
+
+                <p>Si el gateway cae, todo lo que está detrás es inaccesible.</p>
+
+                <p>Es crítico.<br>
+                Es infraestructura sensible.<br>
+                No lo toques frecuentemente.</p>
+
+                <p><strong>Regla senior:</strong></p>
+
+                <p><strong>Never couple business logic to your gateway.</strong></p>
+
+                <h2>9️⃣ ERROR Común: Agregar Lógica de Negocio</h2>
+
+                <p>Muchos dicen:</p>
+
+                <p>"El gateway puede agregar respuestas de varios servicios."</p>
+
+                <p><strong>Sí. Pero no deberías.</strong></p>
+
+                <p><strong>¿Por qué?</strong></p>
+
+                <p>Porque:</p>
+
+                <ul>
+                    <li>Introduces lógica de negocio</li>
+                    <li>Aumentas acoplamiento</li>
+                    <li>Dificultas despliegues</li>
+                    <li>Incrementas riesgo en el punto más crítico</li>
+                </ul>
+
+                <h2>🔟 API Gateway vs BFF (Backend For Frontend)</h2>
+
+                <p>Esto es clave para entrevistas.</p>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>Componente</th>
+                        <th>Responsabilidad</th>
+                        <th>Lógica de Negocio</th>
+                    </tr>
+                    <tr>
+                        <td><strong>API Gateway</strong></td>
+                        <td>Seguridad, Routing, Rate limiting, CORS, TLS, Logging</td>
+                        <td>NO</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BFF</strong></td>
+                        <td>Agregar datos, Llamar múltiples servicios, Transformar respuestas</td>
+                        <td>SÍ</td>
+                    </tr>
+                </table>
+
+                <p><strong>Arquitectura avanzada:</strong></p>
+
+                <pre><code>Frontend
+   ↓
+API Gateway
+   ↓
+BFF (Backend For Frontend)
+   ↓
+Microservicios</code></pre>
+
+                <p>El BFF es donde va la agregación.<br>
+                No en el gateway.</p>
+
+                <h2>1️⃣1️⃣ API Gateway y Reverse Proxy</h2>
+
+                <p>Un API Gateway es un:</p>
+
+                <p><strong>Reverse Proxy Especializado</strong></p>
+
+                <p>Otros reverse proxies:</p>
+
+                <ul>
+                    <li>NGINX</li>
+                    <li>Apache</li>
+                    <li>Load Balancer</li>
+                </ul>
+
+                <p><strong>Opuesto:</strong></p>
+
+                <ul>
+                    <li>Forward Proxy (ejemplo: VPN) - actúa en nombre del cliente</li>
+                </ul>
+
+                <h2>1️⃣2️⃣ Implementaciones Reales</h2>
+
+                <h3>☁️ Cloud-Managed</h3>
+
+                <ul>
+                    <li>AWS API Gateway</li>
+                    <li>Azure API Management</li>
+                    <li>Google Cloud API Gateway</li>
+                </ul>
+
+                <p><strong>Ventajas:</strong></p>
+
+                <ul>
+                    <li>Escalabilidad automática</li>
+                    <li>Alta disponibilidad</li>
+                    <li>Menos mantenimiento</li>
+                </ul>
+
+                <h3>🔧 Self-Managed</h3>
+
+                <ul>
+                    <li>NGINX</li>
+                    <li>Kong</li>
+                    <li>Traefik</li>
+                    <li>Apache</li>
+                </ul>
+
+                <p><strong>Requiere:</strong></p>
+
+                <ul>
+                    <li>Configuración manual</li>
+                    <li>Mantenimiento</li>
+                    <li>Escalado manual</li>
+                </ul>
+
+                <h2>1️⃣3️⃣ Cuándo Usar un API Gateway</h2>
+
+                <h3>✅ Úsalo cuando:</h3>
+
+                <ul>
+                    <li>Tienes múltiples microservicios</li>
+                    <li>Necesitas centralizar seguridad</li>
+                    <li>Quieres aislar servicios en VPC</li>
+                    <li>Necesitas rate limiting</li>
+                    <li>Expones APIs públicas</li>
+                </ul>
+
+                <h3>⚠️ No es tan necesario si:</h3>
+
+                <ul>
+                    <li>Tienes monolito simple</li>
+                    <li>Proyecto pequeño sin crecimiento esperado</li>
+                </ul>
+
+                <h2>1️⃣4️⃣ Preguntas Típicas de Entrevista</h2>
+
+                <h3>❓ ¿Qué es un API Gateway?</h3>
+
+                <p><strong>Respuesta:</strong></p>
+
+                <p>"Un reverse proxy centralizado que actúa como single entry point a una arquitectura de microservicios, manejando cross-cutting concerns como autenticación, TLS termination, routing, caching y rate limiting."</p>
+
+                <h3>❓ ¿Cuáles son sus desventajas?</h3>
+
+                <p><strong>Respuesta:</strong></p>
+
+                <p>"Introduce un single point of failure y puede volverse un cuello de botella si está sobrecargado o se usa mal."</p>
+
+                <h3>❓ ¿Debería contener lógica de negocio?</h3>
+
+                <p><strong>Respuesta:</strong></p>
+
+                <p>"Idealmente no. La lógica de negocio debe residir en los servicios backend o en un BFF para evitar acoplamiento fuerte y riesgos de despliegue."</p>
+
+                <h2>1️⃣5️⃣ Mental Model Final</h2>
+
+                <p><strong>Sin gateway:</strong><br>
+                Microservicios expuestos, duplicación, caos.</p>
+
+                <p><strong>Con gateway:</strong><br>
+                Ciudad amurallada con una puerta controlada.</p>
+
+                <p><strong>Con gateway mal usado:</strong><br>
+                Guardia de la puerta tomando decisiones estratégicas del reino.</p>
+
+                <h2>🎯 Resumen Ultra Ejecutivo</h2>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>Concepto</th>
+                        <th>Respuesta</th>
+                    </tr>
+                    <tr>
+                        <td>¿Qué es?</td>
+                        <td>Single entry point</td>
+                    </tr>
+                    <tr>
+                        <td>Beneficio principal</td>
+                        <td>Seguridad centralizada</td>
+                    </tr>
+                    <tr>
+                        <td>Funciones</td>
+                        <td>TLS, Auth, Routing, CORS</td>
+                    </tr>
+                    <tr>
+                        <td>Riesgo</td>
+                        <td>Single point of failure</td>
+                    </tr>
+                    <tr>
+                        <td>No hacer</td>
+                        <td>Agregar lógica de negocio</td>
+                    </tr>
+                    <tr>
+                        <td>Lugar correcto para agregación</td>
+                        <td>Capa BFF</td>
+                    </tr>
+                </table>
+
+                <h2>🎯 Puntos Clave</h2>
+
+                <ul>
+                    <li>✔ API Gateway = Single entry point a microservicios</li>
+                    <li>✔ Centraliza seguridad, CORS, TLS, autenticación, rate limiting</li>
+                    <li>✔ Aísla servicios internos en VPC privada</li>
+                    <li>✔ Single point of failure - mantenlo simple y estable</li>
+                    <li>✔ Nunca agregues lógica de negocio en el gateway</li>
+                    <li>✔ Usa capa BFF para agregación y transformación de datos</li>
+                    <li>✔ Cloud-managed (AWS, Azure, GCP) es usualmente mejor que self-hosted</li>
+                    <li>✔ Esencial para APIs públicas y arquitecturas multi-servicio</li>
+                    <li>✔ API Gateway + BFF + Microservicios = arquitectura completa</li>
+                    <li>✔ Reduce superficie de ataque dramáticamente</li>
+                </ul>
+
+                <h2>📚 Recursos</h2>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/699889c6-b640-838d-8a7c-b54e13b929d4" target="_blank">The API Gateway Pattern - Dragos</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Volver Atrás</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Volver al Inicio →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>

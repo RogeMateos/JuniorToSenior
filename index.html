@@ -3,21 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frontend Mastery - Choose Language</title>
+    <title>Junior to Senior Developer - Complete Learning Path</title>
     <link rel="stylesheet" href="assets/css/styles.css">
-    <script src="assets/js/app.js" defer></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .main-hub {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .hub-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 60px;
+        }
+
+        .hub-title {
+            font-size: 3.5em;
+            font-weight: 800;
+            margin: 0 0 20px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hub-subtitle {
+            font-size: 1.4em;
+            margin: 0;
+            opacity: 0.95;
+        }
+
+        .hub-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .hub-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hub-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .hub-card-header {
+            padding: 30px;
+            text-align: center;
+            font-size: 4em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .hub-card-header.frontend {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .hub-card-header.fullstack {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .hub-card-header.software {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .hub-card-body {
+            padding: 30px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hub-card-title {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+
+        .hub-card-description {
+            font-size: 1em;
+            color: #666;
+            margin: 0 0 20px 0;
+            flex-grow: 1;
+            line-height: 1.6;
+        }
+
+        .hub-card-link {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+            align-self: flex-start;
+        }
+
+        .hub-card:hover .hub-card-link {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateX(4px);
+        }
+
+        .hub-footer {
+            text-align: center;
+            color: white;
+            opacity: 0.8;
+            font-size: 0.95em;
+        }
+    </style>
 </head>
-<body class="landing-page">
-    <div class="landing-container">
-        <h1 class="landing-title">Frontend Mastery</h1>
-        <p class="landing-subtitle">Select your preferred language / Selecciona tu idioma preferido</p>
-        <div class="landing-button-group">
-            <button class="landing-btn landing-btn-es" onclick="setLanguage('es')">
-                🇪🇸 Español
-            </button>
-            <button class="landing-btn landing-btn-en" onclick="setLanguage('en')">
-                🇺🇸 English
-            </button>
+<body>
+    <div class="main-hub">
+        <div class="hub-header">
+            <h1 class="hub-title">🚀 Junior to Senior Developer</h1>
+            <p class="hub-subtitle">Complete Learning Path for Web Development Mastery</p>
+        </div>
+
+        <div class="hub-grid">
+            <!-- Frontend Mastery -->
+            <a href="frontend-mastery/en/index.html" class="hub-card">
+                <div class="hub-card-header frontend">🎨</div>
+                <div class="hub-card-body">
+                    <h2 class="hub-card-title">Frontend Mastery</h2>
+                    <p class="hub-card-description">Master HTML, CSS, JavaScript & Modern Frameworks. Build beautiful and interactive user interfaces.</p>
+                    <span class="hub-card-link">Explore →</span>
+                </div>
+            </a>
+
+            <!-- Full Stack -->
+            <a href="fullstack/en/index.html" class="hub-card">
+                <div class="hub-card-header fullstack">💻</div>
+                <div class="hub-card-body">
+                    <h2 class="hub-card-title">Full Stack Development</h2>
+                    <p class="hub-card-description">Learn backend development, databases, APIs, and connect frontend to production systems.</p>
+                    <span class="hub-card-link">Explore →</span>
+                </div>
+            </a>
+
+            <!-- Software Architecture & Lifecycle -->
+            <a href="softwarearchitecture/en/index.html" class="hub-card">
+                <div class="hub-card-header software">🏗️</div>
+                <div class="hub-card-body">
+                    <h2 class="hub-card-title">Software Architecture</h2>
+                    <p class="hub-card-description">Advanced patterns, microservices, distributed systems, and infrastructure design for production.</p>
+                    <span class="hub-card-link">Explore →</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="hub-footer">
+            <p>Learn the complete journey from junior developer to senior architect • Aprende el viaje completo de junior a senior</p>
         </div>
     </div>
 </body>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Mastery - Español</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+    <style>
+        .lang-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .lang-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .lang-btn:hover {
+            background: #f0f0f0;
+            border-color: #999;
+        }
+
+        .lang-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+    </style>
+</head>
+<body class="frontend-page">
+    <div class="lang-switcher">
+        <a href="../en/index.html" class="lang-btn">🇬🇧 English</a>
+        <a href="#" class="lang-btn active">🇪🇸 Español</a>
+    </div>
+
+    <div class="container">
+        <aside id="sidebar" class="sidebar"></aside>
+
+        <main class="main-content frontend-section">
+            <h1>🎨 Camino Frontend Mastery</h1>
+            <p><strong>Domina HTML, CSS, JavaScript y Frameworks Frontend Modernos</strong></p>
+
+            <p>Bienvenido a la sección Frontend Mastery. Esta guía completa te lleva desde los fundamentos de HTML, pasando por CSS y JavaScript, hasta frameworks modernos como React.</p>
+
+            <h2>📚 Ruta de Aprendizaje</h2>
+
+            <div class="section-grid">
+                <div class="grid-item">
+                    <h3>🏗️ HTML & CSS</h3>
+                    <p>Aprende HTML semántico, layout CSS, responsive design y técnicas CSS modernas</p>
+                </div>
+                <div class="grid-item">
+                    <h3>⚡ JavaScript</h3>
+                    <p>Domina fundamentos de JavaScript, manipulación del DOM, programación asíncrona y patrones de diseño</p>
+                </div>
+                <div class="grid-item">
+                    <h3>🚀 Frameworks Modernos</h3>
+                    <p>Construye con React, Vue u otros frameworks modernos siguiendo mejores prácticas</p>
+                </div>
+            </div>
+
+            <h2>🎯 Comienza a Aprender</h2>
+            <p><a href="sections/01-html-fundamentals.html" class="btn btn-primary">Comienza con Fundamentos de HTML →</a></p>
+
+            <h2>🔄 Volver al Inicio</h2>
+            <p><a href="../../index.html" class="btn btn-secondary">← Inicio</a></p>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>

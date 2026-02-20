@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Driven Architecture | Arquitectura de Software</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-event-driven">
+                <h1>🔔 1.6 Event Driven Architecture</h1>
+                <p><strong>De Cascadas Síncronas a Sistemas Reactivos y Desacoplados</strong></p>
+
+                <h2>1️⃣ El Problema: Cascadas de Requests</h2>
+
+                <p>Imagina que tienes 30–40 microservicios.</p>
+
+                <p>Un usuario hace login y:</p>
+
+                <pre><code>Service A → llama a B → llama a C → llama a D → llama a E → llama a F</code></pre>
+
+                <p><strong>Problemas reales:</strong></p>
+
+                <h3>❌ 1. Latencia Acumulada</h3>
+
+                <p>Cada llamada HTTP suma tiempo.<br>
+                5 servicios × 80ms = 400ms solo en red.</p>
+
+                <h3>❌ 2. Cascading Failures</h3>
+
+                <p>Si F falla → E falla → D falla → A falla.</p>
+
+                <p>Un pequeño error tumba toda la experiencia.</p>
+
+                <h3>❌ 3. Alto Acoplamiento</h3>
+
+                <p>A depende directamente de B.<br>
+                B depende de C.<br>
+                Cambiar C puede romper todo.</p>
+
+                <h3>❌ 4. Difícil de Depurar</h3>
+
+                <p>¿Dónde falló?<br>
+                ¿Quién empezó la cadena?<br>
+                ¿Quién depende de quién?</p>
+
+                <h2>2️⃣ El Cambio de Paradigma</h2>
+
+                <p>En lugar de:</p>
+
+                <p><strong>"Necesito llamar a todos los servicios para completar la acción"</strong></p>
+
+                <p>Pensamos:</p>
+
+                <p><strong>"Algo pasó. Voy a publicar un evento."</strong></p>
+
+                <h2>3️⃣ ¿Qué es un Evento?</h2>
+
+                <p>Un evento es un hecho que ya ocurrió.</p>
+
+                <p><strong>Ejemplos:</strong></p>
+
+                <ul>
+                    <li>UserCreated</li>
+                    <li>OrderPlaced</li>
+                    <li>PaymentCaptured</li>
+                    <li>EmailSent</li>
+                </ul>
+
+                <p>Un evento dice:</p>
+
+                <p><strong>"Esto ya pasó"</strong></p>
+
+                <p>No dice:</p>
+
+                <p><strong>"Haz esto"</strong> (eso sería un comando)</p>
+
+                <h3>🔎 Evento vs Comando</h3>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Significado</th>
+                        <th>Ejemplo</th>
+                    </tr>
+                    <tr>
+                        <td>Evento</td>
+                        <td>Hecho ocurrido</td>
+                        <td>UserCreated</td>
+                    </tr>
+                    <tr>
+                        <td>Comando</td>
+                        <td>Petición de acción</td>
+                        <td>CreateUser</td>
+                    </tr>
+                </table>
+
+                <p><strong>⚠️ Confundirlos genera caos arquitectónico.</strong></p>
+
+                <h2>4️⃣ Pub/Sub: El Modelo Básico</h2>
+
+                <p>En vez de A → B → C:</p>
+
+                <p>Tenemos:</p>
+
+                <pre><code>Service A
+   ↓
+Event Bus
+   ↓
+Service B
+Service C
+Service D
+Service E</code></pre>
+
+                <p>Service A publica:</p>
+
+                <pre><code>{
+  "type": "UserCreated",
+  "data": {
+    "userId": "123",
+    "email": "test@mail.com"
+  }
+}</code></pre>
+
+                <p>Y los servicios interesados reaccionan.</p>
+
+                <h2>5️⃣ Ejemplo Práctico: Registro de Usuario</h2>
+
+                <h3>Paso 1</h3>
+
+                <p>User Service crea el usuario.</p>
+
+                <h3>Paso 2</h3>
+
+                <p>Publica evento:</p>
+
+                <pre><code>{
+  "eventId": "abc-123",
+  "type": "UserCreated",
+  "occurredAt": "2026-02-20T14:00:00Z",
+  "data": {
+    "userId": "u1",
+    "email": "user@mail.com"
+  }
+}</code></pre>
+
+                <h3>Paso 3</h3>
+
+                <p>Email Service escucha → envía email.</p>
+
+                <h3>Paso 4</h3>
+
+                <p>Analytics Service escucha → guarda métrica.</p>
+
+                <h3>Paso 5</h3>
+
+                <p>Fraud Service escucha → analiza comportamiento.</p>
+
+                <p><strong>User Service no sabe quién reacciona.</strong></p>
+
+                <p><strong>Eso es desacoplamiento real.</strong></p>
+
+                <h2>6️⃣ Ventajas Reales</h2>
+
+                <h3>✅ 1. Desacoplamiento</h3>
+
+                <p>Los servicios no se conocen entre sí.</p>
+
+                <h3>✅ 2. Plug & Play</h3>
+
+                <p>Añades un nuevo servicio que escuche eventos.<br>
+                No rompes nada.</p>
+
+                <h3>✅ 3. Menos Latencia Crítica</h3>
+
+                <p>El usuario no espera a:</p>
+
+                <ul>
+                    <li>enviar email</li>
+                    <li>generar invoice</li>
+                    <li>actualizar analytics</li>
+                </ul>
+
+                <h3>✅ 4. Mejor Alineación con el Negocio</h3>
+
+                <p>Los negocios funcionan por eventos:</p>
+
+                <ul>
+                    <li>Usuario compra</li>
+                    <li>Pago aprobado</li>
+                    <li>Pedido enviado</li>
+                </ul>
+
+                <p>EDA refleja eso naturalmente.</p>
+
+                <h2>7️⃣ El Precio que Pagas (Muy Importante)</h2>
+
+                <p>Aquí empieza la parte senior.</p>
+
+                <p><strong>EDA no es magia.</strong></p>
+
+                <h3>⚠️ 1. Consistencia Eventual</h3>
+
+                <p>No todo ocurre inmediatamente.</p>
+
+                <p>Usuario compra →<br>
+                Inventory se actualiza unos ms después →<br>
+                Billing unos ms después →<br>
+                Analytics después.</p>
+
+                <p>Aceptas:</p>
+
+                <p><strong>"No todo estará sincronizado en el mismo instante."</strong></p>
+
+                <h3>⚠️ 2. Duplicados (At-Least-Once Delivery)</h3>
+
+                <p>Muchos sistemas de mensajería garantizan:</p>
+
+                <p><strong>El mensaje llega al menos una vez.</strong></p>
+
+                <p>Eso significa: Puede llegar dos veces.</p>
+
+                <p>Tu consumidor debe ser idempotente.</p>
+
+                <p><strong>Ejemplo:</strong></p>
+
+                <p>❌ Email Service envía 2 emails.</p>
+
+                <p><strong>Solución:</strong><br>
+                Guardar eventIds procesados.</p>
+
+                <h3>⚠️ 3. Orden</h3>
+
+                <p>¿Importa el orden de eventos?</p>
+
+                <p>En Kafka depende de particiones.<br>
+                En colas normales no hay orden global garantizado.</p>
+
+                <p>Si tu dominio depende del orden, debes diseñarlo explícitamente.</p>
+
+                <h3>⚠️ 4. Retries y Dead Letter Queue</h3>
+
+                <p>Si un evento falla:</p>
+
+                <ul>
+                    <li>Retry automático</li>
+                    <li>Si sigue fallando → DLQ</li>
+                </ul>
+
+                <p>Sin esto, pierdes mensajes.</p>
+
+                <h2>8️⃣ Orchestration vs Choreography</h2>
+
+                <h3>🎼 Choreography</h3>
+
+                <p>Servicios reaccionan libremente a eventos.</p>
+
+                <p><strong>Ventajas:</strong></p>
+
+                <ul>
+                    <li>Muy desacoplado</li>
+                    <li>Escalable</li>
+                </ul>
+
+                <p><strong>Problemas:</strong></p>
+
+                <ul>
+                    <li>Difícil entender el flujo global</li>
+                    <li>Debugging complejo</li>
+                </ul>
+
+                <h3>🎬 Orchestration</h3>
+
+                <p>Un servicio central coordina el proceso.</p>
+
+                <p><strong>Ejemplo:</strong></p>
+
+                <pre><code>Order Service:
+  envía comando a Payment
+  espera evento PaymentConfirmed
+  envía comando a Shipping</code></pre>
+
+                <p><strong>Ventajas:</strong></p>
+
+                <ul>
+                    <li>Flujo claro</li>
+                    <li>Más control</li>
+                </ul>
+
+                <p><strong>Desventajas:</strong></p>
+
+                <ul>
+                    <li>Puede volverse un mega-servicio si se hace mal</li>
+                </ul>
+
+                <h2>9️⃣ Tecnología: ¿Qué Usar?</h2>
+
+                <h3>🟢 SQS (Queue)</h3>
+
+                <p>Trabajo puntual</p>
+
+                <p>1 consumidor procesa</p>
+
+                <p>Ideal para:</p>
+
+                <ul>
+                    <li>Jobs</li>
+                    <li>Procesamiento asíncrono simple</li>
+                </ul>
+
+                <h3>🔵 Kafka (Streaming)</h3>
+
+                <p>Topics, particiones, consumer groups, replay de eventos</p>
+
+                <p>Ideal para:</p>
+
+                <ul>
+                    <li>Sistemas grandes</li>
+                    <li>Auditoría</li>
+                    <li>Analytics</li>
+                    <li>Alta escala</li>
+                </ul>
+
+                <h3>🟠 Redis</h3>
+
+                <p>Pub/Sub básico o Streams (más robusto)</p>
+
+                <p>Bueno para:</p>
+
+                <ul>
+                    <li>Casos simples</li>
+                    <li>Infra ligera</li>
+                </ul>
+
+                <h2>🔟 Patrón Crítico: Outbox Pattern</h2>
+
+                <p><strong>Problema:</strong></p>
+
+                <p>Guardas en DB → publicas evento<br>
+                Si el servicio cae entre → inconsistencia.</p>
+
+                <p><strong>Solución:</strong></p>
+
+                <ul>
+                    <li>Guardas en DB</li>
+                    <li>Guardas evento en tabla outbox</li>
+                    <li>Un proceso publica desde outbox</li>
+                </ul>
+
+                <p>Así nunca pierdes eventos.</p>
+
+                <h2>1️⃣1️⃣ Observabilidad (Sin Esto Estás Muerto)</h2>
+
+                <p>Siempre incluye:</p>
+
+                <ul>
+                    <li>correlationId</li>
+                    <li>eventId</li>
+                    <li>Logs estructurados</li>
+                    <li>Tracing distribuido</li>
+                </ul>
+
+                <p><strong>Sin esto, EDA es imposible de debugear.</strong></p>
+
+                <h2>1️⃣2️⃣ ¿Cuándo NO Usar EDA?</h2>
+
+                <p>No todo debe ser evento.</p>
+
+                <p>Usa comunicación síncrona cuando:</p>
+
+                <ul>
+                    <li>El usuario necesita respuesta inmediata</li>
+                    <li>Necesitas validación fuerte en tiempo real</li>
+                    <li>Es una simple query</li>
+                </ul>
+
+                <p><strong>REST/GraphQL sigue existiendo.</strong></p>
+
+                <p><strong>EDA no reemplaza todo.</strong></p>
+
+                <h2>1️⃣3️⃣ Regla Mental</h2>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>Necesidad</th>
+                        <th>Solución</th>
+                    </tr>
+                    <tr>
+                        <td>Necesito respuesta inmediata</td>
+                        <td>REST</td>
+                    </tr>
+                    <tr>
+                        <td>Es un efecto secundario</td>
+                        <td>Evento</td>
+                    </tr>
+                    <tr>
+                        <td>Trabajo puntual</td>
+                        <td>Queue</td>
+                    </tr>
+                    <tr>
+                        <td>Evento para muchos</td>
+                        <td>Pub/Sub</td>
+                    </tr>
+                    <tr>
+                        <td>Flujo complejo</td>
+                        <td>Orchestrator</td>
+                    </tr>
+                </table>
+
+                <h2>1️⃣4️⃣ Resumen Senior</h2>
+
+                <p>Cuando el sistema crece:</p>
+
+                <ul>
+                    <li>Las llamadas síncronas crean cascadas</li>
+                    <li>Las cascadas crean fragilidad</li>
+                    <li>Los eventos crean desacoplamiento</li>
+                    <li>El desacoplamiento crea resiliencia</li>
+                </ul>
+
+                <p>Pero:</p>
+
+                <ul>
+                    <li>Ganas complejidad operacional</li>
+                    <li>Necesitas idempotencia</li>
+                    <li>Necesitas observabilidad</li>
+                    <li>Necesitas disciplina</li>
+                </ul>
+
+                <p><strong>EDA no es para principiantes,<br>
+                pero entender el patrón es obligatorio para nivel senior.</strong></p>
+
+                <h2>🎯 Puntos Clave</h2>
+
+                <ul>
+                    <li>✔ Los eventos representan hechos, los comandos solicitan acciones</li>
+                    <li>✔ Pub/Sub desacopla servicios entre sí</li>
+                    <li>✔ Consistencia eventual es aceptable para efectos secundarios</li>
+                    <li>✔ Idempotencia es obligatoria (at-least-once delivery)</li>
+                    <li>✔ Outbox pattern asegura confiabilidad de eventos</li>
+                    <li>✔ Choreography es flexible, orchestration es clara</li>
+                    <li>✔ Kafka para escalar, SQS para simplicidad</li>
+                    <li>✔ Observabilidad con correlationId es crítica</li>
+                    <li>✔ No hagas todo asincrónico</li>
+                    <li>✔ EDA + REST/GraphQL = arquitectura balanceada</li>
+                </ul>
+
+                <h2>📚 Recursos</h2>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/699888ca-7400-8395-b22a-b3d25067a420" target="_blank">Event Driven Architecture - Dragos</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Volver Atrás</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Volver al Inicio →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>
