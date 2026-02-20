@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serverless con AWS Lambda | Ciclo de Software</title>
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <section id="section-serverless-lambda">
+                <h1>⚡️ 3.0 Serverless con AWS Lambda</h1>
+                <p><strong>Guía Completa para Full-Stack Developers</strong></p>
+
+                <h2>1️⃣ Primero: ¿Qué significa realmente "Serverless"?</h2>
+
+                <p><strong>❌ No significa que no haya servidores.</strong><br>
+                <strong>✅ Significa que tú no los gestionas.</strong></p>
+
+                <p><strong>Modelo tradicional:</strong></p>
+
+                <ul>
+                    <li>Creas un servidor (EC2, VPS…)</li>
+                    <li>Instalas Node</li>
+                    <li>Configuras Nginx</li>
+                    <li>Haces deploy</li>
+                    <li>Gestionas escalado</li>
+                    <li>Parcheas seguridad</li>
+                    <li>Monitorizas CPU/RAM</li>
+                </ul>
+
+                <p><strong>Modelo Serverless:</strong></p>
+
+                <ul>
+                    <li>Subes tu código</li>
+                    <li>AWS crea el entorno de ejecución</li>
+                    <li>AWS escala automáticamente</li>
+                    <li>Pagas solo por uso</li>
+                </ul>
+
+                <h3>💡 Modelo mental correcto</h3>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>Fase</th>
+                        <th>Qué pasa</th>
+                    </tr>
+                    <tr>
+                        <td>Build</td>
+                        <td>Empaquetas tu código + dependencias</td>
+                    </tr>
+                    <tr>
+                        <td>Cold Start</td>
+                        <td>AWS crea entorno y carga tu función (a veces)</td>
+                    </tr>
+                    <tr>
+                        <td>Invocation</td>
+                        <td>Se ejecuta el handler</td>
+                    </tr>
+                    <tr>
+                        <td>Warm Reuse</td>
+                        <td>AWS puede reutilizar el entorno</td>
+                    </tr>
+                </table>
+
+                <p>⚠️ <strong>Importante:</strong> npm install no ocurre en cada request. Ocurre en el build.</p>
+
+                <h2>2️⃣ ¿Cuándo usar Lambda? (Decisión de arquitecto)</h2>
+
+                <h3>Lambda es excelente para:</h3>
+
+                <ul>
+                    <li>✅ APIs con tráfico irregular</li>
+                    <li>✅ MVPs / startups</li>
+                    <li>✅ Procesos asíncronos</li>
+                    <li>✅ Arquitecturas event-driven</li>
+                    <li>✅ Tareas cortas y stateless</li>
+                </ul>
+
+                <h3>NO es ideal para:</h3>
+
+                <ul>
+                    <li>❌ Procesos largos (&gt;15 minutos)</li>
+                    <li>❌ WebSockets persistentes complejos</li>
+                    <li>❌ Apps con heavy state en memoria</li>
+                    <li>❌ Workloads muy predecibles (a veces EC2 es más barato)</li>
+                </ul>
+
+                <h2>3️⃣ Arquitectura típica real</h2>
+
+                <p>Modelo clásico profesional:</p>
+
+                <pre><code>Cliente
+   ↓
+API Gateway
+   ↓
+Lambda
+   ↓
+RDS Proxy
+   ↓
+RDS (Base de datos)</code></pre>
+
+                <h3>¿Por qué cada pieza?</h3>
+
+                <p><strong>🔹 API Gateway</strong></p>
+
+                <ul>
+                    <li>Expone endpoint HTTP</li>
+                    <li>Rate limiting</li>
+                    <li>Auth</li>
+                    <li>Routing</li>
+                </ul>
+
+                <p><strong>🔹 Lambda</strong></p>
+
+                <ul>
+                    <li>Ejecuta tu lógica</li>
+                    <li>Escala automáticamente</li>
+                </ul>
+
+                <p><strong>🔹 RDS Proxy</strong></p>
+
+                <p><strong>Problema:</strong> Cada Lambda concurrente abre conexiones nuevas a la DB.<br>
+                Si hay 1000 requests:<br>
+                → 1000 conexiones<br>
+                → tu DB muere.</p>
+
+                <p><strong>Solución:</strong> RDS Proxy hace connection pooling.</p>
+
+                <h2>4️⃣ Tu primera Lambda HTTP (Node.js)</h2>
+
+                <p>Ejemplo mínimo real:</p>
+
+                <pre><code>export const handler = async (event, context) => {
+  console.log("Request ID:", context.awsRequestId);
+
+  return {
+    statusCode: 200,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      message: "Hello from Lambda",
+      requestId: context.awsRequestId,
+    }),
+  };
+};</code></pre>
+
+                <h3>¿Qué es event?</h3>
+
+                <p>Contiene:</p>
+
+                <ul>
+                    <li>path</li>
+                    <li>headers</li>
+                    <li>query params</li>
+                    <li>body</li>
+                </ul>
+
+                <h3>¿Qué es context?</h3>
+
+                <p>Contiene:</p>
+
+                <ul>
+                    <li>request id</li>
+                    <li>deadline</li>
+                    <li>metadata ejecución</li>
+                </ul>
+
+                <h2>5️⃣ Cost Model (muy importante entenderlo)</h2>
+
+                <p>Pagas por:</p>
+
+                <ul>
+                    <li>Número de invocaciones</li>
+                    <li>Tiempo de ejecución</li>
+                    <li>Memoria asignada (GB-seconds)</li>
+                </ul>
+
+                <p><strong>Más memoria = más CPU.</strong></p>
+
+                <p>Si tu función tarda mucho:</p>
+
+                <p>→ sube memoria<br>
+                → a veces sale más barato porque ejecuta más rápido.</p>
+
+                <h2>6️⃣ El problema real: Concurrencia y base de datos</h2>
+
+                <p>Lambda escala horizontalmente.</p>
+
+                <p>Pero tu base de datos NO.</p>
+
+                <p>Si no planificas:</p>
+
+                <ul>
+                    <li>Te quedas sin conexiones</li>
+                    <li>Latencia se dispara</li>
+                    <li>Caídas en producción</li>
+                </ul>
+
+                <p><strong>Soluciones profesionales:</strong></p>
+
+                <ul>
+                    <li>✅ RDS Proxy</li>
+                    <li>✅ SQS como buffer</li>
+                    <li>✅ Reserved concurrency</li>
+                    <li>✅ Rate limiting en API Gateway</li>
+                </ul>
+
+                <h2>7️⃣ Seguridad: Principio de Menor Privilegio</h2>
+
+                <p><strong>Nunca hagas esto:</strong></p>
+
+                <pre><code>{
+  "Effect": "Allow",
+  "Action": "*",
+  "Resource": "*"
+}</code></pre>
+
+                <p><strong>Haz esto:</strong></p>
+
+                <ul>
+                    <li>1 rol por Lambda</li>
+                    <li>Permisos mínimos</li>
+                    <li>Acceso solo a recursos necesarios</li>
+                    <li>Secretos en Secrets Manager / SSM</li>
+                </ul>
+
+                <h2>8️⃣ Observabilidad (sin SSH no hay debugging manual)</h2>
+
+                <p>En serverless no puedes entrar al servidor.</p>
+
+                <p>Debes usar:</p>
+
+                <ul>
+                    <li>CloudWatch Logs</li>
+                    <li>Logs estructurados (JSON)</li>
+                    <li>Métricas</li>
+                    <li>Tracing (X-Ray)</li>
+                </ul>
+
+                <p>Ejemplo de log estructurado:</p>
+
+                <pre><code>console.log(JSON.stringify({
+  level: "info",
+  requestId: context.awsRequestId,
+  message: "Processing request"
+}));</code></pre>
+
+                <h2>9️⃣ Event-Driven Architecture (donde Lambda brilla)</h2>
+
+                <p>Lambda no solo se activa por HTTP.</p>
+
+                <p>Puede activarse por:</p>
+
+                <ul>
+                    <li>S3 upload</li>
+                    <li>SQS message</li>
+                    <li>EventBridge</li>
+                    <li>Cron job</li>
+                    <li>DynamoDB stream</li>
+                </ul>
+
+                <p><strong>Ejemplo real:</strong></p>
+
+                <pre><code>Usuario sube imagen a S3
+     ↓
+Lambda se activa
+     ↓
+Genera thumbnail
+     ↓
+Guarda en otro bucket</code></pre>
+
+                <p>Aquí Lambda es perfecta.</p>
+
+                <h2>🔟 Problemas reales de Serverless</h2>
+
+                <h3>Cold Starts</h3>
+
+                <p>Especialmente si:</p>
+
+                <ul>
+                    <li>Runtime pesado</li>
+                    <li>VPC</li>
+                    <li>Muchas dependencias</li>
+                </ul>
+
+                <h3>Fragmentación de lógica</h3>
+
+                <p>Si haces 50 Lambdas pequeñas:</p>
+
+                <ul>
+                    <li>Más mantenimiento</li>
+                    <li>Más complejidad</li>
+                    <li>Debug distribuido</li>
+                    <li>Muchos servicios = más puntos de fallo</li>
+                </ul>
+
+                <h2>1️⃣1️⃣ Comparación: Lambda vs EC2 / Contenedores</h2>
+
+                <table class="cheat-sheet-table">
+                    <tr>
+                        <th>Aspecto</th>
+                        <th>Lambda</th>
+                        <th>EC2</th>
+                    </tr>
+                    <tr>
+                        <td>Gestión</td>
+                        <td>AWS</td>
+                        <td>Tú</td>
+                    </tr>
+                    <tr>
+                        <td>Escalado</td>
+                        <td>Automático</td>
+                        <td>Configurable</td>
+                    </tr>
+                    <tr>
+                        <td>Pago</td>
+                        <td>Por uso</td>
+                        <td>Por tiempo</td>
+                    </tr>
+                    <tr>
+                        <td>Control</td>
+                        <td>Limitado</td>
+                        <td>Total</td>
+                    </tr>
+                    <tr>
+                        <td>SSH</td>
+                        <td>No</td>
+                        <td>Sí</td>
+                    </tr>
+                </table>
+
+                <h2>1️⃣2️⃣ Ejercicios prácticos (suben nivel real)</h2>
+
+                <h3>Ejercicio 1 — Health Endpoint</h3>
+
+                <ul>
+                    <li>GET /health</li>
+                    <li>Devuelve requestId</li>
+                    <li>Logs estructurados</li>
+                </ul>
+
+                <h3>Ejercicio 2 — Evento S3</h3>
+
+                <ul>
+                    <li>Subir archivo</li>
+                    <li>Lambda registra metadata</li>
+                </ul>
+
+                <h3>Ejercicio 3 — Control de picos</h3>
+
+                <ul>
+                    <li>API → SQS</li>
+                    <li>Lambda consumer</li>
+                    <li>DB write controlado</li>
+                </ul>
+
+                <h2>1️⃣3️⃣ Lo que un senior entiende y un junior aún no</h2>
+
+                <p>Serverless no es solo "subir código".</p>
+
+                <p>Es:</p>
+
+                <ul>
+                    <li>Modelo mental de eventos</li>
+                    <li>Gestión de concurrencia</li>
+                    <li>Control de recursos externos</li>
+                    <li>Diseño stateless</li>
+                    <li>Observabilidad obligatoria</li>
+                    <li>Seguridad granular</li>
+                </ul>
+
+                <h2>1️⃣4️⃣ Regla de Arquitectura Profesional</h2>
+
+                <p><strong>Lambda escala gratis.<br>
+                Tu base de datos no.</strong></p>
+
+                <p>Siempre diseña pensando en:</p>
+
+                <ul>
+                    <li>Backpressure</li>
+                    <li>Retry</li>
+                    <li>Idempotencia</li>
+                    <li>Concurrencia</li>
+                </ul>
+
+                <h2>1️⃣5️⃣ Conclusión</h2>
+
+                <p>Lambda es:</p>
+
+                <ul>
+                    <li>🔥 Potente</li>
+                    <li>🔥 Escalable</li>
+                    <li>🔥 Barato al principio</li>
+                    <li>🔥 Ideal para eventos</li>
+                </ul>
+
+                <p><strong>Pero requiere mentalidad de arquitectura distribuida.</strong></p>
+
+                <h2>🎯 Puntos Clave</h2>
+
+                <ul>
+                    <li>✔ Serverless = sin gestión de servidores, no sin servidores</li>
+                    <li>✔ Perfecto para event-driven y tráfico irregular</li>
+                    <li>✔ La concurrencia de BD es el verdadero cuello de botella</li>
+                    <li>✔ RDS Proxy es esencial para producción</li>
+                    <li>✔ Observabilidad no es opcional</li>
+                    <li>✔ Seguridad: siempre menor privilegio</li>
+                    <li>✔ Diseña para fallos distribuidos</li>
+                </ul>
+
+                <h2>📚 Recursos</h2>
+
+                <ul>
+                    <li><a href="https://chatgpt.com/g/g-p-69925f6597e88191b8bcb93447c5bb78-dragos/c/6998625a-b788-838f-b485-dfad7524ba95" target="_blank">Serverless con AWS Lambda - Dragos</a></li>
+                </ul>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="window.location.href='../index.html'">← Volver Atrás</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../index.html'">Volver al Inicio →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>
